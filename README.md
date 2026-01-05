@@ -42,7 +42,15 @@ An intelligent solution for schools
 
 step 1: clone the repo
 step 2: run this command:
+# Initialize Next.js 15 (App Router, TypeScript, Tailwind, ESLint)
 "npx create-next-app@latest epadm --typescript --tailwind --eslint"
 npx create-next-app@latest . --typescript --tailwind --eslint   // The . tells the installer: "Install everything right here in this current folder."
-step 3:
+
+
+# Install Core Infrastructure Dependencies
+# pg: PostgreSQL client
+# drizzle-orm: (Recommended) For strict schema definition and RLS SQL generation
+# zkteco-js: For the Node.js biometric service (to be separated later, but noted here)
+npm install pg drizzle-orm dotenv server-only
+npm install -D drizzle-kit @types/pg
 
