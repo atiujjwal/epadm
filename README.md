@@ -1,329 +1,490 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# epadm
+
+This document provides instructions for setting up and running the epadm project for local development.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+- [Node.js](https://nodejs.org/) (v20 or later)
+- [npm](https://www.npmjs.com/) (usually comes with Node.js)
+- [Docker](https://www.docker.com/products/docker-desktop/) and [Docker Compose](https://docs.docker.com/compose/)
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to get your development environment set up.
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd epadm
+```
+*(Replace `<repository-url>` with the actual URL of the repository)*
+
+### 2. Install Dependencies
+
+Install the project dependencies using npm.
+
+```bash
+npm install
+```
+
+### 3. Set Up the Database
+
+The project uses a PostgreSQL database with pgvector running in a Docker container.
+
+**a. Start the Database Container**
+
+Use Docker Compose to start the database service in the background.
+
+```bash
+docker-compose up -d
+```
+
+**b. Configure Environment Variables**
+
+Create a local environment file by copying the template.
+
+```bash
+cp .env .env.local
+```
+
+Now, open `.env.local` and ensure the `DATABASE_URL` matches the Docker configuration. The default port is `5433`.
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/epadm"
+```
+
+**c. Enable pgvector Extension**
+
+Connect to the running container and create the `vector` extension in the database.
+
+```bash
+docker exec -i epadm_db psql -U postgres -d epadm -c "CREATE EXTENSION IF NOT EXISTS vector;"
+```
+
+### 4. Run Database Migrations
+
+Apply the database schema to your local database.
+
+```bash
+npm run db:migrate
+```
+
+## Running the Development Server
+
+Once the setup is complete, you can start the Next.js development server.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Here are some of the most common scripts available in `package.json`:
 
-## Learn More
+| Script          | Description                                           |
+|-----------------|-------------------------------------------------------|
+| `npm run dev`     | Starts the development server.                        |
+| `npm run build`   | Builds the application for production.                |
+| `npm run start`   | Starts a production server.                           |
+| `npm run lint`    | Lints the codebase for errors.                        |
+| `npm run db:generate` | Generates a new database migration based on schema changes. |
+| `npm run db:migrate`  | Applies pending migrations to the database.         |
+| `npm run db:studio`   | Opens the Drizzle Studio to inspect the database.   |
+| `npm run db:seed`     | Seeds the database with initial data.               |
 
-To learn more about Next.js, take a look at the following resources:
+## Docker Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Useful Docker Compose commands for managing the database service:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | Description |
+|---|---|
+| `docker-compose up -d` | Start the database service in detached mode. |
+| `docker-compose down -v` | Stop and remove the containers, network, and volumes. |
+| `docker-compose ps` | List running containers and their status. |
+| `docker-compose logs -f db` | Follow the logs from the database container. |
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
-# epadm
-An intelligent solution for schools
 
 
-step 1: clone the repo
-step 2: run this command:
-# Initialize Next.js 15 (App Router, TypeScript, Tailwind, ESLint)
-"npx create-next-app@latest epadm --typescript --tailwind --eslint"
-npx create-next-app@latest . --typescript --tailwind --eslint   // The . tells the installer: "Install everything right here in this current folder."
+# EPADM - Educational Platform Administration & Management
 
+A comprehensive educational platform built with Next.js, PostgreSQL, and Drizzle ORM.
 
-# Install Core Infrastructure Dependencies
-# pg: PostgreSQL client
-# drizzle-orm: (Recommended) For strict schema definition and RLS SQL generation
-# zkteco-js: For the Node.js biometric service (to be separated later, but noted here)
-npm install pg drizzle-orm dotenv server-only
-npm install -D drizzle-kit @types/pg
+---
 
+## 📋 Table of Contents
 
+- [Prerequisites](#prerequisites)
+- [Initial Setup](#initial-setup)
+- [Development Setup](#development-setup)
+- [Database Management](#database-management)
+- [Troubleshooting](#troubleshooting)
+- [Development Commands](#development-commands)
 
-#### finance frontend implementation:
-"""
-This is a comprehensive Frontend Integration Specification for the Finance Domain. It is designed to guide the frontend engineering team in consuming the APIs and implementing the UI/UX for School Financial Management.
+---
 
-📘 Finance Domain: Frontend Integration Report
-Version: 1.0 Status: Ready for Implementation Scope: Fee Management (Inflows), Operational Expenses (Outflows), and General Ledger.
+## 🔧 Prerequisites
 
-1. Architecture & Strategy
-We will follow the project's established Service-Repository Pattern adapted for the frontend:
+Before you begin, ensure you have the following installed:
 
-API Layer (src/services/api/finance.ts): Stateless functions that wrap fetch/axios calls. Strictly typed arguments and return values.
+- **Node.js** (v18 or higher)
+- **npm** or **yarn** or **pnpm**
+- **Docker** and **Docker Compose**
+- **Git**
 
-Data Layer (React Query/TanStack Query): Custom hooks (useLedger, useFeeStructures) to handle caching, loading states, and revalidation.
+---
 
-UI Layer:
+## 🚀 Initial Setup
 
-Smart Containers: Handle logic and data fetching.
+### 1. Clone the Repository
+```bash
+git clone <your-repository-url>
+cd epadm
+```
 
-Dumb Components: Presentation-only (Tables, Forms, Charts).
+### 2. Install Dependencies
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
 
-2. Type Definitions (Contract)
-Sync these types with the backend DTOs to ensure type safety across the network boundary.
+### 3. Environment Configuration
 
-File: src/types/finance.d.ts
+Create the necessary environment files:
 
-TypeScript
+#### `.env.local` (Local development - highest priority)
+```env
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/epadm"
+```
 
-// --- ENUMS ---
-export type PaymentStatus = "PENDING" | "PARTIAL" | "PAID" | "OVERDUE" | "CANCELLED";
-export type PaymentMethod = "CASH" | "CHEQUE" | "ONLINE" | "BANK_TRANSFER" | "POS";
-export type TransactionType = "CREDIT" | "DEBIT";
+#### `.env` (Shared defaults)
+```env
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/epadm"
 
-// --- ENTITIES ---
+# Add other environment variables here
+# NEXT_PUBLIC_API_URL=
+# JWT_SECRET=
+```
 
-export interface FeeStructure {
-  id: string;
-  name: string;
-  totalAmount: number;
-  components: Array<{ headId: string; amount: number; dueDate?: string }>;
-  isActive: boolean;
-}
+> **Note:** `.env.local` takes precedence over `.env` and should contain your local overrides.
 
-export interface FeeAllocation {
-  id: string;
-  studentId: string;
-  totalAmount: number;
-  paidAmount: number;
-  dueAmount: number;
-  status: PaymentStatus;
-  dueDate: string;
-}
-
-export interface FinanceCategory {
-  id: string;
-  name: string;
-  type: TransactionType; // CREDIT | DEBIT
-  description?: string;
-  fieldSchema?: {
-    fields: Array<{ key: string; label: string; type: "text" | "number" }>;
-  };
-}
-
-export interface FinanceTransaction {
-  id: string;
-  date: string;
-  title: string;
-  amount: number;
-  type: TransactionType;
-  categoryName: string;
-  entityName?: string;
-  attributes?: Record<string, any>; // Custom fields (e.g., odometer)
-}
-
-// --- API PAYLOADS ---
-
-export interface CreateTransactionPayload {
-  categoryId: string;
-  amount: number;
-  transactionDate: string; // ISO Date
-  title: string;
-  description?: string;
-  entityUserId?: string;
-  entityName?: string;
-  attributes?: Record<string, any>;
-}
-
-export interface CreatePaymentPayload {
-  allocationId: string;
-  amount: number;
-  method: PaymentMethod;
-  referenceId?: string; // Cheque No / Transaction ID
-  paymentDate?: string;
-}
-3. Service Layer Implementation
-Create a centralized file for all Finance API calls. This abstracts the fetch logic and headers.
+---
 
-File: src/services/financeService.ts
+## 🐳 Development Setup
 
-TypeScript
+### Step 1: Start PostgreSQL with Docker
 
-import { apiClient } from "@/lib/api"; // Assumed Axios/Fetch wrapper
-import type { 
-  FinanceCategory, 
-  FinanceTransaction, 
-  CreateTransactionPayload,
-  CreatePaymentPayload 
-} from "@/types/finance";
+Start the PostgreSQL database container with pgvector extension:
+```bash
+docker-compose up -d
+```
 
-const BASE_URL = "/api/finance";
+This will:
+- Create a PostgreSQL 15 container with pgvector extension
+- Expose the database on port `5432`
+- Create a volume for data persistence
 
-export const financeService = {
-  // --- GENERAL LEDGER ---
-  
-  getLedger: async (filters?: { startDate?: string; endDate?: string; type?: string }) => {
-    const params = new URLSearchParams(filters as Record<string, string>);
-    const { data } = await apiClient.get<{ data: FinanceTransaction[] }>(
-      `${BASE_URL}/ledger?${params.toString()}`
-    );
-    return data.data;
-  },
+### Step 2: Verify Database is Running
 
-  recordTransaction: async (payload: CreateTransactionPayload) => {
-    const { data } = await apiClient.post(`${BASE_URL}/ledger`, payload);
-    return data.data;
-  },
+Check if the container is healthy:
+```bash
+docker-compose ps
+```
 
-  getCategories: async (type?: "CREDIT" | "DEBIT") => {
-    const url = type ? `${BASE_URL}/categories?type=${type}` : `${BASE_URL}/categories`;
-    const { data } = await apiClient.get<{ data: FinanceCategory[] }>(url);
-    return data.data;
-  },
+You should see:
+```
+NAME       STATUS
+epadm_db   Up (healthy)
+```
 
-  createCategory: async (payload: Partial<FinanceCategory>) => {
-    const { data } = await apiClient.post(`${BASE_URL}/categories`, payload);
-    return data.data;
-  },
+View database logs:
+```bash
+docker-compose logs -f db
+```
 
-  // --- FEE MANAGEMENT ---
+### Step 3: Test Database Connection
 
-  collectPayment: async (payload: CreatePaymentPayload) => {
-    const { data } = await apiClient.post(`${BASE_URL}/payments`, payload);
-    return data.data;
-  },
-  
-  // Fetch invoices for a specific student
-  getStudentAllocations: async (studentId: string) => {
-    const { data } = await apiClient.get(`${BASE_URL}/allocations?studentId=${studentId}`);
-    return data.data;
-  }
-};
-4. Feature Implementation Strategy
-Module A: The General Ledger (Expenses & Income)
-UI Component: LedgerTable.tsx
+Run the connection test script:
+```bash
+npx tsx test-db.ts
+```
 
-Features:
+Expected output:
+```
+✅ Successfully connected to PostgreSQL!
+📋 PostgreSQL Version: PostgreSQL 15.15...
+🎯 Current Database: epadm
+```
 
-Date Range Picker (Start Date - End Date).
+### Step 4: Create pgVector Extension
+```bash
+docker exec -i epadm_db psql -U postgres -d epadm -c "CREATE EXTENSION IF NOT EXISTS vector;"
+```
 
-Filter Dropdown (Income vs. Expense).
+### Step 5: Generate and Run Migrations
 
-DataTable with columns: Date, Title, Category, Amount (Color-coded: Green for Credit, Red for Debit).
+Generate migration files from your schema:
+```bash
+npm run db:generate
+```
 
-UI Component: RecordTransactionModal.tsx
+Apply migrations to the database:
+```bash
+npm run db:migrate
+```
 
-Logic:
+Or run the migration script directly:
+```bash
+npx tsx src/lib/db/migrate.ts
+```
 
-User selects "Income" or "Expense".
+### Step 6: Start the Development Server
+```bash
+npm run dev
+```
 
-Fetch getCategories(type) to populate the Category Dropdown.
+The application should now be running at `http://localhost:3000`
 
-Dynamic Forms: On category selection, check category.fieldSchema. If it exists, dynamically render inputs.
+---
 
-Example: Selecting "Fuel" renders an "Odometer Reading" number input.
+## 🗄️ Database Management
 
-Submit using recordTransaction.
+### Schema Changes
 
-Module B: Fee Collection Point
-UI Component: StudentFeeProfile.tsx
+Whenever you modify the database schema in `src/lib/db/schema.ts`:
 
-Workflow:
+1. **Generate new migration:**
+```bash
+   npm run db:generate
+```
 
-Search Student by Name/Admission No.
+2. **Apply migration:**
+```bash
+   npm run db:migrate
+```
 
-Display "Outstanding Invoices" card.
+### Database Reset
 
-Action: "Collect Fee" Button opens PaymentModal.
+To completely reset your database:
+```bash
+# Stop containers and remove volumes
+docker-compose down -v
 
-PaymentModal:
+# Start fresh
+docker-compose up -d
 
-Shows Due Amount.
+# Wait for database to be ready (check health)
+docker-compose ps
 
-Input Paying Amount (Validate: paying <= due).
+# Run migrations
+npm run db:migrate
+```
 
-Select Method (Cash/Online/Cheque).
+### Direct Database Access
 
-Submit via collectPayment.
+Connect to PostgreSQL directly:
+```bash
+docker exec -it epadm_db psql -U postgres -d epadm
+```
 
-Module C: Finance Dashboard
-UI Component: FinanceStats.tsx
+Common PostgreSQL commands:
+```sql
+\dt              -- List all tables
+\d table_name    -- Describe table structure
+\l               -- List all databases
+\q               -- Quit psql
+```
 
-Visualization:
+---
 
-Cash Flow Chart: Line chart comparing Credits vs. Debits over time.
+## 🛠️ Development Commands
 
-Expense Breakdown: Pie chart of Debits grouped by Category.
+### Docker Commands
+```bash
+# Start all services
+docker-compose up -d
 
-KPI Cards: "Total Collected Today", "Pending Fee Dues", "Monthly Expenses".
+# Stop all services (keeps volumes)
+docker-compose down
 
-5. Recommended Hooks (React Query)
-File: src/hooks/useFinance.ts
+# Stop and remove all data
+docker-compose down -v
 
-TypeScript
+# View logs
+docker-compose logs -f db
+
+# Check container status and health
+docker-compose ps
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { financeService } from "@/services/financeService";
+# Restart database
+docker-compose restart db
+```
+
+### Database Commands
+```bash
+# Test database connection
+npx tsx test-db.ts
+
+# Generate migration from schema changes
+npm run db:generate
+
+# Apply migrations
+npm run db:migrate
+
+# Direct migration script
+npx tsx src/lib/db/migrate.ts
+```
+
+### Development Server
+```bash
+# Start Next.js development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+
+# Run linting
+npm run lint
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Issue: "password authentication failed for user 'postgres'"
+
+**Solution:**
+1. Stop and remove all containers and volumes:
+```bash
+   docker-compose down -v
+```
+
+2. Verify your `docker-compose.yml` has the correct environment variables:
+```yaml
+   environment:
+     POSTGRES_USER: postgres
+     POSTGRES_PASSWORD: postgres
+     POSTGRES_DB: epadm
+     POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+```
+
+3. Start fresh:
+```bash
+   docker-compose up -d
+```
+
+### Issue: Port 5432 already in use
 
-export function useLedger(filters: { startDate?: string; endDate?: string }) {
-  return useQuery({
-    queryKey: ["finance-ledger", filters],
-    queryFn: () => financeService.getLedger(filters),
-  });
-}
-
-export function useCategories(type?: "CREDIT" | "DEBIT") {
-  return useQuery({
-    queryKey: ["finance-categories", type],
-    queryFn: () => financeService.getCategories(type),
-    staleTime: 1000 * 60 * 5, // Cache categories for 5 mins
-  });
-}
-
-export function useRecordTransaction() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: financeService.recordTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["finance-ledger"] });
-      // Trigger Toast: "Transaction Recorded"
-    },
-  });
-}
-6. Implementation Checklist
-[ ] Route Setup: Create app/(dashboard)/finance/ledger/page.tsx, app/(dashboard)/finance/fees/page.tsx.
-
-[ ] Service Integration: Copy financeService.ts and types/finance.d.ts into the project.
-
-[ ] Dynamic Form Builder: Implement a helper component that takes fieldSchema JSON and renders React Hook Form inputs.
-
-[ ] Validation: Use Zod schemas for the forms.
-
-Constraint: Date cannot be in the future (unless strictly allowed).
-
-Constraint: Amount must be > 0.
-
-[ ] Testing: Verify that recording a "Staff Salary" (Debit) correctly reduces the calculated cash-in-hand in the dashboard stats.
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+**Solution:**
+1. Check what's using the port:
+```bash
+   # Windows
+   netstat -ano | findstr :5432
+   
+   # Linux/Mac
+   lsof -i :5432
+```
+
+2. Either stop the conflicting service or change the port in `docker-compose.yml`:
+```yaml
+   ports:
+     - "5433:5432"  # Use different host port
+```
+
+3. Update your `.env.local`:
+```env
+   DATABASE_URL="postgres://postgres:postgres@localhost:5433/epadm"
+```
+
+### Issue: Migration fails with "Cannot read properties of undefined"
+
+**Solution:**
+Ensure your environment variables are loading correctly in `drizzle.config.ts`:
+```typescript
+dotenv.config({ 
+  path: path.resolve(process.cwd(), ".env.local"),
+  override: true 
+});
+dotenv.config({ 
+  path: path.resolve(process.cwd(), ".env")
+});
+```
+
+### Issue: Container starts but connection times out
+
+**Solution:**
+1. Wait for the health check to pass:
+```bash
+   docker-compose ps
+```
+
+2. Check the logs for initialization completion:
+```bash
+   docker-compose logs db
+```
+   Look for: `database system is ready to accept connections`
+
+---
+
+## 📁 Project Structure
+```
+epadm/
+├── src/
+│   ├── lib/
+│   │   └── db/
+│   │       ├── schema.ts       # Database schema definitions
+│   │       ├── index.ts        # Database client
+│   │       └── migrate.ts      # Migration runner
+│   └── ...
+├── drizzle/                    # Generated migration files
+├── docker-compose.yml          # Docker services configuration
+├── drizzle.config.ts          # Drizzle ORM configuration
+├── test-db.ts                 # Database connection test
+├── .env                       # Shared environment variables
+├── .env.local                 # Local environment overrides
+└── package.json
+```
+
+---
+
+## 🔐 Security Notes
+
+- Never commit `.env.local` to version control
+- Use strong passwords in production
+- Rotate database credentials regularly
+- Keep Docker images updated
+
+---
+
+## 📚 Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/docs/overview)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [pgvector Documentation](https://github.com/pgvector/pgvector)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+
+---
+
+## 📝 License
+
+[Your License Here]
+
+---
+
+## 🤝 Contributing
+
+[Your Contributing Guidelines Here]
