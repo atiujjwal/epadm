@@ -67,3 +67,13 @@ export async function requirePermission(
 
   throw new Error(`Access Denied: Missing permission '${permission}'`);
 }
+
+export async function resolveTenantId(subdomain: string): Promise<string | null> {
+  // Check Cache (Redis)
+  // const cached = await redis.get(`tenant:${subdomain}`);
+  // if (cached) return cached;
+
+  if (subdomain === "demo") return "11111111-1111-1111-1111-111111111111";
+
+  return null;
+}
