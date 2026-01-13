@@ -3,9 +3,7 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
 
-// dotenv.config({ path: ".env.local" });
 dotenv.config();
-
 
 async function runMigrations() {
   const pool = new Pool({

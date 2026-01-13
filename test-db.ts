@@ -2,9 +2,13 @@ import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import * as path from "path";
 
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ 
+  path: path.resolve(process.cwd(), ".env.local"),
+  override: true 
+});
+dotenv.config({ 
+  path: path.resolve(process.cwd(), ".env")
+});
 
 async function testConnection() {
   console.log("Environment variables:");
@@ -59,8 +63,7 @@ async function testConnection() {
     client.release();
     console.log("\n✅ Connection test completed successfully!");
   } catch (error) {
-    console.error("\n❌ Connection failed:");
-    console.error(error);
+    console.error("\n❌ Connection failed: ", error);
   } finally {
     await pool.end();
   }
