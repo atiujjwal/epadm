@@ -1,38 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
-import {
-  createTenant,
-  getTenantBySlug,
-} from "@/domains/identity-tenancy/services";
+import { z } from "zod";
+import { bootstrapTenant } from "@/domains/identity-tenancy/services";
+import { verifySuperAdmin } from "@/lib/auth/super-admin";
+
+const bootstrapSchema = z.object({
+  name: z.string().min(3),
+  slug: z.string().regex(/^[a-z0-9-]+$/),
+  subscriptionTier: z.enum(["FOUNDATION", "GROWTH", "ENTERPRISE"]).optional(),
+  adminEmail: z.string().email(),
+  adminName: z.string().min(2),
+});
 
 export async function POST(req: NextRequest) {
-  //TODO: Only Super Admin should hit this (System level auth required)
   const client = await pool.connect();
   try {
+    // Super Admin Guard
+    verifySuperAdmin(req);
+
+    // Validate
     const body = await req.json();
-    const result = await createTenant(client, body);
-    return NextResponse.json({ data: result }, { status: 201 });
+    const data = bootstrapSchema.parse(body);
+
+    // Transactional Bootstrap
+    await client.query("BEGIN");
+
+    const result = await bootstrapTenant(client, data);
+
+    await client.query("COMMIT");
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          tenant: result.tenant,
+          admin: { email: result.adminUser.email, id: result.adminUser.id },
+        },
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
+    await client.query("ROLLBACK");
     return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    client.release();
-  }
-}
-
-export async function GET(req: NextRequest) {
-  const client = await pool.connect();
-  try {
-    const { searchParams } = new URL(req.url);
-    const slug = searchParams.get("slug");
-
-    if (!slug)
-      return NextResponse.json({ error: "Slug required" }, { status: 400 });
-
-    const result = await getTenantBySlug(client, slug);
-    if (!result)
-      return NextResponse.json({ error: "Not Found" }, { status: 404 });
-
-    return NextResponse.json({ data: result });
   } finally {
     client.release();
   }
