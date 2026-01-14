@@ -11,7 +11,6 @@ import {
 } from "./types";
 import { requirePermission } from "@/lib/auth/rbac";
 
-
 export async function createAcademicYear(
   client: PoolClient,
   tenantId: string,
@@ -46,10 +45,7 @@ export async function getAcademicYears(
     .select()
     .from(academicYears)
     .where(
-      and(
-        eq(academicYears.tenantId, tenantId),
-        isNull(academicYears.deletedAt)
-      )
+      and(eq(academicYears.tenantId, tenantId), isNull(academicYears.deletedAt))
     );
 }
 
@@ -59,7 +55,7 @@ export async function getCurrentAcademicYear(
   userId: string
 ) {
   // Public read access might be allowed, but we default to authenticated read
-  await requirePermission(client, userId, "academic.read"); 
+  await requirePermission(client, userId, "academic.read");
   const db = drizzle(client);
 
   const result = await db
@@ -110,7 +106,7 @@ export async function getClasses(
 
   const conditions = [
     eq(classes.tenantId, tenantId),
-    isNull(classes.deletedAt)
+    isNull(classes.deletedAt),
   ];
 
   if (academicYearId) {
@@ -145,6 +141,31 @@ export async function createSection(
   return record;
 }
 
+export async function getSections(
+  client: PoolClient,
+  tenantId: string,
+  userId: string,
+  classId?: string
+) {
+  await requirePermission(client, userId, "academic.read");
+  const db = drizzle(client);
+
+  const conditions = [
+    eq(sections.tenantId, tenantId),
+    isNull(sections.deletedAt),
+  ];
+
+  if (classId) {
+    conditions.push(eq(sections.classId, classId));
+  }
+
+  return await db
+    .select()
+    .from(sections)
+    .where(and(...conditions))
+    .orderBy(sections.name);
+}
+
 export async function createSubject(
   client: PoolClient,
   tenantId: string,
@@ -168,23 +189,23 @@ export async function createSubject(
   return record;
 }
 
-export async function getSubjects(
-  client: PoolClient,
-  tenantId: string,
-  userId: string
-) {
+export async function getSubjects(data: {
+  client: PoolClient;
+  tenantId: string;
+  userId: string;
+  limit?: number;
+  skip?: number;
+}) {
+  const { client, tenantId, userId, limit, skip } = data;
   await requirePermission(client, userId, "academic.read");
   const db = drizzle(client);
 
   return await db
     .select()
     .from(subjects)
-    .where(
-      and(
-        eq(subjects.tenantId, tenantId),
-        isNull(subjects.deletedAt)
-      )
-    );
+    .where(and(eq(subjects.tenantId, tenantId), isNull(subjects.deletedAt)))
+    .limit(limit || 10)
+    .offset(skip || 0);
 }
 
 export async function createStudent(
@@ -227,13 +248,13 @@ export async function getStudents(
 
   const conditions = [
     eq(students.tenantId, tenantId),
-    isNull(students.deletedAt)
+    isNull(students.deletedAt),
   ];
 
   if (filters.sectionId) {
     conditions.push(eq(students.sectionId, filters.sectionId));
   }
-  
+
   if (filters.academicYearId) {
     conditions.push(eq(students.academicYearId, filters.academicYearId));
   }

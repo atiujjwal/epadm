@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function getTenantId(req: NextRequest): string {
-  // In production, this comes from the Middleware injection via headers
-  const tenantId = req.headers.get("x-tenant-id");
-  if (!tenantId) {
-    throw new Error("Tenant context missing");
-  }
-  return tenantId;
+interface TenantContext {
+  tenantId: string;
+  userId: string;
+  userRole: string;
+}
+
+
+export function getTenantContext(req: NextRequest): TenantContext {
+  const tenantId = req.headers.get("x-tenant-id") || "";
+  const userId = req.headers.get("x-user-id") || "";
+  const userRole = req.headers.get("x-user-role") || "";
+  return {tenantId, userId, userRole};
 }
 
 export function handleError(error: any) {

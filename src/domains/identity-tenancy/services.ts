@@ -22,6 +22,17 @@ export async function getTenantBySlug(client: PoolClient, slug: string) {
   return result[0] || null;
 }
 
+export async function getTenants(client: PoolClient, limit: number = 10, skip: number = 0) {
+  // Used by Middleware and Login
+  const db = drizzle(client);
+  const result = await db
+    .select()
+    .from(tenants)
+    .limit(limit)
+    .offset(skip);
+  return result || [];
+}
+
 export async function createTenant(client: PoolClient, data: CreateTenantInput) {
   const db = drizzle(client);
   const [tenant] = await db
@@ -242,7 +253,6 @@ export async function getUserPermissions(
 // ==========================================
 
 export async function getTenantRoles(client: PoolClient, tenantId: string) {
-  // Public for authenticated tenant members, or restricted via RBAC if needed
   const db = drizzle(client);
   
   return await db

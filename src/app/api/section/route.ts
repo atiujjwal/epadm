@@ -1,33 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { pool } from "@/lib/db";
-import { createClass, getClasses } from "@/domains/academic-core/services";
+import { createSection, getSections } from "@/domains/academic-core/services";
 import { getTenantContext } from "@/lib/utils/api-helpers";
 
-export const createClassSchema = z
+import { z } from "zod";
+
+export const createSectionSchema = z
   .object({
-    name: z.string().trim().min(1),
-    academicYearId: z.string().uuid(),
-    order: z.number().int().nonnegative().optional(),
+    classId: z.string().uuid(),
+    name: z.string().trim().min(1), // "A", "Blue", etc.
     classTeacherId: z.string().uuid().optional(),
-    config: z.record(z.string(), z.any()).optional(),
   })
   .strict();
 
+
 export async function POST(req: NextRequest) {
   const client = await pool.connect();
+
   try {
     const { tenantId, userId } = getTenantContext(req);
-
     const body = await req.json();
-    const data = createClassSchema.parse(body);
 
-    if (!data) {
-      return NextResponse.json({ error: "Invalid Data" }, { status: 400 });
-    }
+    const data = createSectionSchema.parse(body);
 
     await client.query(`SET app.current_tenant = '${tenantId}'`);
-    const result = await createClass(client, tenantId, userId, body);
+
+    const result = await createSection(client, tenantId, userId, data);
 
     return NextResponse.json({ data: result }, { status: 201 });
   } catch (error: any) {
@@ -39,14 +37,16 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const client = await pool.connect();
+
   try {
     const { tenantId, userId } = getTenantContext(req);
 
     const { searchParams } = new URL(req.url);
-    const academicYearId = searchParams.get("academicYearId") || undefined;
+    const classId = searchParams.get("classId") || undefined;
 
     await client.query(`SET app.current_tenant = '${tenantId}'`);
-    const result = await getClasses(client, tenantId, userId, academicYearId);
+
+    const result = await getSections(client, tenantId, userId, classId);
 
     return NextResponse.json({ data: result });
   } catch (error: any) {

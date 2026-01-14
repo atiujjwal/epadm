@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { z } from "zod";
-import { bootstrapTenant } from "@/domains/identity-tenancy/services";
+import { bootstrapTenant, getTenants } from "@/domains/identity-tenancy/services";
 import { verifySuperAdmin } from "@/lib/auth/super-admin";
 
 const bootstrapSchema = z.object({
@@ -42,6 +42,24 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     await client.query("ROLLBACK");
     return NextResponse.json({ error: error.message }, { status: 500 });
+  } finally {
+    client.release();
+  }
+}
+
+export async function GET(req: NextRequest) {
+  const client = await pool.connect();
+  try {
+    verifySuperAdmin(req);
+  
+    const limit = Number(req.nextUrl.searchParams.get("limit")) || 10;
+    const skip = Number(req.nextUrl.searchParams.get("skip")) || 0;
+    
+    const tenants = await getTenants(client, limit, skip);
+    return NextResponse.json({ tenants });
+  } catch (error: any) {
+    console.log("Error getting tenants: ", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });  
   } finally {
     client.release();
   }

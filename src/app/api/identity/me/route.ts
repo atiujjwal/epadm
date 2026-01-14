@@ -12,8 +12,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Set RLS Context
-    await client.query(`SET app.current_tenant = '${tenantId}'`);
+    await client.query(`SELECT set_config('app.current_tenant', $1, true)`, [
+      tenantId,
+    ]);
 
     const permissions = await getUserPermissions(client, tenantId, userId);
 
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: any) {
+    console.error("Identity API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   } finally {
     client.release();

@@ -47,7 +47,6 @@ export interface CreateSubjectInput {
   code: string; // e.g., "PHY101"
   type: SubjectType;
   credits?: number;
-  description?: string;
 }
 
 // --- Student ---

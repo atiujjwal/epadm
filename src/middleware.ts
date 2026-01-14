@@ -1,49 +1,50 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifySessionToken } from "./lib/auth/token";
-import { resolveTenantId } from "./lib/auth/rbac";
 
 export async function middleware(req: NextRequest) {
   if (
     req.nextUrl.pathname.startsWith("/_next") ||
-    req.nextUrl.pathname.startsWith("/api/auth") ||
-    req.nextUrl.pathname.includes(".") 
+    req.nextUrl.pathname.includes(".") ||
+    req.nextUrl.pathname.startsWith("/api/auth/login") ||
+    req.nextUrl.pathname.startsWith("/api/auth/logout") ||
+    req.nextUrl.pathname.startsWith("/api/identity/tenant")
   ) {
     return NextResponse.next();
   }
 
-  const hostname = req.headers.get("host") || "web.demo";
-  const subdomain = hostname.split(".")[0];
-  const tenantId = await resolveTenantId(subdomain);
-
-  if (!tenantId) {
-    return NextResponse.rewrite(new URL("/404", req.url));
-  }
-
-  // Authentication (JWT)
-  const token = req.cookies.get("auth_token")?.value || 
-                req.headers.get("authorization")?.replace("Bearer ", "");
-  
+  const token = req.cookies.get("auth_token")?.value;
   let userId = "";
   let userRole = "";
+  let tenantId = "";
 
   if (token) {
-    const payload = await verifySessionToken(token);
-    if (payload && payload.tenantId === tenantId) {
-      // Valid session for THIS tenant
-      userId = payload.userId;
-      userRole = payload.role;
+    try {
+      const payload = await verifySessionToken(token);
+
+      if (payload) {
+        tenantId = payload.tenantId as string;
+        userId = payload.userId as string;
+        userRole = payload.role as string;
+      }
+    } catch (err) {
+      console.log("Invalid token: ", err);
+      console.warn("Invalid Token in Middleware");
     }
-    // If payload.tenantId !== resolvedTenantId, user is logged in but visiting wrong school subdomain -> Treat as Guest
   }
 
   // Header Injection
   const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-tenant-id", tenantId);
-  
   if (userId) {
+    requestHeaders.set("x-tenant-id", tenantId);
     requestHeaders.set("x-user-id", userId);
     requestHeaders.set("x-user-role", userRole);
+  }
+
+  if (req.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
 
   // URL Rewrite
@@ -56,14 +57,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
