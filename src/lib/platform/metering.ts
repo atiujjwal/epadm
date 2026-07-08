@@ -21,6 +21,9 @@ function getRedis(): Redis | null {
       maxRetriesPerRequest: 2,
       lazyConnect: true,
     });
+    redisClient.on("error", (err) => {
+      // Catch error event silently to avoid unhandled console noise
+    });
   }
 
   return redisClient;

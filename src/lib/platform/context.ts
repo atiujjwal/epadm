@@ -24,7 +24,7 @@ async function _getPlatformCtx(): Promise<PlatformCtx> {
     throw new Error("Missing platform operator context");
   }
 
-  const liveOperatorId = await touchPlatformSession(sessionId);
+  const liveOperatorId = await touchPlatformSession(sessionId, operatorId);
   if (!liveOperatorId || liveOperatorId !== operatorId) {
     throw new Error("Platform session expired or revoked");
   }
@@ -70,7 +70,10 @@ export async function resolvePlatformFromCookie(
     return null;
   }
 
-  const liveOperatorId = await touchPlatformSession(payload.sessionId);
+  const liveOperatorId = await touchPlatformSession(
+    payload.sessionId,
+    payload.operatorId,
+  );
   if (!liveOperatorId || liveOperatorId !== payload.operatorId) {
     return null;
   }

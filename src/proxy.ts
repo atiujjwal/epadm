@@ -5,17 +5,30 @@ import {
   PLATFORM_COOKIE,
   verifyPlatformToken,
 } from "./lib/platform/auth/token";
-import { touchPlatformSession } from "./lib/platform/auth/session";
-import { isTenantActiveCached } from "./lib/platform/tenant-cache";
-import { getActiveModulesForTenantCached } from "./lib/platform/tenants";
 import { attachCsrfCookie, validateCsrf } from "./lib/security/csrf";
 import { checkAuthRateLimit } from "./lib/security/rate-limit";
 
 function finalize(req: NextRequest, response: NextResponse) {
-  return attachCsrfCookie(req, response);
+  const { pathname } = req.nextUrl;
+  if (pathname.startsWith("/api") || pathname.startsWith("/admin")) {
+    return attachCsrfCookie(req, response);
+  }
+  return response;
 }
 
-const PUBLIC_PATHS = new Set<string>(["/", "/login", "/register", "/onboarding"]);
+const PUBLIC_PATHS = new Set<string>([
+  "/",
+  "/login",
+  "/about",
+  "/contact",
+  "/demo",
+  "/platform",
+  "/security",
+  "/legal/privacy",
+  "/legal/terms",
+  "/legal/cookies",
+  "/legal/accessibility",
+]);
 const OPS_PUBLIC_PATHS = new Set<string>(["/admin/login"]);
 
 export function isOpsHost(hostname: string): boolean {
@@ -64,14 +77,25 @@ export async function proxy(req: NextRequest) {
     res = NextResponse.next();
   } else if (opsMode) {
     res = await handleOpsRequest(req, pathname);
-  } else if (pathname.startsWith("/admin") || pathname.startsWith("/api/platform")) {
+  } else if (pathname.startsWith("/admin")) {
+    const hostHeader = req.headers.get("host") ?? "";
+    const parts = hostHeader.split(":");
+    const port = parts[1] ? `:${parts[1]}` : "";
+    const opsHost = process.env.OPS_HOST || "ops.localhost";
+    const redirectUrl = new URL(req.nextUrl.toString());
+    redirectUrl.host = `${opsHost}${port}`;
+    return finalize(req, NextResponse.redirect(redirectUrl));
+  } else if (pathname.startsWith("/api/platform")) {
     res = NextResponse.json({ error: "Not found" }, { status: 404 });
   } else {
     res = await handleTenantRequest(req, pathname);
   }
 
   // 3. Attach CSRF cookie to responses
-  return attachCsrfCookie(req, res);
+  if (pathname.startsWith("/api") || pathname.startsWith("/admin")) {
+    return attachCsrfCookie(req, res);
+  }
+  return res;
 }
 
 async function handleOpsRequest(req: NextRequest, pathname: string) {
@@ -83,12 +107,9 @@ async function handleOpsRequest(req: NextRequest, pathname: string) {
   if (platformToken) {
     const payload = await verifyPlatformToken(platformToken);
     if (payload) {
-      const liveOperatorId = await touchPlatformSession(payload.sessionId);
-      if (liveOperatorId === payload.operatorId) {
-        operatorId = payload.operatorId;
-        operatorEmail = payload.email;
-        sessionId = payload.sessionId;
-      }
+      operatorId = payload.operatorId;
+      operatorEmail = payload.email;
+      sessionId = payload.sessionId;
     }
   }
 
@@ -156,27 +177,6 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
         userRole = payload.role as string;
         planTier = payload.planTier as string;
 
-        const cachedActive = await isTenantActiveCached(tenantId);
-        if (cachedActive === false) {
-          if (pathname.startsWith("/api")) {
-            return finalize(
-              req,
-              NextResponse.json(
-                { error: "School account is deactivated" },
-                { status: 403 },
-              ),
-            );
-          }
-
-          return finalize(
-            req,
-            new NextResponse("School account is deactivated", {
-              status: 403,
-            }),
-          );
-        }
-
-        activeModules = await getActiveModulesForTenantCached(tenantId);
       }
     } catch (err) {
       console.warn("Invalid token in proxy:", err);
@@ -189,7 +189,6 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
     requestHeaders.set("x-user-id", userId);
     requestHeaders.set("x-user-role", userRole);
     requestHeaders.set("x-plan-tier", planTier);
-    requestHeaders.set("x-active-modules", activeModules.join(","));
     requestHeaders.set("x-app-plane", "tenant");
   }
 
@@ -212,12 +211,7 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
   }
 
   if (!userId) {
-    return finalize(
-      req,
-      NextResponse.next({
-        request: { headers: requestHeaders },
-      }),
-    );
+    return finalize(req, NextResponse.next());
   }
 
   const url = req.nextUrl.clone();

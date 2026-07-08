@@ -11,11 +11,11 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <div className="text-sm font-medium text-amber-700">Platform status</div>
-        <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
+        <div className="text-sm font-medium text-amber-400">Platform status</div>
+        <h1 className="mt-1 text-3xl font-semibold text-white">
           Welcome back, {ctx.name}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600">
+        <p className="mt-2 max-w-2xl text-sm text-zinc-300">
           Infrastructure cost vs API throughput across all schools. Sessions
           expire after 15 minutes and require sliding Redis validation.
         </p>

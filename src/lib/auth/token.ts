@@ -1,5 +1,5 @@
 import { jwtVerify, SignJWT } from "jose";
-import type { PlanTier, UserRole } from "@/lib/db";
+import type { PlanTier, UserRole } from "@/lib/db/schema";
 
 type SessionPayload = {
   tenantId: string;

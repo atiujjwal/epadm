@@ -101,8 +101,8 @@ export function TenantControlPanel({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold text-zinc-950">{name}</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <h1 className="text-3xl font-semibold text-white">{name}</h1>
+        <p className="mt-1 text-sm text-zinc-300">
           Slug: <span className="font-mono">{slug}</span> ·{" "}
           {isActive ? "Active" : "Inactive"}
         </p>
@@ -141,13 +141,13 @@ export function TenantControlPanel({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Reason (optional)"
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-sm"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-sm placeholder:text-zinc-500"
               />
               <input
                 value={confirmSlug}
                 onChange={(e) => setConfirmSlug(e.target.value)}
                 placeholder={`Type "${slug}" to confirm`}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-sm"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-sm placeholder:text-zinc-500"
               />
               <div className="flex gap-2">
                 <button

@@ -55,7 +55,7 @@ export function ProvisionTenantForm() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl text-zinc-900">
             <h2 className="text-lg font-semibold text-zinc-950">
               Provision new school
             </h2>
@@ -64,14 +64,14 @@ export function ProvisionTenantForm() {
                 placeholder="School name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 placeholder:text-zinc-500 text-zinc-900 bg-white"
                 required
               />
               <input
-                placeholder="slug (e.g. stxaviers)"
+                placeholder="slug (e.g. ipsmohania)"
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 placeholder:text-zinc-500 text-zinc-900 bg-white"
                 pattern="[a-z0-9-]+"
                 required
               />
@@ -82,7 +82,7 @@ export function ProvisionTenantForm() {
                 onChange={(e) =>
                   setForm({ ...form, adminEmail: e.target.value })
                 }
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 placeholder:text-zinc-500 text-zinc-900 bg-white"
                 required
               />
               <select
@@ -90,11 +90,11 @@ export function ProvisionTenantForm() {
                 onChange={(e) =>
                   setForm({ ...form, subscriptionTier: e.target.value })
                 }
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5"
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-zinc-900 bg-white"
               >
-                <option value="basic">Basic</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
+                <option value="basic" className="text-zinc-900 bg-white">Basic</option>
+                <option value="pro" className="text-zinc-900 bg-white">Pro</option>
+                <option value="enterprise" className="text-zinc-900 bg-white">Enterprise</option>
               </select>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex justify-end gap-2 pt-2">

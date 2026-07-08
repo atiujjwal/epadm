@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type TenantRow = {
   id: string;
@@ -25,6 +25,10 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    setRows(initialRows);
+  }, [initialRows]);
+
   const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
@@ -39,7 +43,7 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
       columnHelper.accessor("subscriptionTier", {
         header: "Plan",
         cell: (info) => (
-          <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium uppercase">
+          <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium uppercase text-zinc-800">
             {info.getValue()}
           </span>
         ),
@@ -102,7 +106,7 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter by name or slug"
-          className="min-w-[240px] flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm"
+          className="min-w-[240px] flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm placeholder:text-zinc-500"
         />
         <button
           type="button"
@@ -116,7 +120,7 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
 
       <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
         <table className="min-w-full text-sm">
-          <thead className="bg-zinc-50 text-left text-xs uppercase tracking-[0.12em] text-zinc-500">
+          <thead className="bg-zinc-50 text-left text-xs uppercase tracking-[0.12em] text-zinc-700 font-semibold">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (

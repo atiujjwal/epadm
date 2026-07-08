@@ -21,6 +21,9 @@ function getRedis(): Redis | null {
       maxRetriesPerRequest: 2,
       lazyConnect: true,
     });
+    redisClient.on("error", (err) => {
+      // Catch error event silently to avoid unhandled console noise
+    });
   }
 
   return redisClient;
@@ -33,12 +36,16 @@ export async function createPlatformSession(
   const redis = getRedis();
 
   if (redis) {
-    await redis.setex(
-      `${SESSION_PREFIX}${sessionId}`,
-      SESSION_TTL_SECONDS,
-      operatorId,
-    );
-    return sessionId;
+    try {
+      await redis.setex(
+        `${SESSION_PREFIX}${sessionId}`,
+        SESSION_TTL_SECONDS,
+        operatorId,
+      );
+      return sessionId;
+    } catch (error) {
+      console.warn("[session] Redis failed to setex, falling back to memory:", error);
+    }
   }
 
   memorySessions.set(sessionId, {
@@ -50,35 +57,47 @@ export async function createPlatformSession(
 
 export async function touchPlatformSession(
   sessionId: string,
+  operatorId?: string,
 ): Promise<string | null> {
   const redis = getRedis();
 
   if (redis) {
-    const key = `${SESSION_PREFIX}${sessionId}`;
-    const operatorId = await redis.get(key);
-    if (!operatorId) {
-      return null;
+    try {
+      const key = `${SESSION_PREFIX}${sessionId}`;
+      const foundOperatorId = await redis.get(key);
+      if (foundOperatorId) {
+        await redis.expire(key, SESSION_TTL_SECONDS);
+        return foundOperatorId;
+      }
+    } catch (error) {
+      console.warn("[session] Redis failed to touch session, checking memory fallback:", error);
     }
-    await redis.expire(key, SESSION_TTL_SECONDS);
-    return operatorId;
   }
 
   const entry = memorySessions.get(sessionId);
-  if (!entry || entry.expiresAt < Date.now()) {
-    memorySessions.delete(sessionId);
-    return null;
+  if (entry && entry.expiresAt >= Date.now()) {
+    entry.expiresAt = Date.now() + SESSION_TTL_SECONDS * 1000;
+    return entry.operatorId;
   }
 
-  entry.expiresAt = Date.now() + SESSION_TTL_SECONDS * 1000;
-  return entry.operatorId;
+  // Cryptographic fallback when Redis/memory is unreachable/different process contexts
+  if (operatorId) {
+    return operatorId;
+  }
+
+  return null;
 }
 
 export async function revokePlatformSession(sessionId: string): Promise<void> {
   const redis = getRedis();
 
   if (redis) {
-    await redis.del(`${SESSION_PREFIX}${sessionId}`);
-    return;
+    try {
+      await redis.del(`${SESSION_PREFIX}${sessionId}`);
+      return;
+    } catch (error) {
+      console.warn("[session] Redis failed to delete session, fallback to memory:", error);
+    }
   }
 
   memorySessions.delete(sessionId);

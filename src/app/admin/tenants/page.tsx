@@ -11,8 +11,8 @@ export default async function TenantsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-zinc-950">Tenants</h1>
-          <p className="mt-2 text-sm text-zinc-600">
+          <h1 className="text-3xl font-semibold text-white">Tenants</h1>
+          <p className="mt-2 text-sm text-zinc-300">
             Master registry of all schools on the platform.
           </p>
         </div>

@@ -1,12 +1,8 @@
-import * as dotenv from "dotenv";
-import * as path from "path";
+import "../src/lib/db/env-loader";
+
 import { eq } from "drizzle-orm";
 import { generateTotpSecret, getTotpUri } from "../src/lib/platform/auth/mfa";
 import { opsDb, platformOperators } from "../src/lib/db/ops";
-
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local"), override: true });
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 async function resetMfa() {
   const email = process.argv[2] || process.env.SEED_PLATFORM_EMAIL || "admin";
