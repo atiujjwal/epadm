@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { FormItem, FormError } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 
 export function ProvisionTenantForm() {
   const router = useRouter();
@@ -13,6 +19,7 @@ export function ProvisionTenantForm() {
     name: "",
     slug: "",
     adminEmail: "",
+    adminPassword: "",
     subscriptionTier: "basic",
   });
 
@@ -45,76 +52,117 @@ export function ProvisionTenantForm() {
 
   return (
     <>
-      <button
+      <Button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+        variant="accent"
       >
         Provision tenant
-      </button>
+      </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl text-zinc-900">
-            <h2 className="text-lg font-semibold text-zinc-950">
-              Provision new school
-            </h2>
-            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-              <input
-                placeholder="School name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 placeholder:text-zinc-500 text-zinc-900 bg-white"
-                required
-              />
-              <input
-                placeholder="slug (e.g. ipsmohania)"
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 placeholder:text-zinc-500 text-zinc-900 bg-white"
-                pattern="[a-z0-9-]+"
-                required
-              />
-              <input
-                type="email"
-                placeholder="Admin email"
-                value={form.adminEmail}
-                onChange={(e) =>
-                  setForm({ ...form, adminEmail: e.target.value })
-                }
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 placeholder:text-zinc-500 text-zinc-900 bg-white"
-                required
-              />
-              <select
-                value={form.subscriptionTier}
-                onChange={(e) =>
-                  setForm({ ...form, subscriptionTier: e.target.value })
-                }
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-zinc-900 bg-white"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <Card variant="elevated" padding="none" className="w-full max-w-lg overflow-hidden shadow-2xl">
+            <CardHeader className="px-6 py-4 border-b border-default flex items-center justify-between">
+              <h2 className="text-lg font-bold text-primary">
+                Provision new school
+              </h2>
+              <button 
+                type="button" 
+                onClick={() => setOpen(false)}
+                className="text-muted hover:text-primary transition-colors"
+                aria-label="Close modal"
               >
-                <option value="basic" className="text-zinc-900 bg-white">Basic</option>
-                <option value="pro" className="text-zinc-900 bg-white">Pro</option>
-                <option value="enterprise" className="text-zinc-900 bg-white">Enterprise</option>
-              </select>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <div className="flex justify-end gap-2 pt-2">
-                <button
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </CardHeader>
+            <form onSubmit={handleSubmit}>
+              <CardBody className="p-6 space-y-4">
+                <FormItem>
+                  <Label htmlFor="name" required>School Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="e.g. International Public School"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    required
+                  />
+                </FormItem>
+
+                <FormItem>
+                  <Label htmlFor="slug" required>Slug</Label>
+                  <Input
+                    id="slug"
+                    placeholder="e.g. ipsmohania"
+                    value={form.slug}
+                    onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                    pattern="[a-z0-9-]+"
+                    required
+                  />
+                  <p className="text-xs text-muted mt-1">Only lowercase letters, numbers, and hyphens.</p>
+                </FormItem>
+
+                <FormItem>
+                  <Label htmlFor="adminEmail" required>Admin Email</Label>
+                  <Input
+                    id="adminEmail"
+                    type="email"
+                    placeholder="admin@school.edu"
+                    value={form.adminEmail}
+                    onChange={(e) => setForm({ ...form, adminEmail: e.target.value })}
+                    required
+                  />
+                </FormItem>
+
+                <FormItem>
+                  <Label htmlFor="adminPassword" required>Admin Password</Label>
+                  <Input
+                    id="adminPassword"
+                    type="password"
+                    placeholder="Min. 6 characters"
+                    value={form.adminPassword}
+                    onChange={(e) => setForm({ ...form, adminPassword: e.target.value })}
+                    minLength={6}
+                    required
+                  />
+                  <p className="text-xs text-muted mt-1">The tenant admin will use this password to sign in at /login.</p>
+                </FormItem>
+
+                <FormItem>
+                  <Label htmlFor="subscriptionTier">Subscription Plan</Label>
+                  <Select
+                    id="subscriptionTier"
+                    value={form.subscriptionTier}
+                    onChange={(e) => setForm({ ...form, subscriptionTier: e.target.value })}
+                  >
+                    <option value="basic">Basic Plan</option>
+                    <option value="pro">Pro Plan</option>
+                    <option value="enterprise">Enterprise Plan</option>
+                  </Select>
+                </FormItem>
+
+                {error && <FormError>{error}</FormError>}
+              </CardBody>
+              <CardFooter className="px-6 py-4 bg-surface-2 border-t border-subtle flex justify-end gap-3" style={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-2.5 text-sm text-zinc-600"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="rounded-xl bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+                  variant="primary"
                 >
                   {loading ? "Provisioning..." : "Create tenant"}
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </>

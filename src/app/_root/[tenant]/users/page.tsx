@@ -1,6 +1,7 @@
 import { USER_ROLES } from "@/lib/db";
 import { listTenantMembers } from "@/lib/admin/tenant-users";
 import { getCtx } from "@/lib/context";
+import { PageHeader } from "@/components/layout/page-header";
 import { TenantUserManagement } from "./tenant-user-management";
 
 export default async function TenantUsersPage() {
@@ -9,12 +10,10 @@ export default async function TenantUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-950">Tenant users</h1>
-        <p className="mt-1 text-sm text-zinc-600">
-          Manage school memberships and role assignments from one place.
-        </p>
-      </div>
+      <PageHeader
+        title="Tenant users"
+        description="Manage school memberships and role assignments from one place."
+      />
 
       <TenantUserManagement
         initialMembers={members.map((member) => ({

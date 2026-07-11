@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FinOpsTab } from "./FinOpsTab";
 import { PerformanceTab } from "./PerformanceTab";
+import PageHeader from "@/components/layout/page-header";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardBody } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type ServiceRow = {
   id: string;
@@ -100,25 +105,23 @@ export function TenantControlPanel({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-white">{name}</h1>
-        <p className="mt-1 text-sm text-zinc-300">
-          Slug: <span className="font-mono">{slug}</span> ·{" "}
-          {isActive ? "Active" : "Inactive"}
-        </p>
-      </div>
+      <PageHeader
+        title={name}
+        description={`Slug: ${slug}`}
+        badge={
+          <Badge variant={isActive ? "success" : "error"}>
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        }
+      />
 
-      <div className="flex gap-2">
+      <div className="tab-nav">
         {(["controls", "performance", "finops"] as const).map((key) => (
           <button
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`rounded-full px-4 py-2 text-sm font-medium ${
-              tab === key
-                ? "bg-zinc-950 text-white"
-                : "bg-zinc-100 text-zinc-700"
-            }`}
+            className={`tab-nav__button ${tab === key ? "tab-nav__button--active" : ""}`}
           >
             {key === "controls"
               ? "Lifecycle"
@@ -131,82 +134,93 @@ export function TenantControlPanel({
 
       {tab === "controls" && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5">
-            <h2 className="font-semibold text-zinc-950">Lifecycle controls</h2>
-            <p className="mt-2 text-sm text-zinc-600">
-              Disruptive changes require typing the tenant slug to confirm.
-            </p>
-            <div className="mt-4 space-y-3">
-              <input
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Reason (optional)"
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-sm placeholder:text-zinc-500"
-              />
-              <input
-                value={confirmSlug}
-                onChange={(e) => setConfirmSlug(e.target.value)}
-                placeholder={`Type "${slug}" to confirm`}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-sm placeholder:text-zinc-500"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => toggleStatus(false)}
-                  className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-                >
-                  Deactivate
-                </button>
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => toggleStatus(true)}
-                  className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-                >
-                  Reactivate
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5">
-            <h2 className="font-semibold text-zinc-950">Feature flags</h2>
-            <div className="mt-4 space-y-3">
-              {services.map((service) => (
-                <div
-                  key={service.id}
-                  className="flex items-center justify-between rounded-xl border border-zinc-100 px-4 py-3"
-                >
-                  <div>
-                    <div className="font-medium text-zinc-950">
-                      {service.serviceKey}
-                    </div>
-                    <div className="text-xs text-zinc-500">
-                      {service.isEnabled ? "Enabled" : "Disabled"}
-                    </div>
-                  </div>
-                  <button
+          <Card variant="default" padding="md">
+            <CardHeader className="border-b-0 pb-0">
+              <h2 className="font-semibold text-primary text-lg">Lifecycle controls</h2>
+            </CardHeader>
+            <CardBody className="pt-2 space-y-4">
+              <p className="text-sm text-secondary">
+                Disruptive changes require typing the tenant slug to confirm.
+              </p>
+              <div className="space-y-3">
+                <Input
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Reason (optional)"
+                />
+                <Input
+                  value={confirmSlug}
+                  onChange={(e) => setConfirmSlug(e.target.value)}
+                  placeholder={`Type "${slug}" to confirm`}
+                />
+                <div className="flex gap-2 pt-2">
+                  <Button
                     type="button"
                     disabled={loading}
-                    onClick={() =>
-                      toggleService(service.serviceKey, !service.isEnabled)
-                    }
-                    className="rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-800"
+                    onClick={() => toggleStatus(false)}
+                    variant="danger"
                   >
-                    Toggle
-                  </button>
+                    Deactivate
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={loading}
+                    onClick={() => toggleStatus(true)}
+                    variant="primary"
+                  >
+                    Reactivate
+                  </Button>
                 </div>
-              ))}
-            </div>
-          </section>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card variant="default" padding="md">
+            <CardHeader className="border-b-0 pb-0">
+              <h2 className="font-semibold text-primary text-lg">Feature flags</h2>
+            </CardHeader>
+            <CardBody className="pt-2">
+              <div className="space-y-3">
+                {services.map((service) => (
+                  <div
+                    key={service.id}
+                    className="flex items-center justify-between rounded-xl border border-default px-4 py-3 bg-surface-2"
+                  >
+                    <div>
+                      <div className="font-medium text-primary">
+                        {service.serviceKey}
+                      </div>
+                      <div className="text-xs text-muted mt-0.5">
+                        {service.isEnabled ? (
+                          <Badge variant="success" className="px-1.5 py-0.5 text-[10px]">Enabled</Badge>
+                        ) : (
+                          <Badge variant="error" className="px-1.5 py-0.5 text-[10px]">Disabled</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      disabled={loading}
+                      onClick={() =>
+                        toggleService(service.serviceKey, !service.isEnabled)
+                      }
+                      variant="outline"
+                      size="sm"
+                    >
+                      Toggle
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
         </div>
       )}
 
       {tab === "performance" && <PerformanceTab metrics={metrics} />}
       {tab === "finops" && <FinOpsTab metrics={metrics} />}
 
-      {message && <p className="text-sm text-red-600">{message}</p>}
+      {message && <p className="text-sm font-medium" style={{ color: "var(--color-error-500)" }}>{message}</p>}
     </div>
   );
 }

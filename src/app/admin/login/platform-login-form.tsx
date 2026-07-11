@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormItem, FormError } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 
 export function PlatformLoginForm() {
   const router = useRouter();
@@ -75,73 +79,66 @@ export function PlatformLoginForm() {
   if (mfaToken) {
     return (
       <form onSubmit={handleMfa} noValidate className="flex w-full flex-col gap-5">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-muted">
           Enter the 6-digit code from your authenticator app.
         </p>
-        <input
+        <Input
           type="text"
           inputMode="numeric"
           pattern="\d{6}"
           maxLength={6}
           value={mfaCode}
           onChange={(e) => setMfaCode(e.target.value)}
-          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-center text-lg font-mono tracking-widest text-white outline-none transition duration-150 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 placeholder-zinc-700"
-          style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
+          className="text-center text-lg font-mono tracking-widest"
           placeholder="000000"
         />
-        {error && <p className="text-sm font-medium text-red-500">{error}</p>}
-        <button
+        {error && <FormError>{error}</FormError>}
+        <Button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center rounded-lg bg-amber-500 px-4 py-3 text-sm font-bold text-zinc-950 transition duration-150 hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-          style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
+          variant="accent"
+          className="w-full justify-center"
         >
           {loading ? "Verifying..." : "Verify MFA"}
-        </button>
+        </Button>
       </form>
     );
   }
 
   return (
     <form onSubmit={handleLogin} noValidate className="flex w-full flex-col gap-5">
-      <div className="flex flex-col">
-        <label className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Operator email
-        </label>
-        <input
+      <FormItem>
+        <Label htmlFor="email">Operator email</Label>
+        <Input
+          id="email"
           type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="admin@schoolapp.com"
-          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition duration-150 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 placeholder-zinc-700"
-          style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
         />
-      </div>
+      </FormItem>
 
-      <div className="flex flex-col">
-        <label className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Password
-        </label>
-        <input
+      <FormItem>
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
-          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition duration-150 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 placeholder-zinc-700"
-          style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
         />
-      </div>
+      </FormItem>
 
-      {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+      {error && <FormError>{error}</FormError>}
 
-      <button
+      <Button
         type="submit"
         disabled={loading}
-        className="flex w-full items-center justify-center rounded-lg bg-amber-500 px-4 py-3 text-sm font-bold text-zinc-950 transition duration-150 hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-        style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
+        variant="accent"
+        className="w-full justify-center"
       >
         {loading ? "Signing in..." : "Sign in to control plane"}
-      </button>
+      </Button>
     </form>
   );
 }

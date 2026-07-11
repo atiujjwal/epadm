@@ -28,6 +28,7 @@ export type ProvisionTenantInput = {
   name: string;
   slug: string;
   adminEmail: string;
+  adminPassword?: string;
   subscriptionTier: PlanTier;
   operatorId: string;
   ipAddress?: string | null;
@@ -61,8 +62,8 @@ export async function provisionTenant(input: ProvisionTenantInput) {
   });
 
   if (!user) {
-    const tempPassword = crypto.randomUUID();
-    const passwordHash = await argon2.hash(tempPassword);
+    const rawPassword = input.adminPassword || crypto.randomUUID();
+    const passwordHash = await argon2.hash(rawPassword);
     [user] = await opsDb
       .insert(users)
       .values({
@@ -73,6 +74,13 @@ export async function provisionTenant(input: ProvisionTenantInput) {
         isActive: true,
       })
       .returning();
+  } else if (input.adminPassword) {
+    // Operator explicitly set a password — update the existing user's credentials
+    const passwordHash = await argon2.hash(input.adminPassword);
+    await opsDb
+      .update(users)
+      .set({ passwordHash })
+      .where(eq(users.id, user.id));
   }
 
   await opsDb.insert(tenantUsers).values({

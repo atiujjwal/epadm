@@ -233,7 +233,7 @@ export function AcademicStructureWorkspace({
       <div className="grid gap-6 xl:grid-cols-3">
         <section>
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-zinc-950">Create class</h2>
+            <h2 className="text-lg font-semibold text-primary">Create class</h2>
             <form className="mt-4 space-y-4" onSubmit={handleCreateClass}>
               <Input
                 value={classForm.code}
@@ -286,7 +286,7 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-zinc-950">Create section</h2>
+            <h2 className="text-lg font-semibold text-primary">Create section</h2>
             <form className="mt-4 space-y-4" onSubmit={handleCreateSection}>
               <Select
                 value={sectionForm.classId}
@@ -330,7 +330,7 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-zinc-950">Enroll student</h2>
+            <h2 className="text-lg font-semibold text-primary">Enroll student</h2>
             <form className="mt-4 space-y-4" onSubmit={handleCreateEnrollment}>
               <Select
                 value={enrollmentForm.studentId}
@@ -405,18 +405,22 @@ export function AcademicStructureWorkspace({
       <div className="grid gap-6 xl:grid-cols-3">
         <section>
           <Card variant="elevated" padding="none">
-            <div className="border-b border-zinc-200 px-5 py-4">
-              <h3 className="font-semibold text-zinc-950">Classes</h3>
+            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border-default)" }}>
+              <h3 className="font-semibold text-primary">Classes</h3>
             </div>
             <div className="space-y-3 p-5">
               {classes.map((item) => (
-                <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-                  <div className="font-medium text-zinc-900">{item.name}</div>
-                  <div className="mt-1 text-sm text-zinc-600">
+                <div 
+                  key={item.id} 
+                  className="rounded-xl border px-4 py-3"
+                  style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
+                >
+                  <div className="font-medium text-primary">{item.name}</div>
+                  <div className="mt-1 text-sm text-secondary">
                     {item.code} • {item.academicYear}
                   </div>
                   {item.homeroomStaffName && (
-                    <div className="mt-1 text-xs text-zinc-500">
+                    <div className="mt-1 text-xs text-muted">
                       Homeroom: {item.homeroomStaffName}
                     </div>
                   )}
@@ -428,18 +432,22 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="none">
-            <div className="border-b border-zinc-200 px-5 py-4">
-              <h3 className="font-semibold text-zinc-950">Sections</h3>
+            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border-default)" }}>
+              <h3 className="font-semibold text-primary">Sections</h3>
             </div>
             <div className="space-y-3 p-5">
               {sections.map((item) => (
-                <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-                  <div className="font-medium text-zinc-900">
+                <div 
+                  key={item.id} 
+                  className="rounded-xl border px-4 py-3"
+                  style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
+                >
+                  <div className="font-medium text-primary">
                     {item.classCode} / {item.name}
                   </div>
-                  <div className="mt-1 text-sm text-zinc-600">{item.className}</div>
+                  <div className="mt-1 text-sm text-secondary">{item.className}</div>
                   {item.capacity && (
-                    <div className="mt-1 text-xs text-zinc-500">Capacity: {item.capacity}</div>
+                    <div className="mt-1 text-xs text-muted">Capacity: {item.capacity}</div>
                   )}
                 </div>
               ))}
@@ -449,17 +457,21 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="none">
-            <div className="border-b border-zinc-200 px-5 py-4">
-              <h3 className="font-semibold text-zinc-950">Enrollments</h3>
+            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border-default)" }}>
+              <h3 className="font-semibold text-primary">Enrollments</h3>
             </div>
             <div className="space-y-3 p-5">
               {enrollments.map((item) => (
-                <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-                  <div className="font-medium text-zinc-900">{item.studentName}</div>
-                  <div className="mt-1 text-sm text-zinc-600">
+                <div 
+                  key={item.id} 
+                  className="rounded-xl border px-4 py-3"
+                  style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
+                >
+                  <div className="font-medium text-primary">{item.studentName}</div>
+                  <div className="mt-1 text-sm text-secondary">
                     {item.className}{item.sectionName ? ` / ${item.sectionName}` : ""} • {item.academicYear}
                   </div>
-                  <div className="mt-1 text-xs text-zinc-500">{item.admissionNumber}</div>
+                  <div className="mt-1 text-xs text-muted">{item.admissionNumber}</div>
                 </div>
               ))}
             </div>

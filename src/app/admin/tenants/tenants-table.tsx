@@ -40,8 +40,8 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
         header: "School",
         cell: (info) => (
           <div>
-            <div className="font-medium text-zinc-950">{info.getValue()}</div>
-            <div className="text-xs text-zinc-500">{info.row.original.slug}</div>
+            <div className="font-medium text-primary">{info.getValue()}</div>
+            <div className="text-xs text-muted">{info.row.original.slug}</div>
           </div>
         ),
       }),
@@ -65,7 +65,7 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
         cell: ({ row }) => (
           <Link
             href={`/admin/tenants/${row.original.id}`}
-            className="text-sm font-medium text-indigo-700 hover:text-indigo-800"
+            className="text-sm font-medium text-accent hover:underline"
           >
             Manage
           </Link>

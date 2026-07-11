@@ -123,8 +123,8 @@ export function TenantUserManagement({ initialMembers, roleOptions }: Props) {
       <section>
         <Card variant="elevated" padding="lg">
           <div className="mb-5">
-            <h2 className="text-lg font-semibold text-zinc-950">Add tenant member</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+            <h2 className="text-lg font-semibold text-primary">Add tenant member</h2>
+            <p className="mt-1 text-sm text-secondary">
               Create a user or connect an existing identity to this school with a role.
             </p>
           </div>
@@ -211,9 +211,9 @@ export function TenantUserManagement({ initialMembers, roleOptions }: Props) {
 
       <section>
         <Card variant="elevated" padding="none">
-          <div className="border-b border-zinc-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-zinc-950">Current members</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+          <div className="border-b px-6 py-4" style={{ borderColor: "var(--border-default)" }}>
+            <h2 className="text-lg font-semibold text-primary">Current members</h2>
+            <p className="mt-1 text-sm text-secondary">
               Tenant-specific memberships, roles, and verification status.
             </p>
           </div>
@@ -232,10 +232,10 @@ export function TenantUserManagement({ initialMembers, roleOptions }: Props) {
                 {members.map((member) => (
                   <TableRow key={member.membershipId}>
                     <TableCell>
-                      <div className="font-medium text-zinc-900">{member.name}</div>
-                      <div className="mt-1 text-zinc-600">{member.email}</div>
+                      <div className="font-medium text-primary">{member.name}</div>
+                      <div className="mt-1 text-secondary">{member.email}</div>
                       {member.phone && (
-                        <div className="mt-1 text-zinc-500">{member.phone}</div>
+                        <div className="mt-1 text-muted">{member.phone}</div>
                       )}
                     </TableCell>
                     <TableCell>
@@ -251,7 +251,7 @@ export function TenantUserManagement({ initialMembers, roleOptions }: Props) {
                         </Badge>
                       </div>
                     </TableCell>
-                    <TableCell className="text-zinc-600">
+                    <TableCell className="text-secondary">
                       {new Date(member.joinedAt).toLocaleDateString()}
                     </TableCell>
                   </TableRow>

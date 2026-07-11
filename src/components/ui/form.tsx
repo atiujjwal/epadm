@@ -69,12 +69,9 @@ export const Form = forwardRef<HTMLFormElement, FormProps>(function Form(props, 
     : rest.style;
 
   return (
-    <>
-      <FormStyles />
-      <form ref={ref} className={combinedClasses} style={style} {...rest}>
-        {children}
-      </form>
-    </>
+    <form ref={ref} className={combinedClasses} style={style} {...rest}>
+      {children}
+    </form>
   );
 });
 
@@ -162,119 +159,8 @@ export const FormGroup = forwardRef<HTMLDivElement, FormGroupProps>(function For
   );
 });
 
-const FormStyles = () => (
-  <style>{`
-    .form {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .form--vertical {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form--horizontal {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form--horizontal .form-item {
-      display: grid;
-      grid-template-columns: var(--form-label-width, 200px) 1fr;
-      gap: var(--space-4);
-      align-items: flex-start;
-    }
-
-    .form-item {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-    }
-
-    .form-item--error .form-label {
-      color: var(--color-error-600);
-    }
-
-    .form-item--error .form-input,
-    .form-item--error .form-select,
-    .form-item--error .form-textarea {
-      border-color: var(--color-error-500);
-    }
-
-    .form-error {
-      display: flex;
-      align-items: center;
-      gap: var(--space-1-5);
-      margin-top: var(--space-1);
-      font-size: var(--text-xs);
-      color: var(--color-error-600);
-    }
-
-    .form-error__icon {
-      width: 0.875rem;
-      height: 0.875rem;
-      flex-shrink: 0;
-    }
-
-    .form-success {
-      display: flex;
-      align-items: center;
-      gap: var(--space-1-5);
-      margin-top: var(--space-1);
-      font-size: var(--text-xs);
-      color: var(--color-success-600);
-    }
-
-    .form-success__icon {
-      width: 0.875rem;
-      height: 0.875rem;
-      flex-shrink: 0;
-    }
-
-    .form-description {
-      font-size: var(--text-xs);
-      color: var(--text-muted);
-      margin-top: var(--space-0-5);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-      padding: var(--space-6);
-      border: 1px solid var(--border-default);
-      border-radius: var(--radius-xl);
-      background: var(--bg-surface-2);
-    }
-
-    .form-group__header {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-    }
-
-    .form-group__title {
-      font-size: var(--text-base);
-      font-weight: var(--weight-semibold);
-      color: var(--text-primary);
-      margin: 0;
-    }
-
-    .form-group__description {
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-      margin: 0;
-    }
-
-    .form-group__content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-  `}</style>
-);
+// Styles are now consolidated into global CSS
+const FormStyles = () => null;
 
 export { FormStyles };
 export default Form;

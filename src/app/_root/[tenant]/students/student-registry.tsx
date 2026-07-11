@@ -108,8 +108,8 @@ export function StudentRegistry({ initialStudents }: Props) {
       <section>
         <Card variant="elevated" padding="lg">
           <div className="mb-5">
-            <h2 className="text-lg font-semibold text-zinc-950">Add student</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+            <h2 className="text-lg font-semibold text-primary">Add student</h2>
+            <p className="mt-1 text-sm text-secondary">
               Capture admission, classroom, and guardian information for the school registry.
             </p>
           </div>
@@ -243,9 +243,9 @@ export function StudentRegistry({ initialStudents }: Props) {
 
       <section>
         <Card variant="elevated" padding="none">
-          <div className="border-b border-zinc-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-zinc-950">Student registry</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+          <div className="border-b px-6 py-4" style={{ borderColor: "var(--border-default)" }}>
+            <h2 className="text-lg font-semibold text-primary">Student registry</h2>
+            <p className="mt-1 text-sm text-secondary">
               Admission-focused view of current students across the tenant.
             </p>
           </div>
@@ -263,15 +263,15 @@ export function StudentRegistry({ initialStudents }: Props) {
                 {students.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>
-                      <div className="font-medium text-zinc-900">
+                      <div className="font-medium text-primary">
                         {student.firstName} {student.lastName ?? ""}
                       </div>
-                      <div className="mt-1 text-zinc-600">{student.admissionNumber}</div>
+                      <div className="mt-1 text-secondary">{student.admissionNumber}</div>
                     </TableCell>
-                    <TableCell className="text-zinc-600">
+                    <TableCell className="text-secondary">
                       {(student.classLabel ?? "-") + (student.sectionLabel ? ` / ${student.sectionLabel}` : "")}
                     </TableCell>
-                    <TableCell className="text-zinc-600">
+                    <TableCell className="text-secondary">
                       <div>{student.guardianName ?? "-"}</div>
                       <div className="mt-1">{student.guardianPhone ?? ""}</div>
                     </TableCell>

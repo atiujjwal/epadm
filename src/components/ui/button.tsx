@@ -70,7 +70,6 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
 
     const content = (
       <>
-        <ButtonStyles />
         {icon && <span className="btn__icon" aria-hidden="true">{icon}</span>}
         {!iconOnly && children && <span className="btn__content">{children}</span>}
       </>
@@ -106,50 +105,8 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
   }
 );
 
-// Add danger button styles to global CSS via style tag
-const ButtonStyles = () => (
-  <style>{`
-    .btn--danger {
-      background: var(--color-error-500);
-      color: var(--color-white);
-      border-color: var(--color-error-500);
-    }
-    .btn--danger:hover {
-      background: var(--color-error-600);
-      border-color: var(--color-error-600);
-      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
-      color: var(--color-white);
-    }
-
-    .btn--md {
-      padding: var(--space-3) var(--space-5);
-      font-size: var(--text-sm);
-    }
-
-    .btn--icon-only {
-      padding: var(--space-2-5);
-      aspect-ratio: 1;
-    }
-
-    .btn__icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .btn__icon > svg {
-      width: 1em;
-      height: 1em;
-    }
-
-    .btn__content {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-  `}</style>
-);
+// Styles are now consolidated into global CSS
+const ButtonStyles = () => null;
 
 export { ButtonStyles };
 export default Button;

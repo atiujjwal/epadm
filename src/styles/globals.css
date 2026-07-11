@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+@import "./components.css";
 
 @source "../app/**/*.{js,ts,jsx,tsx}";
 @source "../components/**/*.{js,ts,jsx,tsx}";
@@ -1203,3 +1204,9 @@ hr {
 .opacity-100 { opacity: 1; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .min-h-screen { min-height: 100vh; }
+
+/* ── Color Utilities mapped to Design Tokens ──────────────── */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent-primary); }

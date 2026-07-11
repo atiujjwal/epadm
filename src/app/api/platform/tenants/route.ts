@@ -14,6 +14,7 @@ const provisionSchema = z.object({
     .regex(/^[a-z0-9-]+$/)
     .transform((value) => value.toLowerCase()),
   adminEmail: z.string().email(),
+  adminPassword: z.string().min(6).max(128).optional(),
   subscriptionTier: z.enum(["basic", "pro", "enterprise"]),
 });
 

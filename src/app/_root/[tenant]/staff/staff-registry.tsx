@@ -105,8 +105,8 @@ export function StaffRegistry({ initialStaff }: Props) {
       <section>
         <Card variant="elevated" padding="lg">
           <div className="mb-5">
-            <h2 className="text-lg font-semibold text-zinc-950">Add staff record</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+            <h2 className="text-lg font-semibold text-primary">Add staff record</h2>
+            <p className="mt-1 text-sm text-secondary">
               Build the school staffing registry with role-neutral employment details.
             </p>
           </div>
@@ -245,9 +245,9 @@ export function StaffRegistry({ initialStaff }: Props) {
 
       <section>
         <Card variant="elevated" padding="none">
-          <div className="border-b border-zinc-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-zinc-950">Staff registry</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+          <div className="border-b px-6 py-4" style={{ borderColor: "var(--border-default)" }}>
+            <h2 className="text-lg font-semibold text-primary">Staff registry</h2>
+            <p className="mt-1 text-sm text-secondary">
               Operational directory for departments, roles, and employment status.
             </p>
           </div>
@@ -265,15 +265,15 @@ export function StaffRegistry({ initialStaff }: Props) {
                 {staff.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
-                      <div className="font-medium text-zinc-900">{member.fullName}</div>
-                      <div className="mt-1 text-zinc-600">{member.employeeCode}</div>
-                      {member.email && <div className="mt-1 text-zinc-500">{member.email}</div>}
+                      <div className="font-medium text-primary">{member.fullName}</div>
+                      <div className="mt-1 text-secondary">{member.employeeCode}</div>
+                      {member.email && <div className="mt-1 text-muted">{member.email}</div>}
                     </TableCell>
-                    <TableCell className="text-zinc-600">
+                    <TableCell className="text-secondary">
                       <div>{member.department ?? "-"}</div>
                       <div className="mt-1">{member.jobTitle ?? ""}</div>
                     </TableCell>
-                    <TableCell className="text-zinc-600">
+                    <TableCell className="text-secondary">
                       <div>{member.employmentType}</div>
                       <div className="mt-1">{member.joinedOn ?? ""}</div>
                     </TableCell>

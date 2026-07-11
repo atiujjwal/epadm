@@ -316,25 +316,20 @@ export default async function FinancePage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-950">
-            Financial Management
-          </h1>
-          <p className="text-sm text-zinc-600 font-medium">
-            Monitor invoices, disburse payroll, and audit double-entry transactions.
-          </p>
-        </div>
-
-        <form action={triggerBillingJob}>
-          <Button type="submit" variant="primary">
-            Generate Invoices (Cron Mock)
-          </Button>
-        </form>
-      </div>
+      <PageHeader
+        title="Financial Management"
+        description="Monitor invoices, disburse payroll, and audit double-entry transactions."
+        action={
+          <form action={triggerBillingJob}>
+            <Button type="submit" variant="primary">
+              Generate Invoices (Cron Mock)
+            </Button>
+          </form>
+        }
+      />
 
       {/* Tabs */}
-      <div className="flex border-b border-zinc-200">
+      <div className="tab-nav">
         {[
           { id: "ledger", label: "Financial Ledger" },
           { id: "invoices", label: "Student Invoices" },
@@ -344,10 +339,8 @@ export default async function FinancePage({
           <a
             key={tab.id}
             href={`?tab=${tab.id}`}
-            className={`border-b-2 px-6 py-3 text-sm font-medium transition ${
-              currentTab === tab.id
-                ? "border-emerald-600 text-emerald-700"
-                : "border-transparent text-zinc-600 hover:text-zinc-900"
+            className={`tab-nav__button ${
+              currentTab === tab.id ? "tab-nav__button--active" : ""
             }`}
           >
             {tab.label}
@@ -360,15 +353,15 @@ export default async function FinancePage({
         <div className="space-y-6">
           <div className="grid gap-6 sm:grid-cols-3">
             <Card variant="elevated" padding="md">
-              <div className="text-xs uppercase tracking-[0.14em] text-zinc-500 font-semibold">Total Collections</div>
-              <div className="mt-2 text-3xl font-bold text-zinc-900">₹{totalCollections.toLocaleString()}</div>
+              <div className="text-xs uppercase tracking-[0.14em] text-muted font-semibold">Total Collections</div>
+              <div className="mt-2 text-3xl font-bold text-primary">₹{totalCollections.toLocaleString()}</div>
             </Card>
             <Card variant="elevated" padding="md">
-              <div className="text-xs uppercase tracking-[0.14em] text-zinc-500 font-semibold">Total Expenditures</div>
-              <div className="mt-2 text-3xl font-bold text-zinc-900">₹{totalExpenses.toLocaleString()}</div>
+              <div className="text-xs uppercase tracking-[0.14em] text-muted font-semibold">Total Expenditures</div>
+              <div className="mt-2 text-3xl font-bold text-primary">₹{totalExpenses.toLocaleString()}</div>
             </Card>
             <Card variant="elevated" padding="md">
-              <div className="text-xs uppercase tracking-[0.14em] text-zinc-500 font-semibold">Net Reserves</div>
+              <div className="text-xs uppercase tracking-[0.14em] text-muted font-semibold">Net Reserves</div>
               <div className={`mt-2 text-3xl font-bold ${netBalance >= 0 ? "text-emerald-700" : "text-red-700"}`}>
                 ₹{netBalance.toLocaleString()}
               </div>
@@ -376,7 +369,7 @@ export default async function FinancePage({
           </div>
 
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-zinc-950">Double-Entry Ledger Log</h2>
+            <h2 className="text-lg font-semibold text-primary">Double-Entry Ledger Log</h2>
             <div className="overflow-x-auto mt-4">
               <Table variant="spacious" striped>
                 <TableHeader>
@@ -391,7 +384,7 @@ export default async function FinancePage({
                 <TableBody>
                   {data.transactions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-zinc-500 py-6">
+                      <TableCell colSpan={5} className="text-center text-muted py-6">
                         No transactions registered in the ledger.
                       </TableCell>
                     </TableRow>
@@ -423,7 +416,7 @@ export default async function FinancePage({
 
       {currentTab === "invoices" && (
         <Card variant="elevated" padding="lg">
-          <h2 className="text-lg font-semibold text-zinc-950">Student Invoices</h2>
+          <h2 className="text-lg font-semibold text-primary">Student Invoices</h2>
           <div className="overflow-x-auto mt-4">
             <Table variant="spacious" striped>
               <TableHeader>
@@ -439,17 +432,17 @@ export default async function FinancePage({
               <TableBody>
                 {data.invoices.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-zinc-500 py-6">
+                    <TableCell colSpan={6} className="text-center text-muted py-6">
                       No student invoices found. Click "Generate Invoices" to create bills.
                     </TableCell>
                   </TableRow>
                 ) : (
                   data.invoices.map((inv) => (
                     <TableRow key={inv.id}>
-                      <TableCell className="font-medium">{String(inv.studentName)}</TableCell>
-                      <TableCell>{inv.title}</TableCell>
-                      <TableCell>{String(inv.dueDate)}</TableCell>
-                      <TableCell className="font-semibold">₹{inv.amount.toLocaleString()}</TableCell>
+                      <TableCell className="font-medium text-primary">{String(inv.studentName)}</TableCell>
+                      <TableCell className="text-secondary">{inv.title}</TableCell>
+                      <TableCell className="text-secondary">{String(inv.dueDate)}</TableCell>
+                      <TableCell className="font-semibold text-primary">₹{inv.amount.toLocaleString()}</TableCell>
                       <TableCell>
                         <Badge variant={inv.status === "paid" ? "success" : "default"}>
                           {inv.status}
@@ -476,7 +469,7 @@ export default async function FinancePage({
 
       {currentTab === "payroll" && (
         <Card variant="elevated" padding="lg">
-          <h2 className="text-lg font-semibold text-zinc-950">Staff Payroll Logs</h2>
+          <h2 className="text-lg font-semibold text-primary">Staff Payroll Logs</h2>
           <div className="overflow-x-auto mt-4">
             <Table variant="spacious" striped>
               <TableHeader>
@@ -494,7 +487,7 @@ export default async function FinancePage({
               <TableBody>
                 {data.payrolls.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-zinc-500 py-6">
+                    <TableCell colSpan={8} className="text-center text-muted py-6">
                       No payroll records generated yet.
                     </TableCell>
                   </TableRow>
@@ -503,12 +496,12 @@ export default async function FinancePage({
                     const netPay = pay.basicSalary + pay.allowances - pay.deductions;
                     return (
                       <TableRow key={pay.id}>
-                        <TableCell className="font-medium">{pay.staffName}</TableCell>
-                        <TableCell>{pay.payPeriod}</TableCell>
-                        <TableCell>₹{pay.basicSalary.toLocaleString()}</TableCell>
-                        <TableCell>₹{pay.allowances.toLocaleString()}</TableCell>
-                        <TableCell>₹{pay.deductions.toLocaleString()}</TableCell>
-                        <TableCell className="font-semibold">₹{netPay.toLocaleString()}</TableCell>
+                        <TableCell className="font-medium text-primary">{pay.staffName}</TableCell>
+                        <TableCell className="text-secondary">{pay.payPeriod}</TableCell>
+                        <TableCell className="text-secondary">₹{pay.basicSalary.toLocaleString()}</TableCell>
+                        <TableCell className="text-secondary">₹{pay.allowances.toLocaleString()}</TableCell>
+                        <TableCell className="text-secondary">₹{pay.deductions.toLocaleString()}</TableCell>
+                        <TableCell className="font-semibold text-primary">₹{netPay.toLocaleString()}</TableCell>
                         <TableCell>
                           <Badge variant={pay.paymentStatus === "paid" ? "success" : "error"}>
                             {pay.paymentStatus}
@@ -537,7 +530,7 @@ export default async function FinancePage({
       {currentTab === "fees" && (
         <div className="grid gap-6 md:grid-cols-3">
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-zinc-950">Add Fee Plan</h2>
+            <h2 className="text-lg font-semibold text-primary">Add Fee Plan</h2>
             <form action={createFeePlan} className="space-y-3 mt-4">
               <div>
                 <Label htmlFor="classId">Academic Class</Label>
@@ -610,7 +603,7 @@ export default async function FinancePage({
           </Card>
 
           <Card variant="elevated" padding="lg" className="md:col-span-2">
-            <h2 className="text-lg font-semibold text-zinc-950">Active Fee Structures</h2>
+            <h2 className="text-lg font-semibold text-primary">Active Fee Structures</h2>
             <div className="overflow-x-auto mt-4">
               <Table variant="spacious" striped>
                 <TableHeader>
@@ -625,18 +618,18 @@ export default async function FinancePage({
                 <TableBody>
                   {data.fees.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-zinc-500 py-6">
+                      <TableCell colSpan={5} className="text-center text-muted py-6">
                         No base fee structures configured. Add one on the left.
                       </TableCell>
                     </TableRow>
                   ) : (
                     data.fees.map((fee) => (
                       <TableRow key={fee.id}>
-                        <TableCell className="font-medium">{fee.className}</TableCell>
-                        <TableCell>{fee.name}</TableCell>
-                        <TableCell className="font-semibold">₹{fee.amount.toLocaleString()}</TableCell>
-                        <TableCell className="capitalize">{fee.frequency}</TableCell>
-                        <TableCell>{fee.academicYear}</TableCell>
+                        <TableCell className="font-medium text-primary">{fee.className}</TableCell>
+                        <TableCell className="text-secondary">{fee.name}</TableCell>
+                        <TableCell className="font-semibold text-primary">₹{fee.amount.toLocaleString()}</TableCell>
+                        <TableCell className="capitalize text-secondary">{fee.frequency}</TableCell>
+                        <TableCell className="text-secondary">{fee.academicYear}</TableCell>
                       </TableRow>
                     ))
                   )}

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { forwardRef, HTMLAttributes, ReactNode, useState } from "react";
+import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 
 export interface TenantSidebarProps extends HTMLAttributes<HTMLElement> {
   items?: Array<{
@@ -51,7 +52,15 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
   } = props;
 
   const pathname = usePathname();
+  const router = useRouter();
 
+  async function handleDefaultSignOut() {
+    await fetchWithCsrf("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
+
+  const activeSignOut = onSignOut || handleDefaultSignOut;
   const combinedClasses = ["tenant-sidebar", className].filter(Boolean).join(" ");
 
   return (
@@ -124,11 +133,9 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
               </div>
             )}
           </div>
-          {onSignOut && (
-            <button onClick={onSignOut} className="tenant-sidebar__signout" type="button">
-              Sign Out
-            </button>
-          )}
+          <button onClick={activeSignOut} className="tenant-sidebar__signout" type="button">
+            Sign Out
+          </button>
         </div>
       )}
       </aside>
@@ -136,228 +143,8 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
   );
 });
 
-const TenantSidebarStyles = () => (
-  <style>{`
-    .tenant-sidebar {
-      width: 17rem;
-      min-height: 100vh;
-      background: var(--bg-surface);
-      border-right: 1px solid var(--border-default);
-      padding: var(--space-6) var(--space-5);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
-      flex-shrink: 0;
-    }
-
-    /* Mobile responsive - hidden on small screens, becomes drawer */
-    @media (max-width: 768px) {
-      .tenant-sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        z-index: var(--z-sticky);
-        transform: translateX(-100%);
-        transition: transform var(--duration-normal) var(--ease-default);
-        width: 18rem;
-        max-width: 85vw;
-        box-shadow: var(--shadow-lg);
-      }
-
-      .tenant-sidebar[data-mobile-open="true"] {
-        transform: translateX(0);
-      }
-
-      .tenant-sidebar-overlay {
-        position: fixed;
-        inset: 0;
-        background: var(--bg-overlay);
-        z-index: calc(var(--z-sticky) - 1);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity var(--duration-normal) var(--ease-default);
-      }
-
-      .tenant-sidebar-overlay[data-mobile-open="true"] {
-        opacity: 1;
-        pointer-events: auto;
-      }
-    }
-
-    .tenant-sidebar__brand {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding-bottom: var(--space-5);
-      border-bottom: 1px solid var(--border-default);
-    }
-
-    .tenant-sidebar__logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      background: var(--color-indigo-500);
-      border-radius: var(--radius-lg);
-      flex-shrink: 0;
-    }
-
-    .tenant-sidebar__brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .tenant-sidebar__brand-label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-semibold);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-widest);
-      color: var(--color-indigo-400);
-      line-height: 1;
-    }
-
-    .tenant-sidebar__brand-title {
-      font-size: var(--text-base);
-      font-weight: var(--weight-semibold);
-      color: var(--text-primary);
-      line-height: 1.2;
-    }
-
-    .tenant-sidebar__nav {
-      flex: 1;
-    }
-
-    .tenant-sidebar__list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .tenant-sidebar__item {
-      display: flex;
-    }
-
-    .tenant-sidebar__link {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      width: 100%;
-      padding: var(--space-2-5) var(--space-3);
-      font-size: var(--text-sm);
-      font-weight: var(--weight-medium);
-      color: var(--text-secondary);
-      text-decoration: none;
-      border-radius: var(--radius-lg);
-      transition:
-        background-color var(--duration-fast) var(--ease-default),
-        color var(--duration-fast) var(--ease-default);
-    }
-
-    .tenant-sidebar__link:hover {
-      background: var(--accent-subtle);
-      color: var(--text-primary);
-    }
-
-    .tenant-sidebar__link--active {
-      background: var(--color-indigo-50);
-      color: var(--color-indigo-700);
-    }
-
-    .tenant-sidebar__link-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.25rem;
-      height: 1.25rem;
-      color: var(--text-muted);
-      flex-shrink: 0;
-    }
-
-    .tenant-sidebar__link--active .tenant-sidebar__link-icon {
-      color: var(--color-indigo-600);
-    }
-
-    .tenant-sidebar__link-label {
-      flex: 1;
-    }
-
-    .tenant-sidebar__link-badge {
-      font-size: var(--text-xs);
-      padding: 2px var(--space-2);
-      background: var(--color-indigo-100);
-      color: var(--color-indigo-700);
-      border-radius: var(--radius-full);
-    }
-
-    .tenant-sidebar__context {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-      padding: var(--space-4);
-      background: var(--bg-surface-2);
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--border-default);
-    }
-
-    .tenant-sidebar__context-label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-semibold);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-widest);
-      color: var(--text-muted);
-    }
-
-    .tenant-sidebar__context-grid {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-
-    .tenant-sidebar__context-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .tenant-sidebar__context-key {
-      font-size: var(--text-xs);
-      color: var(--text-muted);
-    }
-
-    .tenant-sidebar__context-value {
-      font-size: var(--text-sm);
-      font-weight: var(--weight-medium);
-      color: var(--text-primary);
-    }
-
-    .tenant-sidebar__context-value--mono {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      word-break: break-all;
-    }
-
-    .tenant-sidebar__signout {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-medium);
-      color: var(--text-secondary);
-      background: none;
-      border: none;
-      padding: var(--space-2) 0;
-      cursor: pointer;
-      text-align: left;
-      transition: color var(--duration-fast) var(--ease-default);
-    }
-
-    .tenant-sidebar__signout:hover {
-      color: var(--text-primary);
-    }
-  `}</style>
-);
+// Styles are now consolidated into global CSS
+const TenantSidebarStyles = () => null;
 
 export { TenantSidebarStyles };
 export default TenantSidebar;

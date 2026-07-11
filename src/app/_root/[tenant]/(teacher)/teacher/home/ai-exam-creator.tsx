@@ -112,24 +112,25 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
   return (
     <div className="space-y-6">
       {/* Parameter Selection Grid */}
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+      <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
         <div>
-          <h2 className="text-lg font-semibold text-zinc-950">AI Exam Generator</h2>
-          <p className="text-sm text-zinc-600">
+          <h2 className="text-lg font-semibold text-primary">AI Exam Creator</h2>
+          <p className="text-sm text-secondary">
             Generate formatted, class-aligned tests instantly using Google Gemini AI.
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <label htmlFor="subject-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="subject-select" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
               Subject
             </label>
             <select
               id="subject-select"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               <option value="Science">Science</option>
               <option value="Mathematics">Mathematics</option>
@@ -140,14 +141,15 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           </div>
 
           <div>
-            <label htmlFor="class-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="class-select" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
               Target Class
             </label>
             <select
               id="class-select"
               value={classId}
               onChange={(e) => setClassId(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               {classes.map((c) => (
                 <option key={c.classId} value={c.classId}>
@@ -158,14 +160,15 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           </div>
 
           <div>
-            <label htmlFor="difficulty-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="difficulty-select" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
               Difficulty
             </label>
             <select
               id="difficulty-select"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
@@ -174,14 +177,15 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           </div>
 
           <div>
-            <label htmlFor="format-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="format-select" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
               Format
             </label>
             <select
               id="format-select"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               <option value="MCQ">Multiple Choice (MCQ)</option>
               <option value="Subjective">Subjective / Questions</option>
@@ -230,27 +234,30 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
 
       {/* Live Preview Container */}
       {exam && (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-100 pb-3">
+        <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b pb-3" style={{ borderColor: "var(--border-default)" }}>
             <div>
               <span className="text-xs uppercase tracking-[0.12em] font-bold text-sky-700">AI Draft Preview</span>
-              <h3 className="text-xl font-bold text-zinc-950 mt-1">{exam.title}</h3>
+              <h3 className="text-xl font-bold text-primary mt-1">{exam.title}</h3>
             </div>
             <button
               onClick={handleSave}
               className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition"
               aria-label="Save and publish exam"
             >
-              <span aria-hidden="true"></span>
               Save & Publish Exam
             </button>
           </div>
 
           <div className="space-y-4">
             {exam.questions.map((q, idx) => (
-              <div key={q.id || idx} className="p-4 bg-zinc-50 border border-zinc-200/60 rounded-xl space-y-3">
+              <div 
+                key={q.id || idx} 
+                className="p-4 border rounded-xl space-y-3"
+                style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
+              >
                 <div className="flex justify-between items-start gap-4">
-                  <div className="font-semibold text-zinc-900">
+                  <div className="font-semibold text-primary">
                     Q{idx + 1}. {q.questionText}
                   </div>
                   <span className="shrink-0 rounded-lg bg-zinc-200 px-2.5 py-1 text-xs font-semibold text-zinc-700">
@@ -279,7 +286,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
                 )}
 
                 {q.type === "subjective" && (
-                  <div className="text-xs text-zinc-500 font-mono mt-1">
+                  <div className="text-xs text-muted font-mono mt-1">
                     💡 Key Guideline: Expected points to cover inside grading keys.
                   </div>
                 )}
@@ -290,15 +297,15 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
       )}
 
       {/* Saved Exams List */}
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-950">Published Exam Papers</h2>
+      <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+        <h2 className="text-lg font-semibold text-primary">Published Exam Papers</h2>
         {savedExams.length === 0 ? (
-          <p className="text-sm text-zinc-500 py-4 text-center">No exams published yet.</p>
+          <p className="text-sm text-muted py-4 text-center">No exams published yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase">
+                <tr className="border-b text-xs font-semibold text-muted uppercase" style={{ borderColor: "var(--border-default)" }}>
                   <th className="pb-3">Title</th>
                   <th className="pb-3">Subject</th>
                   <th className="pb-3">Grade Level</th>
@@ -307,10 +314,10 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
                   <th className="pb-3 text-right">Published</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y" style={{ borderColor: "var(--border-default)" }}>
                 {savedExams.map((ex) => (
-                  <tr key={ex.id} className="text-zinc-800">
-                    <td className="py-3 font-semibold text-zinc-950">{ex.title}</td>
+                  <tr key={ex.id} className="text-secondary">
+                    <td className="py-3 font-semibold text-primary">{ex.title}</td>
                     <td className="py-3">{ex.subject}</td>
                     <td className="py-3">{ex.className}</td>
                     <td className="py-3">
@@ -319,7 +326,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
                       </span>
                     </td>
                     <td className="py-3">{ex.format}</td>
-                    <td className="py-3 text-right text-xs text-zinc-500">
+                    <td className="py-3 text-right text-xs text-muted">
                       {new Date(ex.createdAt).toLocaleDateString()}
                     </td>
                   </tr>

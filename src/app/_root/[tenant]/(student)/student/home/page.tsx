@@ -135,42 +135,50 @@ export default async function StudentHomePage() {
         {/* Left column: News & Announcements */}
         <div className="lg:col-span-2 space-y-6">
           {/* Daily News */}
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-zinc-950">Campus News & Notices</h2>
+          <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+            <h2 className="text-lg font-semibold text-primary">Campus News & Notices</h2>
             <div className="space-y-3">
               {dailyNews.map((news) => (
-                <div key={news.id} className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 space-y-2">
+                <div 
+                  key={news.id} 
+                  className="rounded-xl border p-4 space-y-2"
+                  style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
+                >
                   <div className="flex justify-between items-start gap-2">
                     <span className="inline-flex rounded-full bg-fuchsia-50 border border-fuchsia-200 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-700">
                       {news.tag}
                     </span>
-                    <span className="text-xs text-zinc-500">{news.date}</span>
+                    <span className="text-xs text-muted">{news.date}</span>
                   </div>
-                  <h3 className="font-semibold text-zinc-900">{news.title}</h3>
-                  <p className="text-sm text-zinc-600 leading-relaxed">{news.content}</p>
+                  <h3 className="font-semibold text-primary">{news.title}</h3>
+                  <p className="text-sm text-secondary leading-relaxed">{news.content}</p>
                 </div>
               ))}
             </div>
           </section>
 
           {/* Assignments */}
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-zinc-950">Upcoming Assignments</h2>
+          <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+            <h2 className="text-lg font-semibold text-primary">Upcoming Assignments</h2>
             {studentAssignments.length === 0 ? (
-              <p className="text-sm text-zinc-500 py-4 text-center border border-dashed border-zinc-200 rounded-xl">
+              <p className="text-sm text-muted py-4 text-center border border-dashed rounded-xl" style={{ borderColor: "var(--border-default)" }}>
                 No upcoming assignments posted for your class section.
               </p>
             ) : (
               <div className="space-y-3">
                 {studentAssignments.map((asn) => (
-                  <div key={asn.id} className="rounded-xl border border-zinc-200 p-4 space-y-2 hover:border-fuchsia-300 transition">
+                  <div 
+                    key={asn.id} 
+                    className="rounded-xl border p-4 space-y-2 hover:border-fuchsia-300 transition"
+                    style={{ borderColor: "var(--border-default)" }}
+                  >
                     <div className="flex justify-between items-center gap-2">
-                      <h3 className="font-semibold text-zinc-900">{asn.title}</h3>
+                      <h3 className="font-semibold text-primary">{asn.title}</h3>
                       <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
                         Due: {String(asn.dueDate)}
                       </span>
                     </div>
-                    {asn.description && <p className="text-xs text-zinc-600">{asn.description}</p>}
+                    {asn.description && <p className="text-xs text-secondary">{asn.description}</p>}
                     {asn.filePath && (
                       <div className="flex items-center gap-1.5 text-xs text-fuchsia-700 font-mono">
                         <span>📎</span>
@@ -185,10 +193,10 @@ export default async function StudentHomePage() {
         </div>
 
         {/* Right column: Report Card */}
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4 h-fit">
+        <section className="rounded-2xl border p-5 shadow-sm space-y-4 h-fit" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
           <div>
-            <h2 className="text-lg font-semibold text-zinc-950">Academic Progress</h2>
-            <p className="text-xs text-zinc-500">{reportCard.term}</p>
+            <h2 className="text-lg font-semibold text-primary">Academic Progress</h2>
+            <p className="text-xs text-muted">{reportCard.term}</p>
           </div>
 
           <div className="rounded-xl bg-fuchsia-50/50 border border-fuchsia-100 p-4 text-center">
@@ -197,13 +205,13 @@ export default async function StudentHomePage() {
           </div>
 
           <div className="space-y-3">
-            <div className="text-sm font-semibold text-zinc-800">Subject Grades</div>
-            <div className="divide-y divide-zinc-100">
+            <div className="text-sm font-semibold text-primary">Subject Grades</div>
+            <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
               {reportCard.subjects.map((subj) => (
                 <div key={subj.name} className="flex justify-between items-center py-2.5">
                   <div>
-                    <div className="text-sm font-medium text-zinc-900">{subj.name}</div>
-                    <div className="text-[10px] text-zinc-500">{subj.marks}</div>
+                    <div className="text-sm font-medium text-primary">{subj.name}</div>
+                    <div className="text-[10px] text-muted">{subj.marks}</div>
                   </div>
                   <span className="text-sm font-bold text-fuchsia-800">{subj.grade}</span>
                 </div>

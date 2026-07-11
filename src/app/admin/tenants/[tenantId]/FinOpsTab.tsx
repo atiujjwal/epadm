@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Card } from "@/components/ui/card";
 
 type MetricRow = {
   logDate: string;
@@ -29,37 +30,37 @@ export function FinOpsTab({ metrics }: { metrics: MetricRow[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-zinc-950">FinOps</h3>
-        <div className="text-sm text-zinc-600">
+        <h3 className="text-lg font-semibold text-primary">FinOps</h3>
+        <div className="text-sm text-secondary">
           Period total:{" "}
-          <span className="font-semibold text-zinc-950">
+          <span className="font-semibold text-primary">
             INR {totalCost.toFixed(4)}
           </span>
         </div>
       </div>
 
-      <div className="h-64 rounded-2xl border border-zinc-200 bg-white p-4">
+      <Card variant="default" padding="md" className="h-64">
         {chartData.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+          <div className="flex h-full items-center justify-center text-sm text-muted">
             No cost data yet. AI metering events will populate this view.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
+              <XAxis dataKey="date" tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
+              <YAxis tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
+              <Tooltip contentStyle={{ background: "var(--bg-surface)", borderColor: "var(--border-default)", color: "var(--text-primary)" }} />
               <Area
                 type="monotone"
                 dataKey="cost"
-                stroke="#b45309"
-                fill="#fde68a"
+                stroke="var(--chart-amber)"
+                fill="var(--chart-amber-fill)"
                 name="Cost (INR)"
               />
             </AreaChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

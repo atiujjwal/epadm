@@ -2,6 +2,8 @@ import { getPlatformCtx } from "@/lib/platform/context";
 import { getPlatformOverview } from "@/lib/platform/tenants";
 import { PlatformMetricsChart } from "./platform-metrics-chart";
 import { Card } from "@/components/ui/card";
+import PageHeader from "@/components/layout/page-header";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -11,16 +13,11 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <div className="text-sm font-medium" style={{ color: "var(--color-indigo-400)" }}>Platform status</div>
-        <h1 className="mt-1 text-3xl font-semibold text-white">
-          Welcome back, {ctx.name}
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-300">
-          Infrastructure cost vs API throughput across all schools. Sessions
-          expire after 15 minutes and require sliding Redis validation.
-        </p>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${ctx.name}`}
+        description="Infrastructure cost vs API throughput across all schools. Sessions expire after 15 minutes and require sliding Redis validation."
+        badge={<Badge variant="accent">Platform active</Badge>}
+      />
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
@@ -42,7 +39,7 @@ export default async function AdminOverviewPage() {
       </div>
 
       <Card variant="default" padding="lg">
-        <h2 className="text-lg font-semibold text-zinc-950">
+        <h2 className="text-lg font-semibold text-primary">
           AI token throughput (14 days)
         </h2>
         <div className="mt-4">
@@ -56,10 +53,10 @@ export default async function AdminOverviewPage() {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <Card variant="default" padding="md">
-      <div className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
+      <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted">
         {label}
       </div>
-      <div className="mt-2 text-2xl font-semibold text-zinc-950">{value}</div>
+      <div className="mt-2 text-2xl font-semibold text-primary">{value}</div>
     </Card>
   );
 }

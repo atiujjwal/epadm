@@ -64,7 +64,6 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(function Table(pro
 
   return (
     <div className="table__wrapper">
-      <TableStyles />
       <table ref={ref} className={combinedClasses} {...rest}>
         {children}
       </table>
@@ -206,132 +205,8 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(functi
   );
 });
 
-const TableStyles = () => (
-  <style>{`
-    .table__wrapper {
-      width: 100%;
-      overflow-x: auto;
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--border-default);
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    .table--default .table__cell,
-    .table--default .table__head {
-      padding: var(--space-4) var(--space-5);
-    }
-
-    .table--compact .table__cell,
-    .table--compact .table__head {
-      padding: var(--space-2-5) var(--space-3);
-      font-size: var(--text-xs);
-    }
-
-    .table--spacious .table__cell,
-    .table--spacious .table__head {
-      padding: var(--space-5) var(--space-6);
-    }
-
-    .table__header {
-      background: var(--bg-surface-2);
-      border-bottom: 1px solid var(--border-default);
-    }
-
-    .table__head {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-semibold);
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-wide);
-      white-space: nowrap;
-    }
-
-    .table__head--sortable {
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .table__head--sortable:hover {
-      color: var(--text-primary);
-      background: var(--bg-surface-2);
-    }
-
-    .table__sort-icon {
-      display: inline-flex;
-      align-items: center;
-      margin-left: var(--space-1);
-      opacity: 0.5;
-    }
-
-    .table__head--sortable:hover .table__sort-icon {
-      opacity: 1;
-    }
-
-    .table__sort-icon svg {
-      width: 1rem;
-      height: 1rem;
-    }
-
-    .table__body {
-      background: var(--bg-surface);
-    }
-
-    .table__row {
-      border-bottom: 1px solid var(--border-subtle);
-      transition: background-color var(--duration-fast) var(--ease-default);
-    }
-
-    .table__row:last-child {
-      border-bottom: none;
-    }
-
-    .table--striped .table__row:nth-child(even) {
-      background: var(--bg-surface-2);
-    }
-
-    .table--hoverable .table__row:hover {
-      background: var(--accent-subtle);
-    }
-
-    .table--striped.table--hoverable .table__row:hover {
-      background: var(--color-indigo-100);
-    }
-
-    .table__cell {
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-      vertical-align: middle;
-    }
-
-    .table__cell--emphasized {
-      font-weight: var(--weight-medium);
-      color: var(--text-primary);
-    }
-
-    .table__cell--left {
-      text-align: left;
-    }
-
-    .table__cell--center {
-      text-align: center;
-    }
-
-    .table__cell--right {
-      text-align: right;
-    }
-
-    .table__footer {
-      background: var(--bg-surface-2);
-      border-top: 1px solid var(--border-default);
-      font-weight: var(--weight-semibold);
-    }
-  `}</style>
-);
+// Styles are now consolidated into global CSS
+const TableStyles = () => null;
 
 export { TableStyles };
 export default Table;

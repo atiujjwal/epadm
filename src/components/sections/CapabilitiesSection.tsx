@@ -133,25 +133,6 @@ export function CapabilitiesSection() {
           ))}
         </m.div>
       </div>
-
-      <style>{`
-        .capabilities__grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: var(--space-5);
-          margin-top: var(--space-14);
-        }
-
-        .capabilities__card {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-4);
-        }
-
-        @media (max-width: 1280px) { .capabilities__grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 1024px) { .capabilities__grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px)  { .capabilities__grid { grid-template-columns: 1fr; } }
-      `}</style>
     </section>
   );
 }

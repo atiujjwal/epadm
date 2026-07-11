@@ -25,7 +25,7 @@ export function PlatformMetricsChart({ data }: { data: MetricPoint[] }) {
 
   if (chartData.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-zinc-300 text-sm text-zinc-500">
+      <div className="empty-state h-64 text-sm">
         No metering data yet. AI usage will appear here once tracked.
       </div>
     );
@@ -37,18 +37,18 @@ export function PlatformMetricsChart({ data }: { data: MetricPoint[] }) {
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="tokenFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
-              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+              <stop offset="5%" stopColor="var(--chart-amber)" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="var(--chart-amber)" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+          <XAxis dataKey="date" tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
+          <YAxis tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
+          <Tooltip contentStyle={{ background: "var(--bg-surface)", borderColor: "var(--border-default)", color: "var(--text-primary)" }} />
           <Area
             type="monotone"
             dataKey="tokens"
-            stroke="#d97706"
+            stroke="var(--chart-amber)"
             fill="url(#tokenFill)"
             name="AI tokens"
           />

@@ -251,7 +251,7 @@ export default async function TeacherHomePage({
       </section>
 
       {/* Tabs */}
-      <div className="flex border-b border-zinc-200">
+      <div className="tab-nav">
         {[
           { id: "workspace", label: "Attendance & Assignments" },
           { id: "ai-exams", label: "AI Exam Creator" },
@@ -259,10 +259,8 @@ export default async function TeacherHomePage({
           <a
             key={tab.id}
             href={`?tab=${tab.id}`}
-            className={`border-b-2 px-6 py-3 text-sm font-medium transition ${
-              currentTab === tab.id
-                ? "border-sky-600 text-sky-700 font-semibold"
-                : "border-transparent text-zinc-600 hover:text-zinc-900"
+            className={`tab-nav__button ${
+              currentTab === tab.id ? "tab-nav__button--active" : ""
             }`}
           >
             {tab.label}
@@ -273,12 +271,12 @@ export default async function TeacherHomePage({
       {currentTab === "workspace" && (
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Classes Sidebar */}
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4 h-fit">
-            <h2 className="text-lg font-semibold text-zinc-950">
+          <section className="rounded-2xl border p-5 shadow-sm space-y-4 h-fit" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+            <h2 className="text-lg font-semibold text-primary">
               Assigned Classes
             </h2>
             {assigned.length === 0 ? (
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-secondary">
                 You are not assigned as homeroom teacher to any classes.
               </p>
             ) : (
@@ -290,16 +288,20 @@ export default async function TeacherHomePage({
                     className={`block rounded-xl border p-4 text-left transition ${
                       activeSectionId === sec.sectionId
                         ? "border-sky-500 bg-sky-50/50"
-                        : "border-zinc-200 hover:bg-zinc-50"
+                        : "hover:bg-zinc-50"
                     }`}
+                    style={{ 
+                      borderColor: activeSectionId === sec.sectionId ? "var(--color-sky-500)" : "var(--border-default)",
+                      backgroundColor: activeSectionId === sec.sectionId ? "var(--color-sky-50)" : "var(--bg-surface)"
+                    }}
                   >
-                    <div className="font-semibold text-zinc-900">
+                    <div className="font-semibold text-primary">
                       {sec.className}
                     </div>
-                    <div className="text-sm text-zinc-600">
+                    <div className="text-sm text-secondary">
                       Section: {sec.sectionName}
                     </div>
-                    <div className="mt-2 text-xs text-zinc-500">
+                    <div className="mt-2 text-xs text-muted">
                       Max Capacity: {sec.capacity ?? "N/A"} students
                     </div>
                   </a>
@@ -313,12 +315,12 @@ export default async function TeacherHomePage({
             {activeSection ? (
               <>
                 {/* Attendance Marker */}
-                <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+                <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
                   <div>
-                    <h2 className="text-lg font-semibold text-zinc-950">
+                    <h2 className="text-lg font-semibold text-primary">
                       Daily Attendance
                     </h2>
-                    <p className="text-sm text-zinc-600">
+                    <p className="text-sm text-secondary">
                       Mark student attendance for {activeSection.className} -{" "}
                       {activeSection.sectionName}
                     </p>
@@ -337,34 +339,35 @@ export default async function TeacherHomePage({
                     />
 
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
-                      <label className="text-sm font-medium text-zinc-700">
+                      <label className="text-sm font-medium text-secondary">
                         Date
                       </label>
                       <input
                         type="date"
                         name="date"
                         defaultValue={todayStr}
-                        className="rounded-xl border border-zinc-300 px-3 py-1.5 text-sm"
+                        className="rounded-xl border px-3 py-1.5 text-sm"
+                        style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         required
                       />
                     </div>
 
                     {enrolledStudents.length === 0 ? (
-                      <p className="text-sm text-zinc-600 py-4 border border-dashed border-zinc-200 rounded-xl text-center">
+                      <p className="text-sm text-secondary py-4 border border-dashed rounded-xl text-center" style={{ borderColor: "var(--border-default)" }}>
                         No students enrolled in this section.
                       </p>
                     ) : (
-                      <div className="divide-y divide-zinc-100 max-h-80 overflow-y-auto pr-1">
+                      <div className="divide-y max-h-80 overflow-y-auto pr-1" style={{ borderColor: "var(--border-default)" }}>
                         {enrolledStudents.map((student) => (
                           <div
                             key={student.studentId}
                             className="flex items-center justify-between py-3 gap-4"
                           >
                             <div>
-                              <div className="font-medium text-zinc-900">
+                              <div className="font-medium text-primary">
                                 {student.firstName} {student.lastName}
                               </div>
-                              <div className="text-xs text-zinc-500">
+                              <div className="text-xs text-muted">
                                 Adm: {student.admissionNumber}
                               </div>
                             </div>
@@ -372,7 +375,8 @@ export default async function TeacherHomePage({
                             <div className="flex items-center gap-2">
                               <select
                                 name={`status_${student.studentId}`}
-                                className="rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs font-medium"
+                                className="rounded-lg border px-2.5 py-1.5 text-xs font-medium"
+                                style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                                 required
                               >
                                 <option value="present">Present</option>
@@ -383,7 +387,8 @@ export default async function TeacherHomePage({
                                 type="text"
                                 name={`notes_${student.studentId}`}
                                 placeholder="Notes (optional)"
-                                className="hidden sm:block rounded-lg border border-zinc-300 px-2 py-1.5 text-xs w-28"
+                                className="hidden sm:block rounded-lg border px-2 py-1.5 text-xs w-28"
+                                style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                               />
                             </div>
                           </div>
@@ -403,15 +408,16 @@ export default async function TeacherHomePage({
                 </section>
 
                 {/* Assignment Manager */}
-                <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
-                  <h2 className="text-lg font-semibold text-zinc-950">
+                <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+                  <h2 className="text-lg font-semibold text-primary">
                     Assignments
                   </h2>
 
                   {/* Create form */}
                   <form
                     action={createAssignment}
-                    className="space-y-3 p-4 bg-zinc-50 rounded-xl border border-zinc-100"
+                    className="space-y-3 p-4 rounded-xl border"
+                    style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                   >
                     <input
                       type="hidden"
@@ -424,7 +430,7 @@ export default async function TeacherHomePage({
                       value={activeSection.sectionId}
                     />
 
-                    <div className="text-sm font-semibold text-zinc-800">
+                    <div className="text-sm font-semibold text-primary">
                       Add New Assignment
                     </div>
 
@@ -432,7 +438,8 @@ export default async function TeacherHomePage({
                       <input
                         name="title"
                         placeholder="Assignment Title"
-                        className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                        className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                        style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         required
                       />
                     </div>
@@ -441,32 +448,35 @@ export default async function TeacherHomePage({
                       <textarea
                         name="description"
                         placeholder="Instructions/Description"
-                        className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                        className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                        style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         rows={2}
                       />
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="block text-xs font-medium text-zinc-500 mb-1">
+                        <label className="block text-xs font-medium text-muted mb-1">
                           Due Date
                         </label>
                         <input
                           type="date"
                           name="dueDate"
                           defaultValue={todayStr}
-                          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                          className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                          style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-zinc-500 mb-1">
+                        <label className="block text-xs font-medium text-muted mb-1">
                           Attachment File Name
                         </label>
                         <input
                           name="filePath"
                           placeholder="assignment-sheet.pdf"
-                          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                          className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                          style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         />
                       </div>
                     </div>
@@ -481,11 +491,11 @@ export default async function TeacherHomePage({
 
                   {/* Assignment list */}
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold text-zinc-800">
+                    <div className="text-sm font-semibold text-primary">
                       Existing Assignments
                     </div>
                     {existingAssignments.length === 0 ? (
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-muted">
                         No assignments posted yet for this class.
                       </p>
                     ) : (
@@ -493,10 +503,11 @@ export default async function TeacherHomePage({
                         {existingAssignments.map((asn) => (
                           <div
                             key={asn.id}
-                            className="rounded-xl border border-zinc-200 p-3.5 space-y-1"
+                            className="rounded-xl border p-3.5 space-y-1"
+                            style={{ borderColor: "var(--border-default)" }}
                           >
                             <div className="flex justify-between items-start gap-2">
-                              <div className="font-medium text-zinc-900">
+                              <div className="font-medium text-primary">
                                 {asn.title}
                               </div>
                               <div className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
@@ -504,7 +515,7 @@ export default async function TeacherHomePage({
                               </div>
                             </div>
                             {asn.description && (
-                              <p className="text-xs text-zinc-600">
+                              <p className="text-xs text-secondary">
                                 {asn.description}
                               </p>
                             )}
@@ -521,7 +532,7 @@ export default async function TeacherHomePage({
                 </section>
               </>
             ) : (
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-secondary">
                 Select a class from the list to start marking attendance.
               </p>
             )}

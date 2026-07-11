@@ -2,7 +2,7 @@ import { getStaffSummary, listStaff } from "@/lib/admin/registries";
 import { getCtx } from "@/lib/context";
 import { StaffRegistry } from "./staff-registry";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/layout/page-header";
 
 export default async function StaffPage() {
   const ctx = await getCtx();
@@ -13,27 +13,25 @@ export default async function StaffPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Staff"
+        description="Maintain employee codes, departments, and staffing records in one place."
+      />
+
       <section className="grid gap-4 md:grid-cols-3">
         <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Total staff</div>
-          <div className="mt-2 text-3xl font-semibold text-zinc-950">{summary.total}</div>
+          <div className="text-xs uppercase tracking-[0.14em] text-muted">Total staff</div>
+          <div className="mt-2 text-3xl font-semibold text-primary">{summary.total}</div>
         </Card>
         <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Active</div>
-          <div className="mt-2 text-3xl font-semibold text-emerald-700">{summary.active}</div>
+          <div className="text-xs uppercase tracking-[0.14em] text-muted">Active</div>
+          <div className="mt-2 text-3xl font-semibold text-accent">{summary.active}</div>
         </Card>
         <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Non-active</div>
-          <div className="mt-2 text-3xl font-semibold text-zinc-700">{summary.inactive}</div>
+          <div className="text-xs uppercase tracking-[0.14em] text-muted">Non-active</div>
+          <div className="mt-2 text-3xl font-semibold text-secondary">{summary.inactive}</div>
         </Card>
       </section>
-
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-950">Staff</h1>
-        <p className="mt-1 text-sm text-zinc-600">
-          Maintain employee codes, departments, and staffing records in one place.
-        </p>
-      </div>
 
       <StaffRegistry
         initialStaff={staff.map((member) => ({

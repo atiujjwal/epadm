@@ -2,7 +2,7 @@ import { getStudentSummary, listStudents } from "@/lib/admin/registries";
 import { StudentRegistry } from "./student-registry";
 import { getCtx } from "@/lib/context";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/layout/page-header";
 
 export default async function StudentsPage() {
   const ctx = await getCtx();
@@ -13,27 +13,25 @@ export default async function StudentsPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Students"
+        description="Maintain admission, classroom, and guardian records for daily school operations."
+      />
+
       <section className="grid gap-4 md:grid-cols-3">
         <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Total students</div>
-          <div className="mt-2 text-3xl font-semibold text-zinc-950">{summary.total}</div>
+          <div className="text-xs uppercase tracking-[0.14em] text-muted">Total students</div>
+          <div className="mt-2 text-3xl font-semibold text-primary">{summary.total}</div>
         </Card>
         <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Active</div>
-          <div className="mt-2 text-3xl font-semibold text-emerald-700">{summary.active}</div>
+          <div className="text-xs uppercase tracking-[0.14em] text-muted">Active</div>
+          <div className="mt-2 text-3xl font-semibold text-accent">{summary.active}</div>
         </Card>
         <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Non-active</div>
-          <div className="mt-2 text-3xl font-semibold text-zinc-700">{summary.inactive}</div>
+          <div className="text-xs uppercase tracking-[0.14em] text-muted">Non-active</div>
+          <div className="mt-2 text-3xl font-semibold text-secondary">{summary.inactive}</div>
         </Card>
       </section>
-
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-950">Students</h1>
-        <p className="mt-1 text-sm text-zinc-600">
-          Maintain admission, classroom, and guardian records for daily school operations.
-        </p>
-      </div>
 
       <StudentRegistry
         initialStudents={students.map((student) => ({

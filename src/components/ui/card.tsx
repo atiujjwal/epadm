@@ -47,12 +47,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(props, r
     .join(" ");
 
   return (
-    <>
-      <CardStyles />
-      <div ref={ref} className={combinedClasses} {...rest}>
-        {children}
-      </div>
-    </>
+    <div ref={ref} className={combinedClasses} {...rest}>
+      {children}
+    </div>
   );
 });
 
@@ -98,94 +95,8 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(function C
   );
 });
 
-const CardStyles = () => (
-  <style>{`
-    .card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-default);
-      border-radius: var(--radius-xl);
-      transition:
-        border-color var(--duration-normal) var(--ease-default),
-        box-shadow var(--duration-normal) var(--ease-default),
-        background var(--duration-normal) var(--ease-default);
-    }
-
-    .card--default {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-default);
-    }
-
-    .card--elevated {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      box-shadow: var(--shadow-md);
-    }
-
-    .card--outlined {
-      background: transparent;
-      border: 1px solid var(--border-strong);
-    }
-
-    .card--interactive {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-default);
-      cursor: pointer;
-    }
-
-    .card--interactive:hover {
-      border-color: var(--border-accent);
-      box-shadow: 0 4px 12px var(--accent-glow);
-      transform: translateY(-2px);
-    }
-
-    .card--padding-none {
-      padding: 0;
-    }
-
-    .card--padding-sm {
-      padding: var(--space-4);
-    }
-
-    .card--padding-md {
-      padding: var(--space-6);
-    }
-
-    .card--padding-lg {
-      padding: var(--space-8);
-    }
-
-    .card__header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-4);
-      padding-bottom: var(--space-4);
-      border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: var(--space-4);
-    }
-
-    .card__header:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-
-    .card__body {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .card__footer {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: var(--space-3);
-      padding-top: var(--space-4);
-      border-top: 1px solid var(--border-subtle);
-      margin-top: var(--space-4);
-    }
-  `}</style>
-);
+// Styles are now consolidated into global CSS
+const CardStyles = () => null;
 
 export { CardStyles };
 export default Card;

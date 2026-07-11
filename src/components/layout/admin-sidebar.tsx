@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { forwardRef, HTMLAttributes, ReactNode } from "react";
+import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 
 export interface AdminSidebarProps extends HTMLAttributes<HTMLElement> {
   items?: Array<{
@@ -42,13 +43,19 @@ export const AdminSidebar = forwardRef<HTMLElement, AdminSidebarProps>(function 
   } = props;
 
   const pathname = usePathname();
+  const router = useRouter();
 
+  async function handleDefaultSignOut() {
+    await fetchWithCsrf("/api/platform/auth/logout", { method: "POST" });
+    router.push("/admin/login");
+    router.refresh();
+  }
+
+  const activeSignOut = onSignOut || handleDefaultSignOut;
   const combinedClasses = ["admin-sidebar", className].filter(Boolean).join(" ");
 
   return (
-    <>
-      <AdminSidebarStyles />
-      <aside ref={ref} className={combinedClasses} {...rest}>
+    <aside ref={ref} className={combinedClasses} {...rest}>
         <div className="admin-sidebar__brand">
           <div className="admin-sidebar__logo">
             <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -93,195 +100,17 @@ export const AdminSidebar = forwardRef<HTMLElement, AdminSidebarProps>(function 
               {operatorName && <div className="admin-sidebar__operator-name">{operatorName}</div>}
               {operatorEmail && <div className="admin-sidebar__operator-email">{operatorEmail}</div>}
             </div>
-            {onSignOut && (
-              <button onClick={onSignOut} className="admin-sidebar__signout" type="button">
-                Sign Out
-              </button>
-            )}
+            <button onClick={activeSignOut} className="admin-sidebar__signout" type="button">
+              Sign Out
+            </button>
           </div>
         )}
       </aside>
-    </>
   );
 });
 
-const AdminSidebarStyles = () => (
-  <style>{`
-    .admin-sidebar {
-      width: 17rem;
-      min-height: 100vh;
-      background: var(--color-navy-900);
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
-      padding: var(--space-6) var(--space-5);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
-      flex-shrink: 0;
-    }
-
-    .admin-sidebar__brand {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding-bottom: var(--space-5);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .admin-sidebar__logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      background: rgba(79, 110, 247, 0.15);
-      border-radius: var(--radius-lg);
-      flex-shrink: 0;
-    }
-
-    .admin-sidebar__brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .admin-sidebar__brand-label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-semibold);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-widest);
-      color: var(--color-indigo-300);
-      line-height: 1;
-    }
-
-    .admin-sidebar__brand-title {
-      font-size: var(--text-base);
-      font-weight: var(--weight-semibold);
-      color: var(--color-white);
-      line-height: 1.2;
-    }
-
-    .admin-sidebar__nav {
-      flex: 1;
-    }
-
-    .admin-sidebar__list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .admin-sidebar__item {
-      display: flex;
-    }
-
-    .admin-sidebar__link {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      width: 100%;
-      padding: var(--space-2-5) var(--space-3);
-      font-size: var(--text-sm);
-      font-weight: var(--weight-medium);
-      color: var(--color-slate-300);
-      text-decoration: none;
-      border-radius: var(--radius-lg);
-      transition:
-        background-color var(--duration-fast) var(--ease-default),
-        color var(--duration-fast) var(--ease-default);
-    }
-
-    .admin-sidebar__link:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--color-white);
-    }
-
-    .admin-sidebar__link--active {
-      background: rgba(79, 110, 247, 0.2);
-      color: var(--color-white);
-    }
-
-    .admin-sidebar__link-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.25rem;
-      height: 1.25rem;
-      color: var(--color-indigo-300);
-      flex-shrink: 0;
-    }
-
-    .admin-sidebar__link--active .admin-sidebar__link-icon {
-      color: var(--color-indigo-400);
-    }
-
-    .admin-sidebar__link-label {
-      flex: 1;
-    }
-
-    .admin-sidebar__link-badge {
-      font-size: var(--text-xs);
-      padding: 2px var(--space-2);
-      background: rgba(79, 110, 247, 0.2);
-      color: var(--color-indigo-200);
-      border-radius: var(--radius-full);
-    }
-
-    .admin-sidebar__operator {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-      padding: var(--space-4);
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .admin-sidebar__operator-label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-semibold);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-widest);
-      color: var(--color-slate-400);
-    }
-
-    .admin-sidebar__operator-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .admin-sidebar__operator-name {
-      font-size: var(--text-sm);
-      font-weight: var(--weight-medium);
-      color: var(--color-white);
-    }
-
-    .admin-sidebar__operator-email {
-      font-size: var(--text-xs);
-      color: var(--color-slate-400);
-      word-break: break-all;
-    }
-
-    .admin-sidebar__signout {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-medium);
-      color: var(--color-slate-400);
-      background: none;
-      border: none;
-      padding: var(--space-2) 0;
-      cursor: pointer;
-      text-align: left;
-      transition: color var(--duration-fast) var(--ease-default);
-    }
-
-    .admin-sidebar__signout:hover {
-      color: var(--color-white);
-    }
-  `}</style>
-);
+// Styles are now consolidated into global CSS
+const AdminSidebarStyles = () => null;
 
 export { AdminSidebarStyles };
 export default AdminSidebar;

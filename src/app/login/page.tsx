@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardBody } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormItem, FormError } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,78 +51,77 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-center text-2xl font-semibold text-zinc-900">
-          Sign in to SchoolOS
-        </h1>
-        <p className="mb-6 text-center text-sm text-zinc-500">
-          Enter your school slug, email, and password to continue.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700">
-              School slug
-            </label>
-            <input
+    <div className="login-page">
+      <Card variant="elevated" padding="lg" className="login-page__card">
+        <div className="login-page__header">
+          <h1 className="login-page__heading">
+            Sign in to SchoolOS
+          </h1>
+          <p className="login-page__subheading">
+            Enter your school slug, email, and password to continue.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="login-page__form">
+          <FormItem>
+            <Label htmlFor="tenantSlug" required>School slug</Label>
+            <Input
+              id="tenantSlug"
               type="text"
               value={tenantSlug}
               onChange={(e) => setTenantSlug(e.target.value.trim())}
               placeholder="e.g. stxaviers"
-              className="w-full rounded-md border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-300"
               required
             />
-          </div>
+          </FormItem>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700">
-              Email
-            </label>
-            <input
+          <FormItem>
+            <Label htmlFor="email" required>Email</Label>
+            <Input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-300"
+              placeholder="you@school.edu"
               required
             />
-          </div>
+          </FormItem>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700">
-              Password
-            </label>
-            <input
+          <FormItem>
+            <Label htmlFor="password" required>Password</Label>
+            <Input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-300"
+              placeholder="••••••••"
               required
             />
-          </div>
+          </FormItem>
 
           {error && (
-            <p className="text-sm text-red-600" role="alert">
+            <FormError role="alert">
               {error}
-            </p>
+            </FormError>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+            variant="primary"
+            className="w-full justify-center"
+            style={{ marginTop: 'var(--space-2)' }}
           >
             {loading ? "Signing in..." : "Sign in"}
-          </button>
+          </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <p className="login-page__footer">
           Need a new school workspace?{" "}
-          <a href="/register" className="font-medium text-zinc-900 hover:underline">
+          <Link href="/register" className="login-page__link">
             Register here
-          </a>
+          </Link>
         </p>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -211,49 +211,6 @@ export function TopologyGrid() {
           <span>Control plane</span>
         </div>
       </div>
-
-      <style>{`
-        .topology {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-4);
-        }
-
-        .topology__svg {
-          flex: 1;
-          width: 100%;
-        }
-
-        .topology__legend {
-          display: flex;
-          align-items: center;
-          gap: var(--space-5);
-          padding-top: var(--space-2);
-          border-top: 1px solid var(--border-subtle);
-        }
-
-        .topology__legend-item {
-          display: flex;
-          align-items: center;
-          gap: var(--space-1-5);
-          font-size: var(--text-xs);
-          color: var(--text-muted);
-          font-family: var(--font-mono);
-        }
-
-        .topology__legend-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-
-        .topology__legend-dot--active   { background: var(--accent-primary); }
-        .topology__legend-dot--inactive { background: var(--color-slate-600); }
-        .topology__legend-dot--hub      { background: rgba(79, 110, 247, 0.6); border: 1px solid var(--accent-primary); }
-      `}</style>
     </div>
   );
 }

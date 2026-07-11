@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Card } from "@/components/ui/card";
 
 type MetricRow = {
   logDate: string;
@@ -25,34 +26,34 @@ export function PerformanceTab({ metrics }: { metrics: MetricRow[] }) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-zinc-950">Performance</h3>
-      <div className="h-64 rounded-2xl border border-zinc-200 bg-white p-4">
+      <h3 className="text-lg font-semibold text-primary">Performance</h3>
+      <Card variant="default" padding="md" className="h-64">
         {chartData.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+          <div className="flex h-full items-center justify-center text-sm text-muted">
             No performance metrics recorded yet.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
+              <XAxis dataKey="date" tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
+              <YAxis tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
+              <Tooltip contentStyle={{ background: "var(--bg-surface)", borderColor: "var(--border-default)", color: "var(--text-primary)" }} />
               <Line
                 type="monotone"
                 dataKey="activeUsers"
-                stroke="#059669"
+                stroke="var(--chart-green)"
                 name="Active users"
               />
               <Line
                 type="monotone"
                 dataKey="tokens"
-                stroke="#d97706"
+                stroke="var(--chart-amber)"
                 name="AI tokens"
               />
             </LineChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
