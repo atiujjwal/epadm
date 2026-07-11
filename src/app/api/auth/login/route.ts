@@ -3,7 +3,7 @@ import { z } from "zod";
 import argon2 from "argon2";
 import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { db, tenants, tenantUsers, users } from "@/lib/db";
+import { opsDb, tenants, tenantUsers, users } from "@/lib/db/ops";
 import { createSessionToken } from "@/lib/auth/token";
 import { setTenantActiveCache } from "@/lib/platform/tenant-cache";
 import { badRequest, serverError, unauthorized } from "@/lib/http/responses";
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const json = await req.json();
     const { email, password, tenantSlug } = loginSchema.parse(json);
 
-    const [tenant] = await db
+    const [tenant] = await opsDb
       .select()
       .from(tenants)
       .where(and(eq(tenants.slug, tenantSlug), eq(tenants.isActive, true)))
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
     await setTenantActiveCache(tenant.id, tenant.isActive);
 
-    const [row] = await db
+    const [row] = await opsDb
       .select({
         userId: users.id,
         passwordHash: users.passwordHash,

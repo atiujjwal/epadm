@@ -1,6 +1,7 @@
 import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { writeAuditLog } from "@/lib/audit";
-import { db, staffProfiles, students } from "@/lib/db";
+import { staffProfiles, students } from "@/lib/db";
+import { withTenant } from "@/lib/rls";
 
 export const STUDENT_READ_PERMISSION = "students.read" as const;
 export const STUDENT_WRITE_PERMISSION = "students.write" as const;
@@ -89,40 +90,41 @@ function normalizeCode(value: string) {
 }
 
 export async function listStudents(tenantId: string, search?: string) {
-  const query = db
-    .select({
-      id: students.id,
-      admissionNumber: students.admissionNumber,
-      firstName: students.firstName,
-      lastName: students.lastName,
-      gender: students.gender,
-      dateOfBirth: students.dateOfBirth,
-      classLabel: students.classLabel,
-      sectionLabel: students.sectionLabel,
-      guardianName: students.guardianName,
-      guardianPhone: students.guardianPhone,
-      status: students.status,
-      notes: students.notes,
-      createdAt: students.createdAt,
-    })
-    .from(students)
-    .where(
-      search
-        ? and(
-            eq(students.tenantId, tenantId),
-            or(
-              ilike(students.admissionNumber, `%${search}%`),
-              ilike(students.firstName, `%${search}%`),
-              ilike(students.lastName, `%${search}%`),
-              ilike(students.classLabel, `%${search}%`),
-              ilike(students.guardianName, `%${search}%`),
-            ),
-          )
-        : eq(students.tenantId, tenantId),
-    )
-    .orderBy(desc(students.createdAt), asc(students.firstName));
+  const rows = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: students.id,
+        admissionNumber: students.admissionNumber,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        gender: students.gender,
+        dateOfBirth: students.dateOfBirth,
+        classLabel: students.classLabel,
+        sectionLabel: students.sectionLabel,
+        guardianName: students.guardianName,
+        guardianPhone: students.guardianPhone,
+        status: students.status,
+        notes: students.notes,
+        createdAt: students.createdAt,
+      })
+      .from(students)
+      .where(
+        search
+          ? and(
+              eq(students.tenantId, tenantId),
+              or(
+                ilike(students.admissionNumber, `%${search}%`),
+                ilike(students.firstName, `%${search}%`),
+                ilike(students.lastName, `%${search}%`),
+                ilike(students.classLabel, `%${search}%`),
+                ilike(students.guardianName, `%${search}%`),
+              ),
+            )
+          : eq(students.tenantId, tenantId),
+      )
+      .orderBy(desc(students.createdAt), asc(students.firstName)),
+  );
 
-  const rows = await query;
   return rows.map((row) => ({
     ...row,
     dateOfBirth: row.dateOfBirth ? String(row.dateOfBirth) : null,
@@ -130,38 +132,39 @@ export async function listStudents(tenantId: string, search?: string) {
 }
 
 export async function listStaff(tenantId: string, search?: string) {
-  const query = db
-    .select({
-      id: staffProfiles.id,
-      employeeCode: staffProfiles.employeeCode,
-      fullName: staffProfiles.fullName,
-      email: staffProfiles.email,
-      phone: staffProfiles.phone,
-      department: staffProfiles.department,
-      jobTitle: staffProfiles.jobTitle,
-      employmentType: staffProfiles.employmentType,
-      joinedOn: staffProfiles.joinedOn,
-      status: staffProfiles.status,
-      notes: staffProfiles.notes,
-      createdAt: staffProfiles.createdAt,
-    })
-    .from(staffProfiles)
-    .where(
-      search
-        ? and(
-            eq(staffProfiles.tenantId, tenantId),
-            or(
-              ilike(staffProfiles.employeeCode, `%${search}%`),
-              ilike(staffProfiles.fullName, `%${search}%`),
-              ilike(staffProfiles.department, `%${search}%`),
-              ilike(staffProfiles.jobTitle, `%${search}%`),
-            ),
-          )
-        : eq(staffProfiles.tenantId, tenantId),
-    )
-    .orderBy(desc(staffProfiles.createdAt), asc(staffProfiles.fullName));
+  const rows = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: staffProfiles.id,
+        employeeCode: staffProfiles.employeeCode,
+        fullName: staffProfiles.fullName,
+        email: staffProfiles.email,
+        phone: staffProfiles.phone,
+        department: staffProfiles.department,
+        jobTitle: staffProfiles.jobTitle,
+        employmentType: staffProfiles.employmentType,
+        joinedOn: staffProfiles.joinedOn,
+        status: staffProfiles.status,
+        notes: staffProfiles.notes,
+        createdAt: staffProfiles.createdAt,
+      })
+      .from(staffProfiles)
+      .where(
+        search
+          ? and(
+              eq(staffProfiles.tenantId, tenantId),
+              or(
+                ilike(staffProfiles.employeeCode, `%${search}%`),
+                ilike(staffProfiles.fullName, `%${search}%`),
+                ilike(staffProfiles.department, `%${search}%`),
+                ilike(staffProfiles.jobTitle, `%${search}%`),
+              ),
+            )
+          : eq(staffProfiles.tenantId, tenantId),
+      )
+      .orderBy(desc(staffProfiles.createdAt), asc(staffProfiles.fullName)),
+  );
 
-  const rows = await query;
   return rows.map((row) => ({
     ...row,
     joinedOn: row.joinedOn ? String(row.joinedOn) : null,
@@ -169,14 +172,16 @@ export async function listStaff(tenantId: string, search?: string) {
 }
 
 export async function getStudentSummary(tenantId: string): Promise<RegistrySummary> {
-  const [counts] = await db
-    .select({
-      total: count(students.id),
-      active: sql<number>`count(*) filter (where ${students.status} = 'active')`,
-      inactive: sql<number>`count(*) filter (where ${students.status} <> 'active')`,
-    })
-    .from(students)
-    .where(eq(students.tenantId, tenantId));
+  const [counts] = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        total: count(students.id),
+        active: sql<number>`count(*) filter (where ${students.status} = 'active')`,
+        inactive: sql<number>`count(*) filter (where ${students.status} <> 'active')`,
+      })
+      .from(students)
+      .where(eq(students.tenantId, tenantId)),
+  );
 
   return {
     total: Number(counts?.total ?? 0),
@@ -186,14 +191,16 @@ export async function getStudentSummary(tenantId: string): Promise<RegistrySumma
 }
 
 export async function getStaffSummary(tenantId: string): Promise<RegistrySummary> {
-  const [counts] = await db
-    .select({
-      total: count(staffProfiles.id),
-      active: sql<number>`count(*) filter (where ${staffProfiles.status} = 'active')`,
-      inactive: sql<number>`count(*) filter (where ${staffProfiles.status} <> 'active')`,
-    })
-    .from(staffProfiles)
-    .where(eq(staffProfiles.tenantId, tenantId));
+  const [counts] = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        total: count(staffProfiles.id),
+        active: sql<number>`count(*) filter (where ${staffProfiles.status} = 'active')`,
+        inactive: sql<number>`count(*) filter (where ${staffProfiles.status} <> 'active')`,
+      })
+      .from(staffProfiles)
+      .where(eq(staffProfiles.tenantId, tenantId)),
+  );
 
   return {
     total: Number(counts?.total ?? 0),
@@ -205,7 +212,7 @@ export async function getStaffSummary(tenantId: string): Promise<RegistrySummary
 export async function createStudent(input: CreateStudentInput) {
   const admissionNumber = normalizeCode(input.admissionNumber);
 
-  return db.transaction(async (tx) => {
+  return withTenant(input.tenantId, async (tx) => {
     const existing = await tx.query.students.findFirst({
       where: and(
         eq(students.tenantId, input.tenantId),
@@ -257,7 +264,7 @@ export async function createStudent(input: CreateStudentInput) {
 export async function createStaffProfile(input: CreateStaffInput) {
   const employeeCode = normalizeCode(input.employeeCode);
 
-  return db.transaction(async (tx) => {
+  return withTenant(input.tenantId, async (tx) => {
     const existing = await tx.query.staffProfiles.findFirst({
       where: and(
         eq(staffProfiles.tenantId, input.tenantId),

@@ -55,7 +55,7 @@ export function ProvisionTenantForm() {
       <Button
         type="button"
         onClick={() => setOpen(true)}
-        variant="accent"
+        variant="primary"
       >
         Provision tenant
       </Button>
@@ -148,7 +148,7 @@ export function ProvisionTenantForm() {
               <CardFooter className="px-6 py-4 bg-surface-2 border-t border-subtle flex justify-end gap-3" style={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setOpen(false)}
                 >
                   Cancel

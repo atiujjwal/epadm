@@ -21,7 +21,7 @@ export default function TermsPage() {
 
         <div className="legal-page__content prose">
           <p>
-            These Terms of Service ("Terms") govern your use of the EPADM website
+            These Terms of Service (&quot;Terms&quot;) govern your use of the EPADM website
             (www.epadm.in) and, where applicable, the EPADM platform. By accessing the
             site, you agree to these Terms.
           </p>
@@ -31,7 +31,7 @@ export default function TermsPage() {
             This website is for informational purposes and to facilitate inquiries about
             the EPADM school management platform. You agree not to use this website for any unlawful
             purpose, to attempt to gain unauthorized access to any system or data, or to
-            interfere with the site's availability.
+            interfere with the site&apos;s availability.
           </p>
 
           <h2>Platform access</h2>
@@ -50,7 +50,7 @@ export default function TermsPage() {
 
           <h2>Disclaimer of warranties</h2>
           <p>
-            This website is provided "as is" without warranties of any kind. We do not
+            This website is provided &quot;as is&quot; without warranties of any kind. We do not
             warrant that the site will be error-free or continuously available. Information
             on this site is subject to change without notice.
           </p>

@@ -204,7 +204,7 @@ export function TenantControlPanel({
                       onClick={() =>
                         toggleService(service.serviceKey, !service.isEnabled)
                       }
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                     >
                       Toggle

@@ -82,8 +82,8 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
       }
 
       setExam(result.data);
-    } catch (e: any) {
-      setError(e.message || "An unexpected error occurred.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -104,8 +104,8 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
       );
       setSuccessMsg("Exam paper saved successfully!");
       setExam(null);
-    } catch (e: any) {
-      setError(e.message || "Failed to save the exam.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save the exam.");
     }
   };
 

@@ -1,4 +1,4 @@
-type LogMetadata = Record<string, any>;
+type LogMetadata = Record<string, unknown>;
 
 export const logger = {
   info(message: string, meta?: LogMetadata) {
@@ -21,7 +21,7 @@ export const logger = {
       }),
     );
   },
-  error(message: string, error?: Error | any, meta?: LogMetadata) {
+  error(message: string, error?: unknown, meta?: LogMetadata) {
     console.error(
       JSON.stringify({
         level: "error",

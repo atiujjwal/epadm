@@ -42,7 +42,6 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
       iconOnly = false,
       className = "",
       children,
-      ...rest
     } = props;
 
     const isAnchor = "href" in props && props.href !== undefined;
@@ -82,7 +81,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
           ref={ref as React.Ref<HTMLAnchorElement>}
           className={combinedClasses}
           href={href}
-          {...(anchorRest as any)}
+          {...(anchorRest as AnchorHTMLAttributes<HTMLAnchorElement>)}
         >
           {content}
         </a>
@@ -97,7 +96,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
         className={combinedClasses}
         disabled={buttonProps.disabled}
         type={buttonType || "button"}
-        {...(buttonRest as any)}
+        {...(buttonRest as ButtonHTMLAttributes<HTMLButtonElement>)}
       >
         {content}
       </button>

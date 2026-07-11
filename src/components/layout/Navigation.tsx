@@ -9,7 +9,6 @@ import {
   ctaNav,
   features,
   type NavGroup,
-  type NavItem,
 } from '@/config/site';
 
 /* ── Motion variants ──────────────────────────────────────── */
@@ -271,6 +270,7 @@ export function Navigation() {
   }, []);
 
   /* Close mobile nav on route change */
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   /* Click outside to close desktop dropdown */

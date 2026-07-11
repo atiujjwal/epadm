@@ -5,6 +5,10 @@ services:
     ports:
       - "5433:5432"
     environment:
+      # The `postgres` superuser is used ONLY for migrations/bootstrap (DDL).
+      # Application traffic must connect as the non-superuser `epadm_app` role so
+      # that FORCE ROW LEVEL SECURITY is enforced. See docker/init/01-roles.sql
+      # and docs/DATABASE_ROLES.md.
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: epadm
@@ -12,6 +16,8 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Runs once on a fresh volume to create the epadm_app / epadm_ops roles.
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d epadm"]
       interval: 5s

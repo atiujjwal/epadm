@@ -1,7 +1,7 @@
 "use server";
 
 import { getCtx } from "@/lib/context";
-import { db, exams } from "@/lib/db";
+import { exams } from "@/lib/db";
 import { withTenant } from "@/lib/rls";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +12,7 @@ export async function saveExamAction(
   gradeLevel: string,
   difficulty: string,
   format: string,
-  content: any,
+  content: unknown,
 ) {
   const ctx = await getCtx();
   if (ctx.role !== "teacher") {

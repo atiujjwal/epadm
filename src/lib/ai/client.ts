@@ -62,8 +62,9 @@ Ensure the questions are highly relevant, academically accurate, and appropriate
       const completionTokens = usage?.candidatesTokenCount ?? 400;
 
       return { text, promptTokens, completionTokens };
-    } catch (e: any) {
-      console.warn("GenAI SDK failed, trying fetch fallback:", e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.warn("GenAI SDK failed, trying fetch fallback:", message);
     }
   }
 

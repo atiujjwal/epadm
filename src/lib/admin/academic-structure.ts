@@ -3,11 +3,11 @@ import { writeAuditLog } from "@/lib/audit";
 import {
   academicClasses,
   classSections,
-  db,
   staffProfiles,
   studentEnrollments,
   students,
 } from "@/lib/db";
+import { withTenant } from "@/lib/rls";
 
 export const ACADEMICS_READ_PERMISSION = "academics.read" as const;
 export const ACADEMICS_WRITE_PERMISSION = "academics.write" as const;
@@ -98,64 +98,70 @@ function normalizeCode(value: string) {
 }
 
 export async function listClasses(tenantId: string): Promise<ClassRecord[]> {
-  return db
-    .select({
-      id: academicClasses.id,
-      code: academicClasses.code,
-      name: academicClasses.name,
-      academicYear: academicClasses.academicYear,
-      status: academicClasses.status,
-      homeroomStaffId: academicClasses.homeroomStaffId,
-      homeroomStaffName: staffProfiles.fullName,
-      createdAt: academicClasses.createdAt,
-    })
-    .from(academicClasses)
-    .leftJoin(staffProfiles, eq(academicClasses.homeroomStaffId, staffProfiles.id))
-    .where(eq(academicClasses.tenantId, tenantId))
-    .orderBy(desc(academicClasses.createdAt), asc(academicClasses.name));
+  return withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: academicClasses.id,
+        code: academicClasses.code,
+        name: academicClasses.name,
+        academicYear: academicClasses.academicYear,
+        status: academicClasses.status,
+        homeroomStaffId: academicClasses.homeroomStaffId,
+        homeroomStaffName: staffProfiles.fullName,
+        createdAt: academicClasses.createdAt,
+      })
+      .from(academicClasses)
+      .leftJoin(staffProfiles, eq(academicClasses.homeroomStaffId, staffProfiles.id))
+      .where(eq(academicClasses.tenantId, tenantId))
+      .orderBy(desc(academicClasses.createdAt), asc(academicClasses.name)),
+  );
 }
 
 export async function listSections(tenantId: string): Promise<SectionRecord[]> {
-  return db
-    .select({
-      id: classSections.id,
-      classId: classSections.classId,
-      className: academicClasses.name,
-      classCode: academicClasses.code,
-      name: classSections.name,
-      capacity: classSections.capacity,
-      status: classSections.status,
-      createdAt: classSections.createdAt,
-    })
-    .from(classSections)
-    .innerJoin(academicClasses, eq(classSections.classId, academicClasses.id))
-    .where(eq(classSections.tenantId, tenantId))
-    .orderBy(desc(classSections.createdAt), asc(classSections.name));
+  return withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: classSections.id,
+        classId: classSections.classId,
+        className: academicClasses.name,
+        classCode: academicClasses.code,
+        name: classSections.name,
+        capacity: classSections.capacity,
+        status: classSections.status,
+        createdAt: classSections.createdAt,
+      })
+      .from(classSections)
+      .innerJoin(academicClasses, eq(classSections.classId, academicClasses.id))
+      .where(eq(classSections.tenantId, tenantId))
+      .orderBy(desc(classSections.createdAt), asc(classSections.name)),
+  );
 }
 
 export async function listEnrollments(tenantId: string): Promise<EnrollmentRecord[]> {
-  const rows = await db
-    .select({
-      id: studentEnrollments.id,
-      studentId: studentEnrollments.studentId,
-      studentName: sql<string>`concat(${students.firstName}, ' ', coalesce(${students.lastName}, ''))`,
-      admissionNumber: students.admissionNumber,
-      classId: studentEnrollments.classId,
-      className: academicClasses.name,
-      sectionId: studentEnrollments.sectionId,
-      sectionName: classSections.name,
-      academicYear: studentEnrollments.academicYear,
-      rollNumber: studentEnrollments.rollNumber,
-      status: studentEnrollments.status,
-      enrolledOn: studentEnrollments.enrolledOn,
-      createdAt: studentEnrollments.createdAt,
-    })
-    .from(studentEnrollments)
-    .innerJoin(students, eq(studentEnrollments.studentId, students.id))
-    .innerJoin(academicClasses, eq(studentEnrollments.classId, academicClasses.id))
-    .leftJoin(classSections, eq(studentEnrollments.sectionId, classSections.id))
-    .where(eq(studentEnrollments.tenantId, tenantId))
-    .orderBy(desc(studentEnrollments.createdAt), asc(students.firstName));
+  const rows = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: studentEnrollments.id,
+        studentId: studentEnrollments.studentId,
+        studentName: sql<string>`concat(${students.firstName}, ' ', coalesce(${students.lastName}, ''))`,
+        admissionNumber: students.admissionNumber,
+        classId: studentEnrollments.classId,
+        className: academicClasses.name,
+        sectionId: studentEnrollments.sectionId,
+        sectionName: classSections.name,
+        academicYear: studentEnrollments.academicYear,
+        rollNumber: studentEnrollments.rollNumber,
+        status: studentEnrollments.status,
+        enrolledOn: studentEnrollments.enrolledOn,
+        createdAt: studentEnrollments.createdAt,
+      })
+      .from(studentEnrollments)
+      .innerJoin(students, eq(studentEnrollments.studentId, students.id))
+      .innerJoin(academicClasses, eq(studentEnrollments.classId, academicClasses.id))
+      .leftJoin(classSections, eq(studentEnrollments.sectionId, classSections.id))
+      .where(eq(studentEnrollments.tenantId, tenantId))
+      .orderBy(desc(studentEnrollments.createdAt), asc(students.firstName)),
+  );
 
   return rows.map((row) => ({
     ...row,
@@ -167,20 +173,24 @@ export async function listEnrollments(tenantId: string): Promise<EnrollmentRecor
 export async function getAcademicStructureSummary(
   tenantId: string,
 ): Promise<AcademicStructureSummary> {
-  const [[classCounts], [sectionCounts], [enrollmentCounts]] = await Promise.all([
-    db
-      .select({ total: count(academicClasses.id) })
-      .from(academicClasses)
-      .where(eq(academicClasses.tenantId, tenantId)),
-    db
-      .select({ total: count(classSections.id) })
-      .from(classSections)
-      .where(eq(classSections.tenantId, tenantId)),
-    db
-      .select({ total: count(studentEnrollments.id) })
-      .from(studentEnrollments)
-      .where(eq(studentEnrollments.tenantId, tenantId)),
-  ]);
+  const [[classCounts], [sectionCounts], [enrollmentCounts]] = await withTenant(
+    tenantId,
+    (tx) =>
+      Promise.all([
+        tx
+          .select({ total: count(academicClasses.id) })
+          .from(academicClasses)
+          .where(eq(academicClasses.tenantId, tenantId)),
+        tx
+          .select({ total: count(classSections.id) })
+          .from(classSections)
+          .where(eq(classSections.tenantId, tenantId)),
+        tx
+          .select({ total: count(studentEnrollments.id) })
+          .from(studentEnrollments)
+          .where(eq(studentEnrollments.tenantId, tenantId)),
+      ]),
+  );
 
   return {
     classCount: Number(classCounts?.total ?? 0),
@@ -192,7 +202,7 @@ export async function getAcademicStructureSummary(
 export async function createClass(input: CreateClassInput) {
   const code = normalizeCode(input.code);
 
-  return db.transaction(async (tx) => {
+  return withTenant(input.tenantId, async (tx) => {
     const existing = await tx.query.academicClasses.findFirst({
       where: and(
         eq(academicClasses.tenantId, input.tenantId),
@@ -237,7 +247,7 @@ export async function createClass(input: CreateClassInput) {
 }
 
 export async function createSection(input: CreateSectionInput) {
-  return db.transaction(async (tx) => {
+  return withTenant(input.tenantId, async (tx) => {
     const targetClass = await tx.query.academicClasses.findFirst({
       where: and(
         eq(academicClasses.id, input.classId),
@@ -293,7 +303,7 @@ export async function createSection(input: CreateSectionInput) {
 }
 
 export async function createEnrollment(input: CreateEnrollmentInput) {
-  return db.transaction(async (tx) => {
+  return withTenant(input.tenantId, async (tx) => {
     const [student, targetClass] = await Promise.all([
       tx.query.students.findFirst({
         where: and(

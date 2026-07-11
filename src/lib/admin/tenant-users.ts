@@ -1,8 +1,9 @@
 import argon2 from "argon2";
 import { and, asc, count, desc, eq, sql } from "drizzle-orm";
-import { db, tenantUsers, tenants, users } from "@/lib/db";
+import { tenantUsers, tenants, users } from "@/lib/db";
 import type { Permission, PlanTier, UserRole } from "@/lib/db";
 import { writeAuditLog } from "@/lib/audit";
+import { withTenant } from "@/lib/rls";
 
 export type TenantMemberSummary = {
   tenantId: string;
@@ -52,72 +53,76 @@ function normalizeEmail(email: string) {
 export async function getTenantMemberSummary(
   tenantId: string,
 ): Promise<TenantMemberSummary | null> {
-  const [tenant] = await db
-    .select({
-      tenantId: tenants.id,
-      tenantName: tenants.name,
-      tenantSlug: tenants.slug,
-      subscriptionTier: tenants.subscriptionTier,
-    })
-    .from(tenants)
-    .where(and(eq(tenants.id, tenantId), eq(tenants.isActive, true)))
-    .limit(1);
+  return withTenant(tenantId, async (tx) => {
+    const [tenant] = await tx
+      .select({
+        tenantId: tenants.id,
+        tenantName: tenants.name,
+        tenantSlug: tenants.slug,
+        subscriptionTier: tenants.subscriptionTier,
+      })
+      .from(tenants)
+      .where(and(eq(tenants.id, tenantId), eq(tenants.isActive, true)))
+      .limit(1);
 
-  if (!tenant) {
-    return null;
-  }
+    if (!tenant) {
+      return null;
+    }
 
-  const [counts] = await db
-    .select({
-      memberCount: count(tenantUsers.id),
-      activeMemberCount: sql<number>`count(*) filter (where ${tenantUsers.isActive} = true)`,
-    })
-    .from(tenantUsers)
-    .where(eq(tenantUsers.tenantId, tenantId));
+    const [counts] = await tx
+      .select({
+        memberCount: count(tenantUsers.id),
+        activeMemberCount: sql<number>`count(*) filter (where ${tenantUsers.isActive} = true)`,
+      })
+      .from(tenantUsers)
+      .where(eq(tenantUsers.tenantId, tenantId));
 
-  const roleBreakdownRows = await db
-    .select({
-      role: tenantUsers.role,
-      count: count(tenantUsers.id),
-    })
-    .from(tenantUsers)
-    .where(and(eq(tenantUsers.tenantId, tenantId), eq(tenantUsers.isActive, true)))
-    .groupBy(tenantUsers.role)
-    .orderBy(asc(tenantUsers.role));
+    const roleBreakdownRows = await tx
+      .select({
+        role: tenantUsers.role,
+        count: count(tenantUsers.id),
+      })
+      .from(tenantUsers)
+      .where(and(eq(tenantUsers.tenantId, tenantId), eq(tenantUsers.isActive, true)))
+      .groupBy(tenantUsers.role)
+      .orderBy(asc(tenantUsers.role));
 
-  return {
-    tenantId: tenant.tenantId,
-    tenantName: tenant.tenantName,
-    tenantSlug: tenant.tenantSlug,
-    subscriptionTier: tenant.subscriptionTier as PlanTier,
-    memberCount: Number(counts?.memberCount ?? 0),
-    activeMemberCount: Number(counts?.activeMemberCount ?? 0),
-    roleBreakdown: roleBreakdownRows.map((row) => ({
-      role: row.role as UserRole,
-      count: Number(row.count),
-    })),
-  };
+    return {
+      tenantId: tenant.tenantId,
+      tenantName: tenant.tenantName,
+      tenantSlug: tenant.tenantSlug,
+      subscriptionTier: tenant.subscriptionTier as PlanTier,
+      memberCount: Number(counts?.memberCount ?? 0),
+      activeMemberCount: Number(counts?.activeMemberCount ?? 0),
+      roleBreakdown: roleBreakdownRows.map((row) => ({
+        role: row.role as UserRole,
+        count: Number(row.count),
+      })),
+    };
+  });
 }
 
 export async function listTenantMembers(
   tenantId: string,
 ): Promise<TenantMemberRecord[]> {
-  const rows = await db
-    .select({
-      membershipId: tenantUsers.id,
-      userId: users.id,
-      name: users.name,
-      email: users.email,
-      phone: users.phone,
-      role: tenantUsers.role,
-      isActive: tenantUsers.isActive,
-      joinedAt: tenantUsers.joinedAt,
-      isVerified: users.isVerified,
-    })
-    .from(tenantUsers)
-    .innerJoin(users, eq(tenantUsers.userId, users.id))
-    .where(eq(tenantUsers.tenantId, tenantId))
-    .orderBy(desc(tenantUsers.joinedAt), asc(users.name));
+  const rows = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        membershipId: tenantUsers.id,
+        userId: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        role: tenantUsers.role,
+        isActive: tenantUsers.isActive,
+        joinedAt: tenantUsers.joinedAt,
+        isVerified: users.isVerified,
+      })
+      .from(tenantUsers)
+      .innerJoin(users, eq(tenantUsers.userId, users.id))
+      .where(eq(tenantUsers.tenantId, tenantId))
+      .orderBy(desc(tenantUsers.joinedAt), asc(users.name)),
+  );
 
   return rows.map((row) => ({
     membershipId: row.membershipId,
@@ -136,7 +141,7 @@ export async function createTenantMember(input: CreateTenantMemberInput) {
   const email = normalizeEmail(input.email);
   const passwordHash = await argon2.hash(input.password);
 
-  return db.transaction(async (tx) => {
+  return withTenant(input.tenantId, async (tx) => {
     const existingUser = await tx.query.users.findFirst({
       where: eq(users.email, email),
     });

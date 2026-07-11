@@ -34,7 +34,7 @@ async function handler(req: Request) {
     let parsedContent;
     try {
       parsedContent = JSON.parse(result.text);
-    } catch (parseError) {
+    } catch {
       // In case the AI wrapped it in markdown codeblocks (e.g. ```json ... ```)
       const jsonMatch = result.text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -60,10 +60,10 @@ async function handler(req: Request) {
         completionTokens: result.completionTokens,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[ai_exam_gen] Endpoint error:", error);
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 },
     );
   }

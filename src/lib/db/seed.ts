@@ -5,7 +5,6 @@ import { and, eq } from "drizzle-orm";
 import { DEFAULT_ROLE_PERMISSIONS, PERMISSION_DESCRIPTIONS, PERMISSIONS, USER_ROLES } from "@/lib/auth/catalog";
 import { generateTotpSecret } from "@/lib/platform/auth/mfa";
 import {
-  db,
   permissions,
   rolePermissions,
   tenantUsers,
@@ -23,6 +22,13 @@ import {
   financialTransactions,
 } from "@/lib/db";
 import { opsDb, platformOperators } from "@/lib/db/ops";
+
+// Seeding provisions a brand-new tenant and its child rows. Creating the tenant
+// itself cannot satisfy the "id = current_setting('app.current_tenant')" policy,
+// so — like provisionTenant() — the seed runs on the control-plane pool, which
+// is expected to bypass RLS (OPS_DATABASE_URL / ops_worker). See
+// docs/DATABASE_ROLES.md.
+const db = opsDb;
 
 async function seedAuthorizationCatalog() {
   for (const permission of PERMISSIONS) {
@@ -294,7 +300,7 @@ async function seedDemoTenantAdmin() {
   }
 
   // Enroll student
-  let demoEnrollment = await db.query.studentEnrollments.findFirst({
+  const demoEnrollment = await db.query.studentEnrollments.findFirst({
     where: and(
       eq(studentEnrollments.tenantId, tenant.id),
       eq(studentEnrollments.studentId, studentProfile.id),
@@ -379,7 +385,7 @@ async function seedDemoTenantAdmin() {
       });
     }
 
-    let invoice2 = await db.query.studentInvoices.findFirst({
+    const invoice2 = await db.query.studentInvoices.findFirst({
       where: and(
         eq(studentInvoices.tenantId, tenant.id),
         eq(studentInvoices.studentId, studentProfile.id),
@@ -437,7 +443,7 @@ async function seedDemoTenantAdmin() {
   }
 
   // Seed an unpaid payroll for May 2026
-  let unpaidPayroll = await db.query.staffPayroll.findFirst({
+  const unpaidPayroll = await db.query.staffPayroll.findFirst({
     where: and(
       eq(staffPayroll.tenantId, tenant.id),
       eq(staffPayroll.staffProfileId, teacherProfile.id),

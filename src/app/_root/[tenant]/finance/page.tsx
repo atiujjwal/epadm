@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { PageHeader } from "@/components/layout/page-header";
 
 export default async function FinancePage({
   searchParams,
@@ -433,7 +434,7 @@ export default async function FinancePage({
                 {data.invoices.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted py-6">
-                      No student invoices found. Click "Generate Invoices" to create bills.
+                      No student invoices found. Click &quot;Generate Invoices&quot; to create bills.
                     </TableCell>
                   </TableRow>
                 ) : (

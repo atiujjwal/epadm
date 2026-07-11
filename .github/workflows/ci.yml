@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev-2]
+  pull_request:
+    branches: [main, dev-2]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck:
+    name: Lint & typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+
+  test:
+    name: Unit tests + RLS probe
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: epadm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d epadm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Migrations run as the bootstrap superuser (they issue DDL).
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/epadm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Apply migrations (as superuser)
+        run: npm run db:migrate
+
+      - name: Provision non-superuser app/ops roles
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f docker/init/01-roles.sql
+
+      - name: Run tests (app role — RLS enforced)
+        env:
+          # The app + probe connections use the NOBYPASSRLS epadm_app role so the
+          # cross-tenant isolation assertion is enforced at the DB layer.
+          DATABASE_URL: postgres://epadm_app:epadm_app@localhost:5432/epadm
+          OPS_DATABASE_URL: postgres://epadm_ops:epadm_ops@localhost:5432/epadm
+          APP_TEST_DATABASE_URL: postgres://epadm_app:epadm_app@localhost:5432/epadm
+        run: npm run test
+
+  e2e:
+    name: E2E smoke
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: epadm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d epadm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/epadm
+      OPS_DATABASE_URL: postgres://postgres:postgres@localhost:5432/epadm
+      JWT_SECRET: ci-only-64-char-hex-secret-0000000000000000000000000000000000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Apply migrations
+        run: npm run db:migrate
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke test
+        run: npm run test:e2e

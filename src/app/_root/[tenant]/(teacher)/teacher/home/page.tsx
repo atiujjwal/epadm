@@ -1,6 +1,5 @@
 import { getCtx } from "@/lib/context";
 import {
-  db,
   staffProfiles,
   academicClasses,
   classSections,
@@ -82,42 +81,37 @@ export default async function TeacherHomePage({
   const activeSection = assigned.find((s) => s.sectionId === activeSectionId);
 
   // Get enrolled students for the active section & saved exams
-  let enrolledStudents: any[] = [];
-  let existingAssignments: any[] = [];
-  let savedExams: any[] = [];
-
   const data = await withTenant(ctx.tenantId, async (tx) => {
-    let enrolled: any[] = [];
-    let existing: any[] = [];
+    const enrolled = activeSection
+      ? await tx
+          .select({
+            studentId: students.id,
+            firstName: students.firstName,
+            lastName: students.lastName,
+            admissionNumber: students.admissionNumber,
+          })
+          .from(studentEnrollments)
+          .innerJoin(students, eq(studentEnrollments.studentId, students.id))
+          .where(
+            and(
+              eq(studentEnrollments.sectionId, activeSection.sectionId),
+              eq(studentEnrollments.tenantId, ctx.tenantId),
+            ),
+          )
+      : [];
 
-    if (activeSection) {
-      enrolled = await tx
-        .select({
-          studentId: students.id,
-          firstName: students.firstName,
-          lastName: students.lastName,
-          admissionNumber: students.admissionNumber,
-        })
-        .from(studentEnrollments)
-        .innerJoin(students, eq(studentEnrollments.studentId, students.id))
-        .where(
-          and(
-            eq(studentEnrollments.sectionId, activeSection.sectionId),
-            eq(studentEnrollments.tenantId, ctx.tenantId),
-          ),
-        );
-
-      existing = await tx
-        .select()
-        .from(assignments)
-        .where(
-          and(
-            eq(assignments.sectionId, activeSection.sectionId),
-            eq(assignments.tenantId, ctx.tenantId),
-          ),
-        )
-        .orderBy(assignments.dueDate);
-    }
+    const existing = activeSection
+      ? await tx
+          .select()
+          .from(assignments)
+          .where(
+            and(
+              eq(assignments.sectionId, activeSection.sectionId),
+              eq(assignments.tenantId, ctx.tenantId),
+            ),
+          )
+          .orderBy(assignments.dueDate)
+      : [];
 
     const saved = await tx
       .select({
@@ -143,9 +137,9 @@ export default async function TeacherHomePage({
     return { enrolled, existing, saved };
   });
 
-  enrolledStudents = data.enrolled;
-  existingAssignments = data.existing;
-  savedExams = data.saved;
+  const enrolledStudents = data.enrolled;
+  const existingAssignments = data.existing;
+  const savedExams = data.saved;
 
   // Attendance Save Action
   async function saveAttendance(formData: FormData) {
@@ -157,7 +151,7 @@ export default async function TeacherHomePage({
 
     if (!dateStr || !classId || !secId) return;
 
-    const records: any[] = [];
+    const records: (typeof attendance.$inferInsert)[] = [];
     for (const [key, value] of formData.entries()) {
       if (key.startsWith("status_")) {
         const studentId = key.substring(7);

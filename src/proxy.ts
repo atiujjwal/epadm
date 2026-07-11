@@ -165,7 +165,6 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
   let userRole = "";
   let tenantId = "";
   let planTier = "";
-  let activeModules: string[] = [];
 
   if (token) {
     try {

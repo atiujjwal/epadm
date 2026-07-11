@@ -1,6 +1,5 @@
 import { HTMLAttributes, forwardRef, ReactNode } from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 
 export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode;

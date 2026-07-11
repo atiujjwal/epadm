@@ -80,6 +80,9 @@ function DataPacket({ from, to, delay }: {
 /* ── Topology Grid ────────────────────────────────────────── */
 export function TopologyGrid() {
   const [mounted, setMounted] = useState(false);
+  // Client-only render guard: framer-motion initial states differ from SSR
+  // output, so defer rendering until after hydration to avoid mismatches.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 

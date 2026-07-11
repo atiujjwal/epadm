@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
     }
 
-    const settings = (tenant.settings || {}) as Record<string, any>;
+    const settings = (tenant.settings || {}) as Record<string, unknown>;
     const expectedKey =
       settings.biometric_api_key || settings.integration_api_key;
 
@@ -163,7 +163,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, message: "Attendance synced" });
-  } catch (error: any) {
+  } catch (error) {
     // Observability standard logging for CloudWatch/Datadog
     logger.error("Biometrics webhook 500 error", error, {
       xTenantId: tenantId,

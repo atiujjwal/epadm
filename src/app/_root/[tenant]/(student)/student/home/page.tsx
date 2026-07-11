@@ -1,6 +1,5 @@
 import { getCtx } from "@/lib/context";
 import {
-  db,
   students,
   studentEnrollments,
   academicClasses,
@@ -48,22 +47,21 @@ export default async function StudentHomePage() {
   });
 
   // 2. Fetch assignments for this student's class/section
-  let studentAssignments: any[] = [];
   const activeSectionId = studentInfo?.sectionId;
-  if (activeSectionId) {
-    studentAssignments = await withTenant(ctx.tenantId, async (tx) => {
-      return tx
-        .select()
-        .from(assignments)
-        .where(
-          and(
-            eq(assignments.sectionId, activeSectionId),
-            eq(assignments.tenantId, ctx.tenantId),
-          ),
-        )
-        .orderBy(assignments.dueDate);
-    });
-  }
+  const studentAssignments = activeSectionId
+    ? await withTenant(ctx.tenantId, async (tx) => {
+        return tx
+          .select()
+          .from(assignments)
+          .where(
+            and(
+              eq(assignments.sectionId, activeSectionId),
+              eq(assignments.tenantId, ctx.tenantId),
+            ),
+          )
+          .orderBy(assignments.dueDate);
+      })
+    : [];
 
 
   // Daily News / Announcements Mock Data

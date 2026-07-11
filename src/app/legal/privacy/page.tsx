@@ -21,7 +21,7 @@ export default function PrivacyPage() {
 
         <div className="legal-page__content prose">
           <p>
-            This Privacy Policy describes how EPADM ("we", "us", or "our") collects,
+            This Privacy Policy describes how EPADM (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects,
             uses, and shares personal data when you visit our marketing website
             (www.epadm.in), request a demonstration, or contact us.
           </p>
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
           <h2>DPDP Act 2023 Compliance</h2>
           <p>
             We process digital personal data in compliance with the Digital Personal Data Protection (DPDP) Act 2023.
-            For details on how student and minor data is handled inside our SaaS platforms, please consult your school's data fiduciary officer. We act strictly as a Data Processor on behalf of schools.
+            For details on how student and minor data is handled inside our SaaS platforms, please consult your school&apos;s data fiduciary officer. We act strictly as a Data Processor on behalf of schools.
           </p>
 
           <h2>Information we collect</h2>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
           <h2>Changes to this policy</h2>
           <p>
             We may update this policy from time to time. When we do, we will update the
-            "last updated" date at the top of this page.
+            &quot;last updated&quot; date at the top of this page.
           </p>
 
           <h2>Contact</h2>

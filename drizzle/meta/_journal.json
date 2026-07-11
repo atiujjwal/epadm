@@ -71,6 +71,13 @@
       "when": 1782381000000,
       "tag": "0009_vehicle_telemetry",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782382000000,
+      "tag": "0010_force_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,8 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 import type { PlanTier, UserRole } from "./db";
-import { db, tenants } from "./db";
+import { tenants } from "./db";
+import { withTenant } from "./rls";
 import { eq } from "drizzle-orm";
 import {
   isTenantActiveCached,
@@ -48,11 +49,13 @@ async function _getCtx(): Promise<ServiceCtx> {
   let tenantSlug = "";
 
   if (cachedActive === null) {
-    const [tenant] = await db
-      .select({ isActive: tenants.isActive, subscriptionTier: tenants.subscriptionTier, name: tenants.name, slug: tenants.slug })
-      .from(tenants)
-      .where(eq(tenants.id, tenantId))
-      .limit(1);
+    const [tenant] = await withTenant(tenantId, (tx) =>
+      tx
+        .select({ isActive: tenants.isActive, subscriptionTier: tenants.subscriptionTier, name: tenants.name, slug: tenants.slug })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId))
+        .limit(1),
+    );
 
     if (!tenant || !tenant.isActive) {
       if (tenant) {
@@ -68,25 +71,29 @@ async function _getCtx(): Promise<ServiceCtx> {
     tenantName = tenant.name ?? "";
     tenantSlug = tenant.slug ?? "";
   } else if (!planTierFromHeader) {
-    const [tenant] = await db
-      .select({ subscriptionTier: tenants.subscriptionTier, name: tenants.name, slug: tenants.slug })
-      .from(tenants)
-      .where(eq(tenants.id, tenantId))
-      .limit(1);
+    const [tenant] = await withTenant(tenantId, (tx) =>
+      tx
+        .select({ subscriptionTier: tenants.subscriptionTier, name: tenants.name, slug: tenants.slug })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId))
+        .limit(1),
+    );
 
     if (tenant?.subscriptionTier) {
       planTier = tenant.subscriptionTier as PlanTier;
     }
-    tenantName = tenant.name ?? "";
-    tenantSlug = tenant.slug ?? "";
+    tenantName = tenant?.name ?? "";
+    tenantSlug = tenant?.slug ?? "";
   } else {
-    const [tenant] = await db
-      .select({ name: tenants.name, slug: tenants.slug })
-      .from(tenants)
-      .where(eq(tenants.id, tenantId))
-      .limit(1);
-    tenantName = tenant.name ?? "";
-    tenantSlug = tenant.slug ?? "";
+    const [tenant] = await withTenant(tenantId, (tx) =>
+      tx
+        .select({ name: tenants.name, slug: tenants.slug })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId))
+        .limit(1),
+    );
+    tenantName = tenant?.name ?? "";
+    tenantSlug = tenant?.slug ?? "";
   }
 
   // 2. Resolve active modules

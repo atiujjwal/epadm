@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
     }
 
-    const settings = (tenant.settings || {}) as Record<string, any>;
+    const settings = (tenant.settings || {}) as Record<string, unknown>;
     const expectedKey = settings.gps_api_key || settings.integration_api_key;
 
     if (!expectedKey || expectedKey !== integrationKey) {
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, message: "Telemetry ingested" });
-  } catch (error: any) {
+  } catch (error) {
     // Observability standard logging for CloudWatch/Datadog
     logger.error("GPS webhook 500 error", error, {
       xTenantId: tenantId,

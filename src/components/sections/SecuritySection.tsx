@@ -96,7 +96,7 @@ export function SecuritySection() {
             Security is the architecture, not the afterthought
           </h2>
           <p className="section-header__subtitle">
-            EPADM's security model is designed from the ground up for multi-tenant
+            EPADM&apos;s security model is designed from the ground up for multi-tenant
             enterprise environments where isolation, auditability, and least-privilege
             are non-negotiable.
           </p>

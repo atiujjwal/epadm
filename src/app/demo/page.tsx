@@ -23,7 +23,7 @@ export default function DemoPage() {
             See EPADM in Action
           </h1>
           <p className="demo-page__body">
-            Let us walk you through a tailored demonstration of the EPADM School management dashboard. Tell us about your school size and current software setup, and we'll prepare a live walkthrough.
+            Let us walk you through a tailored demonstration of the EPADM School management dashboard. Tell us about your school size and current software setup, and we&apos;ll prepare a live walkthrough.
           </p>
 
           <Card variant="outlined" padding="md" className="demo-page__what-to-expect">

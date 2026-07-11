@@ -24,12 +24,11 @@ export async function POST(req: Request) {
       return unauthorized("Invalid email or password");
     }
 
-    const mfaCheck = result as any;
-    if (mfaCheck.requiresMfa) {
+    if (result.requiresMfa) {
       return ok({
         success: true,
         requiresMfa: true,
-        mfaToken: mfaCheck.mfaToken,
+        mfaToken: result.mfaToken,
       });
     }
 

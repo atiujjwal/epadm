@@ -31,7 +31,7 @@ export function CtaSection() {
             </h2>
 
             <p className="cta-section__body">
-              Talk to the EPADM team about your platform architecture. We'll walk
+              Talk to the EPADM team about your platform architecture. We&apos;ll walk
               through how the control plane maps to your tenant model, access requirements,
               and data governance needs — with no pressure and no generic demo script.
             </p>

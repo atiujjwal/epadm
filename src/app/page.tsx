@@ -360,7 +360,7 @@ export default function HomePage() {
           <div className="section-header section-header--center">
             <span className="section-header__eyebrow">Frequently Asked Questions</span>
             <h2 className="section-header__title text-gradient">
-              Got Questions? We’ve Got Answers
+              Got Questions? We've Got Answers
             </h2>
             <p className="section-header__subtitle">
               Learn how EPADM fits your school infrastructure and operational requirements.

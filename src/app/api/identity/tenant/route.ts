@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
-import { db, tenants } from "@/lib/db";
+import { opsDb, tenants } from "@/lib/db/ops";
 import { badRequest, notFound, serverError } from "@/lib/http/responses";
 
 const querySchema = z.object({
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     const params = Object.fromEntries(url.searchParams);
     const { slug } = querySchema.parse({ slug: params.slug });
 
-    const [tenant] = await db
+    const [tenant] = await opsDb
       .select({
         id: tenants.id,
         name: tenants.name,

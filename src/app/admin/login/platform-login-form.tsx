@@ -96,7 +96,7 @@ export function PlatformLoginForm() {
         <Button
           type="submit"
           disabled={loading}
-          variant="accent"
+          variant="primary"
           className="w-full justify-center"
         >
           {loading ? "Verifying..." : "Verify MFA"}
@@ -134,7 +134,7 @@ export function PlatformLoginForm() {
       <Button
         type="submit"
         disabled={loading}
-        variant="accent"
+        variant="primary"
         className="w-full justify-center"
       >
         {loading ? "Signing in..." : "Sign in to control plane"}

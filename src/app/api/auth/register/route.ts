@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
-import { db, tenants, users, tenantUsers } from "@/lib/db";
-import { opsDb, tenantServices, SERVICE_KEYS } from "@/lib/db/ops";
+import {
+  opsDb,
+  tenants,
+  users,
+  tenantUsers,
+  tenantServices,
+  SERVICE_KEYS,
+} from "@/lib/db/ops";
 import { badRequest, serverError } from "@/lib/http/responses";
 
 const registerSchema = z.object({
@@ -31,7 +37,7 @@ export async function POST(req: Request) {
     const { name, slug, adminName, adminEmail, password } = parsed.data;
 
     // 1. Check if tenant slug already exists
-    const existingTenant = await db.query.tenants.findFirst({
+    const existingTenant = await opsDb.query.tenants.findFirst({
       where: eq(tenants.slug, slug),
     });
 
@@ -39,8 +45,10 @@ export async function POST(req: Request) {
       return badRequest("School subdomain slug is already registered");
     }
 
-    // 2. Perform provision in a transaction
-    const result = await db.transaction(async (tx) => {
+    // 2. Perform provision in a single control-plane transaction.
+    // Provisioning is a cross-tenant operation (a brand-new tenant id does not
+    // yet exist), so it runs on opsDb rather than the RLS-bound app pool.
+    const result = await opsDb.transaction(async (tx) => {
       // Create the school tenant record
       const [newTenant] = await tx
         .insert(tenants)
@@ -81,7 +89,7 @@ export async function POST(req: Request) {
 
       // Enable default service keys for this tenant
       for (const serviceKey of SERVICE_KEYS) {
-        await opsDb
+        await tx
           .insert(tenantServices)
           .values({
             tenantId: newTenant.id,

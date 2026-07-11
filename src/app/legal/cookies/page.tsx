@@ -52,7 +52,7 @@ export default function CookiesPage() {
           <h2>Managing cookies</h2>
           <p>
             You can control cookies through your browser settings. Disabling cookies may
-            affect the functionality of this website. See your browser's help documentation
+            affect the functionality of this website. See your browser&apos;s help documentation
             for instructions on managing cookies.
           </p>
 
