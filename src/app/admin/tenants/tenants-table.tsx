@@ -8,6 +8,11 @@ import {
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 type TenantRow = {
   id: string;
@@ -43,23 +48,15 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
       columnHelper.accessor("subscriptionTier", {
         header: "Plan",
         cell: (info) => (
-          <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium uppercase text-zinc-800">
-            {info.getValue()}
-          </span>
+          <Badge variant="outline">{info.getValue()}</Badge>
         ),
       }),
       columnHelper.accessor("isActive", {
         header: "Status",
         cell: (info) => (
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              info.getValue()
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-red-50 text-red-700"
-            }`}
-          >
+          <Badge variant={info.getValue() ? "success" : "error"}>
             {info.getValue() ? "Active" : "Inactive"}
-          </span>
+          </Badge>
         ),
       }),
       columnHelper.display({
@@ -68,7 +65,7 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
         cell: ({ row }) => (
           <Link
             href={`/admin/tenants/${row.original.id}`}
-            className="text-sm font-medium text-amber-700 hover:text-amber-800"
+            className="text-sm font-medium text-indigo-700 hover:text-indigo-800"
           >
             Manage
           </Link>
@@ -102,53 +99,51 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <input
+        <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter by name or slug"
-          className="min-w-[240px] flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm placeholder:text-zinc-500"
+          className="min-w-[240px] flex-1"
         />
-        <button
+        <Button
           type="button"
           onClick={runSearch}
           disabled={loading}
-          className="rounded-xl bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+          variant="primary"
         >
           {loading ? "Searching..." : "Search"}
-        </button>
+        </Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-        <table className="min-w-full text-sm">
-          <thead className="bg-zinc-50 text-left text-xs uppercase tracking-[0.12em] text-zinc-700 font-semibold">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-4 py-3 font-medium">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-t border-zinc-100">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-4 align-top">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table variant="spacious" striped hoverable>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className="font-semibold">
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

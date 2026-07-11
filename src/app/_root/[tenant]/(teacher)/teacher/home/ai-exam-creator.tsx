@@ -122,10 +122,11 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="subject-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
               Subject
             </label>
             <select
+              id="subject-select"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
@@ -139,10 +140,11 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="class-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
               Target Class
             </label>
             <select
+              id="class-select"
               value={classId}
               onChange={(e) => setClassId(e.target.value)}
               className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
@@ -156,10 +158,11 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="difficulty-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
               Difficulty
             </label>
             <select
+              id="difficulty-select"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
               className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
@@ -171,10 +174,11 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
+            <label htmlFor="format-select" className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
               Format
             </label>
             <select
+              id="format-select"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm"
@@ -189,10 +193,12 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
           onClick={handleGenerate}
           disabled={loading || !classId}
           className="w-full rounded-xl bg-sky-600 hover:bg-sky-700 disabled:bg-zinc-300 px-4 py-2.5 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+          aria-busy={loading}
+          aria-disabled={!classId || loading}
         >
           {loading ? (
             <>
-              <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -200,7 +206,10 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
             </>
           ) : (
             <>
-              ✨ Generate Exam Paper
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>Generate Exam Paper</span>
             </>
           )}
         </button>
@@ -230,8 +239,10 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
             <button
               onClick={handleSave}
               className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition"
+              aria-label="Save and publish exam"
             >
-              💾 Save & Publish Exam
+              <span aria-hidden="true"></span>
+              Save & Publish Exam
             </button>
           </div>
 

@@ -2,6 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { FormError, FormSuccess } from "@/components/ui/form";
 
 type StudentRecord = {
   id: string;
@@ -96,172 +105,187 @@ export function StudentRegistry({ initialStudents }: Props) {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.05fr_1.55fr]">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="mb-5">
-          <h2 className="text-lg font-semibold text-zinc-950">Add student</h2>
-          <p className="mt-1 text-sm text-zinc-600">
-            Capture admission, classroom, and guardian information for the school registry.
-          </p>
-        </div>
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm font-medium text-zinc-700">
-              Admission number
-              <input
-                value={form.admissionNumber}
-                onChange={(event) => updateField("admissionNumber", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-                required
-              />
-            </label>
-            <label className="block text-sm font-medium text-zinc-700">
-              Status
-              <select
-                value={form.status}
-                onChange={(event) => updateField("status", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="alumni">Alumni</option>
-              </select>
-            </label>
+      <section>
+        <Card variant="elevated" padding="lg">
+          <div className="mb-5">
+            <h2 className="text-lg font-semibold text-zinc-950">Add student</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Capture admission, classroom, and guardian information for the school registry.
+            </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm font-medium text-zinc-700">
-              First name
-              <input
-                value={form.firstName}
-                onChange={(event) => updateField("firstName", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-                required
-              />
-            </label>
-            <label className="block text-sm font-medium text-zinc-700">
-              Last name
-              <input
-                value={form.lastName}
-                onChange={(event) => updateField("lastName", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </label>
-          </div>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="admissionNumber">Admission number</Label>
+                <Input
+                  id="admissionNumber"
+                  value={form.admissionNumber}
+                  onChange={(event) => updateField("admissionNumber", event.target.value)}
+                  className="w-full"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  id="status"
+                  value={form.status}
+                  onChange={(event) => updateField("status", event.target.value)}
+                  className="w-full"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="alumni">Alumni</option>
+                </Select>
+              </div>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <label className="block text-sm font-medium text-zinc-700">
-              Class
-              <input
-                value={form.classLabel}
-                onChange={(event) => updateField("classLabel", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </label>
-            <label className="block text-sm font-medium text-zinc-700">
-              Section
-              <input
-                value={form.sectionLabel}
-                onChange={(event) => updateField("sectionLabel", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </label>
-            <label className="block text-sm font-medium text-zinc-700">
-              Birth date
-              <input
-                type="date"
-                value={form.dateOfBirth}
-                onChange={(event) => updateField("dateOfBirth", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </label>
-          </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="firstName">First name</Label>
+                <Input
+                  id="firstName"
+                  value={form.firstName}
+                  onChange={(event) => updateField("firstName", event.target.value)}
+                  className="w-full"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last name</Label>
+                <Input
+                  id="lastName"
+                  value={form.lastName}
+                  onChange={(event) => updateField("lastName", event.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm font-medium text-zinc-700">
-              Guardian name
-              <input
-                value={form.guardianName}
-                onChange={(event) => updateField("guardianName", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="classLabel">Class</Label>
+                <Input
+                  id="classLabel"
+                  value={form.classLabel}
+                  onChange={(event) => updateField("classLabel", event.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label htmlFor="sectionLabel">Section</Label>
+                <Input
+                  id="sectionLabel"
+                  value={form.sectionLabel}
+                  onChange={(event) => updateField("sectionLabel", event.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dateOfBirth">Birth date</Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={(event) => updateField("dateOfBirth", event.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="guardianName">Guardian name</Label>
+                <Input
+                  id="guardianName"
+                  value={form.guardianName}
+                  onChange={(event) => updateField("guardianName", event.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label htmlFor="guardianPhone">Guardian phone</Label>
+                <Input
+                  id="guardianPhone"
+                  value={form.guardianPhone}
+                  onChange={(event) => updateField("guardianPhone", event.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={(event) => updateField("notes", event.target.value)}
+                rows={4}
+                className="w-full"
               />
-            </label>
-            <label className="block text-sm font-medium text-zinc-700">
-              Guardian phone
-              <input
-                value={form.guardianPhone}
-                onChange={(event) => updateField("guardianPhone", event.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </label>
-          </div>
+            </div>
 
-          <label className="block text-sm font-medium text-zinc-700">
-            Notes
-            <textarea
-              value={form.notes}
-              onChange={(event) => updateField("notes", event.target.value)}
-              rows={4}
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-400 focus:bg-white"
-            />
-          </label>
+            {error && <FormError>{error}</FormError>}
+            {success && <FormSuccess>{success}</FormSuccess>}
 
-          {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
-          {success ? <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p> : null}
-
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPending ? "Adding student..." : "Add student"}
-          </button>
-        </form>
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+              disabled={isPending}
+            >
+              {isPending ? "Adding student..." : "Add student"}
+            </Button>
+          </form>
+        </Card>
       </section>
 
-      <section className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-        <div className="border-b border-zinc-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-zinc-950">Student registry</h2>
-          <p className="mt-1 text-sm text-zinc-600">
-            Admission-focused view of current students across the tenant.
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-zinc-50 text-zinc-600">
-              <tr>
-                <th className="px-6 py-3 font-medium">Student</th>
-                <th className="px-6 py-3 font-medium">Class</th>
-                <th className="px-6 py-3 font-medium">Guardian</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student.id} className="border-t border-zinc-100">
-                  <td className="px-6 py-4 align-top">
-                    <div className="font-medium text-zinc-900">
-                      {student.firstName} {student.lastName ?? ""}
-                    </div>
-                    <div className="mt-1 text-zinc-600">{student.admissionNumber}</div>
-                  </td>
-                  <td className="px-6 py-4 align-top text-zinc-600">
-                    {(student.classLabel ?? "-") + (student.sectionLabel ? ` / ${student.sectionLabel}` : "")}
-                  </td>
-                  <td className="px-6 py-4 align-top text-zinc-600">
-                    <div>{student.guardianName ?? "-"}</div>
-                    <div className="mt-1">{student.guardianPhone ?? ""}</div>
-                  </td>
-                  <td className="px-6 py-4 align-top">
-                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${student.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-zinc-100 text-zinc-700"}`}>
-                      {student.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <section>
+        <Card variant="elevated" padding="none">
+          <div className="border-b border-zinc-200 px-6 py-4">
+            <h2 className="text-lg font-semibold text-zinc-950">Student registry</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Admission-focused view of current students across the tenant.
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <Table variant="spacious" striped>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Class</TableHead>
+                  <TableHead>Guardian</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {students.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell>
+                      <div className="font-medium text-zinc-900">
+                        {student.firstName} {student.lastName ?? ""}
+                      </div>
+                      <div className="mt-1 text-zinc-600">{student.admissionNumber}</div>
+                    </TableCell>
+                    <TableCell className="text-zinc-600">
+                      {(student.classLabel ?? "-") + (student.sectionLabel ? ` / ${student.sectionLabel}` : "")}
+                    </TableCell>
+                    <TableCell className="text-zinc-600">
+                      <div>{student.guardianName ?? "-"}</div>
+                      <div className="mt-1">{student.guardianPhone ?? ""}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={student.status === "active" ? "success" : "default"}>
+                        {student.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
       </section>
     </div>
   );

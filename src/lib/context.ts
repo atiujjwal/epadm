@@ -13,6 +13,8 @@ import { getActiveModulesForTenant } from "@/lib/platform/tenants";
 
 export type ServiceCtx = {
   tenantId: string;
+  tenantName: string;
+  tenantSlug: string;
   userId: string;
   role: UserRole;
   planTier: PlanTier;
@@ -42,10 +44,12 @@ async function _getCtx(): Promise<ServiceCtx> {
   }
 
   let planTier: PlanTier = planTierFromHeader ?? "basic";
+  let tenantName = "";
+  let tenantSlug = "";
 
   if (cachedActive === null) {
     const [tenant] = await db
-      .select({ isActive: tenants.isActive, subscriptionTier: tenants.subscriptionTier })
+      .select({ isActive: tenants.isActive, subscriptionTier: tenants.subscriptionTier, name: tenants.name, slug: tenants.slug })
       .from(tenants)
       .where(eq(tenants.id, tenantId))
       .limit(1);
@@ -61,9 +65,11 @@ async function _getCtx(): Promise<ServiceCtx> {
     if (!planTierFromHeader && tenant.subscriptionTier) {
       planTier = tenant.subscriptionTier as PlanTier;
     }
+    tenantName = tenant.name ?? "";
+    tenantSlug = tenant.slug ?? "";
   } else if (!planTierFromHeader) {
     const [tenant] = await db
-      .select({ subscriptionTier: tenants.subscriptionTier })
+      .select({ subscriptionTier: tenants.subscriptionTier, name: tenants.name, slug: tenants.slug })
       .from(tenants)
       .where(eq(tenants.id, tenantId))
       .limit(1);
@@ -71,6 +77,16 @@ async function _getCtx(): Promise<ServiceCtx> {
     if (tenant?.subscriptionTier) {
       planTier = tenant.subscriptionTier as PlanTier;
     }
+    tenantName = tenant.name ?? "";
+    tenantSlug = tenant.slug ?? "";
+  } else {
+    const [tenant] = await db
+      .select({ name: tenants.name, slug: tenants.slug })
+      .from(tenants)
+      .where(eq(tenants.id, tenantId))
+      .limit(1);
+    tenantName = tenant.name ?? "";
+    tenantSlug = tenant.slug ?? "";
   }
 
   // 2. Resolve active modules
@@ -85,6 +101,8 @@ async function _getCtx(): Promise<ServiceCtx> {
 
   return {
     tenantId,
+    tenantName,
+    tenantSlug,
     userId,
     role,
     planTier,

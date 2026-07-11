@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export const metadata: Metadata = {
   title: 'Platform Overview',
@@ -74,7 +77,7 @@ export default function PlatformPage() {
       {/* Hero */}
       <div className="platform-page__hero">
         <div className="container platform-page__hero-inner">
-          <p className="label" style={{ marginBottom: 'var(--space-4)' }}>The Platform</p>
+          <Badge variant="accent" style={{ marginBottom: 'var(--space-4)' }}>The Platform</Badge>
           <h1 className="platform-page__heading">
             Tailored Modules for Modern School Administration
           </h1>
@@ -82,12 +85,12 @@ export default function PlatformPage() {
             EPADM organizes school databases, automate core processes like attendance and lesson timetables, and keeps records legally compliant with zero complex workflows.
           </p>
           <div className="platform-page__hero-ctas">
-            <Link href="/demo" className="btn btn--primary btn--lg">
+            <Button href="/demo" variant="primary" size="lg">
               Request a Demo
-            </Link>
-            <Link href="/security" className="btn btn--secondary btn--lg">
+            </Button>
+            <Button href="/security" variant="secondary" size="lg">
               Security & DPDP compliance
-            </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -100,7 +103,7 @@ export default function PlatformPage() {
           </h2>
           <div className="platform-page__grid">
             {capabilities.map((cap) => (
-              <div key={cap.title} className="platform-page__cap-card">
+              <Card key={cap.title} variant="elevated" padding="md" className="platform-page__cap-card">
                 <div className="platform-page__cap-icon" aria-hidden="true">
                   {cap.icon}
                 </div>
@@ -108,7 +111,7 @@ export default function PlatformPage() {
                   <h3 className="platform-page__cap-title">{cap.title}</h3>
                   <p className="platform-page__cap-body">{cap.description}</p>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </section>
@@ -120,16 +123,16 @@ export default function PlatformPage() {
           </h2>
           <div className="platform-page__principles-grid">
             {principles.map((p) => (
-              <div key={p.title} className="platform-page__principle">
+              <Card key={p.title} variant="outlined" padding="md" className="platform-page__principle">
                 <h3 className="platform-page__principle-title">{p.title}</h3>
                 <p className="platform-page__principle-body">{p.body}</p>
-              </div>
+              </Card>
             ))}
           </div>
         </section>
 
         {/* CTA strip */}
-        <div className="platform-page__cta-strip">
+        <Card variant="outlined" padding="lg" className="platform-page__cta-strip">
           <div>
             <h2 className="platform-page__cta-strip-title">
               Ready to upgrade your school ERP?
@@ -138,10 +141,10 @@ export default function PlatformPage() {
               Let us demonstrate how easy it is to import your students data.
             </p>
           </div>
-          <Link href="/demo" className="btn btn--primary btn--lg" style={{ flexShrink: 0 }}>
+          <Button href="/demo" variant="primary" size="lg" style={{ flexShrink: 0 }}>
             Request a Demo
-          </Link>
-        </div>
+          </Button>
+        </Card>
       </div>
 
       <style>{`

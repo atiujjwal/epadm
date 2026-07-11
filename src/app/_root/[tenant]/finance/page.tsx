@@ -14,6 +14,13 @@ import { and, eq, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { writePlatformAuditLog } from "@/lib/platform/audit";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 export default async function FinancePage({
   searchParams,
@@ -309,7 +316,6 @@ export default async function FinancePage({
 
   return (
     <div className="space-y-6">
-      {/* Title */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-zinc-950">
@@ -321,12 +327,9 @@ export default async function FinancePage({
         </div>
 
         <form action={triggerBillingJob}>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
-          >
-            ⚡ Generate Invoices (Cron Mock)
-          </button>
+          <Button type="submit" variant="primary">
+            Generate Invoices (Cron Mock)
+          </Button>
         </form>
       </div>
 
@@ -355,221 +358,193 @@ export default async function FinancePage({
       {/* Tab Contents */}
       {currentTab === "ledger" && (
         <div className="space-y-6">
-          {/* Overview Stats */}
           <div className="grid gap-6 sm:grid-cols-3">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <Card variant="elevated" padding="md">
               <div className="text-xs uppercase tracking-[0.14em] text-zinc-500 font-semibold">Total Collections</div>
               <div className="mt-2 text-3xl font-bold text-zinc-900">₹{totalCollections.toLocaleString()}</div>
-            </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            </Card>
+            <Card variant="elevated" padding="md">
               <div className="text-xs uppercase tracking-[0.14em] text-zinc-500 font-semibold">Total Expenditures</div>
               <div className="mt-2 text-3xl font-bold text-zinc-900">₹{totalExpenses.toLocaleString()}</div>
-            </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            </Card>
+            <Card variant="elevated" padding="md">
               <div className="text-xs uppercase tracking-[0.14em] text-zinc-500 font-semibold">Net Reserves</div>
               <div className={`mt-2 text-3xl font-bold ${netBalance >= 0 ? "text-emerald-700" : "text-red-700"}`}>
                 ₹{netBalance.toLocaleString()}
               </div>
-            </div>
+            </Card>
           </div>
 
-          {/* Ledger Table */}
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+          <Card variant="elevated" padding="lg">
             <h2 className="text-lg font-semibold text-zinc-950">Double-Entry Ledger Log</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase">
-                    <th className="pb-3">Date</th>
-                    <th className="pb-3">Category</th>
-                    <th className="pb-3">Description</th>
-                    <th className="pb-3">Type</th>
-                    <th className="pb-3 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100">
+            <div className="overflow-x-auto mt-4">
+              <Table variant="spacious" striped>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {data.transactions.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="py-6 text-center text-zinc-500">
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-zinc-500 py-6">
                         No transactions registered in the ledger.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     data.transactions.map((tx) => (
-                      <tr key={tx.id} className="text-zinc-800">
-                        <td className="py-3.5">{String(tx.date)}</td>
-                        <td className="py-3.5">
-                          <span className="capitalize px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 font-medium">
-                            {tx.category}
-                          </span>
-                        </td>
-                        <td className="py-3.5 max-w-sm truncate">{tx.description}</td>
-                        <td className="py-3.5">
-                          <span
-                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                              tx.type === "credit"
-                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                : "bg-red-50 text-red-800 border border-red-200"
-                            }`}
-                          >
+                      <TableRow key={tx.id}>
+                        <TableCell>{String(tx.date)}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{tx.category}</Badge>
+                        </TableCell>
+                        <TableCell className="max-w-sm truncate">{tx.description}</TableCell>
+                        <TableCell>
+                          <Badge variant={tx.type === "credit" ? "success" : "error"}>
                             {tx.type === "credit" ? "Credit (IN)" : "Debit (OUT)"}
-                          </span>
-                        </td>
-                        <td className={`py-3.5 text-right font-semibold ${tx.type === "credit" ? "text-emerald-700" : "text-red-700"}`}>
+                          </Badge>
+                        </TableCell>
+                        <TableCell className={`text-right font-semibold ${tx.type === "credit" ? "text-emerald-700" : "text-red-700"}`}>
                           {tx.type === "credit" ? "+" : "-"}₹{tx.amount.toLocaleString()}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
-          </section>
+          </Card>
         </div>
       )}
 
       {currentTab === "invoices" && (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+        <Card variant="elevated" padding="lg">
           <h2 className="text-lg font-semibold text-zinc-950">Student Invoices</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase">
-                  <th className="pb-3">Student</th>
-                  <th className="pb-3">Invoice Title</th>
-                  <th className="pb-3">Due Date</th>
-                  <th className="pb-3">Amount</th>
-                  <th className="pb-3">Status</th>
-                  <th className="pb-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
+          <div className="overflow-x-auto mt-4">
+            <Table variant="spacious" striped>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Invoice Title</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data.invoices.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-zinc-500">
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-zinc-500 py-6">
                       No student invoices found. Click "Generate Invoices" to create bills.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   data.invoices.map((inv) => (
-                    <tr key={inv.id} className="text-zinc-800">
-                      <td className="py-3.5 font-medium">{String(inv.studentName)}</td>
-                      <td className="py-3.5">{inv.title}</td>
-                      <td className="py-3.5">{String(inv.dueDate)}</td>
-                      <td className="py-3.5 font-semibold">₹{inv.amount.toLocaleString()}</td>
-                      <td className="py-3.5">
-                        <span
-                          className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
-                            inv.status === "paid"
-                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                              : "bg-amber-50 text-amber-800 border border-amber-200"
-                          }`}
-                        >
+                    <TableRow key={inv.id}>
+                      <TableCell className="font-medium">{String(inv.studentName)}</TableCell>
+                      <TableCell>{inv.title}</TableCell>
+                      <TableCell>{String(inv.dueDate)}</TableCell>
+                      <TableCell className="font-semibold">₹{inv.amount.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={inv.status === "paid" ? "success" : "default"}>
                           {inv.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 text-right">
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
                         {inv.status === "pending" && (
                           <form action={markInvoicePaid}>
                             <input type="hidden" name="invoiceId" value={inv.id} />
-                            <button
-                              type="submit"
-                              className="rounded-lg bg-emerald-600 hover:bg-emerald-700 px-3 py-1 text-xs font-medium text-white transition"
-                            >
+                            <Button type="submit" variant="primary" size="sm">
                               Receive Payment
-                            </button>
+                            </Button>
                           </form>
                         )}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
-        </section>
+        </Card>
       )}
 
       {currentTab === "payroll" && (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+        <Card variant="elevated" padding="lg">
           <h2 className="text-lg font-semibold text-zinc-950">Staff Payroll Logs</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase">
-                  <th className="pb-3">Employee</th>
-                  <th className="pb-3">Period</th>
-                  <th className="pb-3">Basic Salary</th>
-                  <th className="pb-3">Allowances</th>
-                  <th className="pb-3">Deductions</th>
-                  <th className="pb-3">Net Pay</th>
-                  <th className="pb-3">Status</th>
-                  <th className="pb-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
+          <div className="overflow-x-auto mt-4">
+            <Table variant="spacious" striped>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Period</TableHead>
+                  <TableHead>Basic Salary</TableHead>
+                  <TableHead>Allowances</TableHead>
+                  <TableHead>Deductions</TableHead>
+                  <TableHead>Net Pay</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data.payrolls.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="py-6 text-center text-zinc-500">
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center text-zinc-500 py-6">
                       No payroll records generated yet.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   data.payrolls.map((pay) => {
                     const netPay = pay.basicSalary + pay.allowances - pay.deductions;
                     return (
-                      <tr key={pay.id} className="text-zinc-800">
-                        <td className="py-3.5 font-medium">{pay.staffName}</td>
-                        <td className="py-3.5">{pay.payPeriod}</td>
-                        <td className="py-3.5">₹{pay.basicSalary.toLocaleString()}</td>
-                        <td className="py-3.5">₹{pay.allowances.toLocaleString()}</td>
-                        <td className="py-3.5">₹{pay.deductions.toLocaleString()}</td>
-                        <td className="py-3.5 font-semibold">₹{netPay.toLocaleString()}</td>
-                        <td className="py-3.5">
-                          <span
-                            className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
-                              pay.paymentStatus === "paid"
-                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                : "bg-red-50 text-red-800 border border-red-200"
-                            }`}
-                          >
+                      <TableRow key={pay.id}>
+                        <TableCell className="font-medium">{pay.staffName}</TableCell>
+                        <TableCell>{pay.payPeriod}</TableCell>
+                        <TableCell>₹{pay.basicSalary.toLocaleString()}</TableCell>
+                        <TableCell>₹{pay.allowances.toLocaleString()}</TableCell>
+                        <TableCell>₹{pay.deductions.toLocaleString()}</TableCell>
+                        <TableCell className="font-semibold">₹{netPay.toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Badge variant={pay.paymentStatus === "paid" ? "success" : "error"}>
                             {pay.paymentStatus}
-                          </span>
-                        </td>
-                        <td className="py-3.5 text-right">
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
                           {pay.paymentStatus === "unpaid" && (
                             <form action={disbursePayroll}>
                               <input type="hidden" name="payrollId" value={pay.id} />
-                              <button
-                                type="submit"
-                                className="rounded-lg bg-emerald-600 hover:bg-emerald-700 px-3 py-1 text-xs font-medium text-white transition"
-                              >
+                              <Button type="submit" variant="primary" size="sm">
                                 Disburse Salary
-                              </button>
+                              </Button>
                             </form>
                           )}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   })
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
-        </section>
+        </Card>
       )}
 
       {currentTab === "fees" && (
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Create Form */}
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4 h-fit">
+          <Card variant="elevated" padding="lg">
             <h2 className="text-lg font-semibold text-zinc-950">Add Fee Plan</h2>
-            <form action={createFeePlan} className="space-y-3">
+            <form action={createFeePlan} className="space-y-3 mt-4">
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Academic Class</label>
-                <select
+                <Label htmlFor="classId">Academic Class</Label>
+                <Select
+                  id="classId"
                   name="classId"
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                  className="w-full"
                   required
                 >
                   {data.classes.map((cls) => (
@@ -577,98 +552,98 @@ export default async function FinancePage({
                       {cls.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Fee Description Name</label>
-                <input
+                <Label htmlFor="name">Fee Description Name</Label>
+                <Input
+                  id="name"
                   name="name"
                   placeholder="e.g. Monthly Tuition Fee"
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                  className="w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Amount (₹)</label>
-                <input
+                <Label htmlFor="amount">Amount (₹)</Label>
+                <Input
+                  id="amount"
                   type="number"
                   name="amount"
                   placeholder="e.g. 5000"
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                  className="w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Frequency</label>
-                <select
+                <Label htmlFor="frequency">Frequency</Label>
+                <Select
+                  id="frequency"
                   name="frequency"
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                  className="w-full"
                   required
                 >
                   <option value="monthly">Monthly</option>
                   <option value="quarterly">Quarterly</option>
                   <option value="annual">Annual</option>
-                </select>
+                </Select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Academic Year</label>
-                <input
+                <Label htmlFor="academicYear">Academic Year</Label>
+                <Input
+                  id="academicYear"
                   name="academicYear"
                   defaultValue="2026-2027"
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+                  className="w-full"
                   required
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition mt-2"
-              >
+              <Button type="submit" variant="primary" className="w-full mt-2">
                 Create Fee Plan
-              </button>
+              </Button>
             </form>
-          </section>
+          </Card>
 
-          {/* List of Plans */}
-          <section className="md:col-span-2 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
+          <Card variant="elevated" padding="lg" className="md:col-span-2">
             <h2 className="text-lg font-semibold text-zinc-950">Active Fee Structures</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase">
-                    <th className="pb-3">Class</th>
-                    <th className="pb-3">Fee Name</th>
-                    <th className="pb-3">Amount</th>
-                    <th className="pb-3">Frequency</th>
-                    <th className="pb-3">Academic Year</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100">
+            <div className="overflow-x-auto mt-4">
+              <Table variant="spacious" striped>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Class</TableHead>
+                    <TableHead>Fee Name</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Frequency</TableHead>
+                    <TableHead>Academic Year</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {data.fees.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="py-6 text-center text-zinc-500">
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-zinc-500 py-6">
                         No base fee structures configured. Add one on the left.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     data.fees.map((fee) => (
-                      <tr key={fee.id} className="text-zinc-800">
-                        <td className="py-3.5 font-medium">{fee.className}</td>
-                        <td className="py-3.5">{fee.name}</td>
-                        <td className="py-3.5 font-semibold">₹{fee.amount.toLocaleString()}</td>
-                        <td className="py-3.5 capitalize">{fee.frequency}</td>
-                        <td className="py-3.5">{fee.academicYear}</td>
-                      </tr>
+                      <TableRow key={fee.id}>
+                        <TableCell className="font-medium">{fee.className}</TableCell>
+                        <TableCell>{fee.name}</TableCell>
+                        <TableCell className="font-semibold">₹{fee.amount.toLocaleString()}</TableCell>
+                        <TableCell className="capitalize">{fee.frequency}</TableCell>
+                        <TableCell>{fee.academicYear}</TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
-          </section>
+          </Card>
         </div>
       )}
     </div>

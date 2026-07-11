@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { DemoForm } from '@/components/forms/DemoForm';
 
 export const metadata: Metadata = {
@@ -14,9 +16,9 @@ export default function DemoPage() {
       <div className="container demo-page__layout">
         {/* Left column — copy */}
         <div className="demo-page__copy">
-          <p className="label" style={{ marginBottom: 'var(--space-4)' }}>
+          <Badge variant="accent" style={{ marginBottom: 'var(--space-4)' }}>
             Request a Demo
-          </p>
+          </Badge>
           <h1 className="demo-page__heading">
             See EPADM in Action
           </h1>
@@ -24,7 +26,7 @@ export default function DemoPage() {
             Let us walk you through a tailored demonstration of the EPADM School management dashboard. Tell us about your school size and current software setup, and we'll prepare a live walkthrough.
           </p>
 
-          <div className="demo-page__what-to-expect">
+          <Card variant="outlined" padding="md" className="demo-page__what-to-expect">
             <p className="demo-page__expect-label">What to expect</p>
             {[
               'A 20–30 minute guided call with a school software expert',
@@ -39,13 +41,13 @@ export default function DemoPage() {
                 <span>{item}</span>
               </div>
             ))}
-          </div>
+          </Card>
         </div>
 
         {/* Right column — form */}
-        <div className="demo-page__form-container">
+        <Card variant="elevated" padding="lg" className="demo-page__form-container">
           <DemoForm />
-        </div>
+        </Card>
       </div>
 
       <style>{`

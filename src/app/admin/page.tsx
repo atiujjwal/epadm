@@ -1,6 +1,7 @@
 import { getPlatformCtx } from "@/lib/platform/context";
 import { getPlatformOverview } from "@/lib/platform/tenants";
 import { PlatformMetricsChart } from "./platform-metrics-chart";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <div className="text-sm font-medium text-amber-400">Platform status</div>
+        <div className="text-sm font-medium" style={{ color: "var(--color-indigo-400)" }}>Platform status</div>
         <h1 className="mt-1 text-3xl font-semibold text-white">
           Welcome back, {ctx.name}
         </h1>
@@ -40,25 +41,25 @@ export default async function AdminOverviewPage() {
         />
       </div>
 
-      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <Card variant="default" padding="lg">
         <h2 className="text-lg font-semibold text-zinc-950">
           AI token throughput (14 days)
         </h2>
         <div className="mt-4">
           <PlatformMetricsChart data={overview.recentMetrics ?? []} />
         </div>
-      </section>
+      </Card>
     </div>
   );
 }
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <Card variant="default" padding="md">
       <div className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
         {label}
       </div>
       <div className="mt-2 text-2xl font-semibold text-zinc-950">{value}</div>
-    </div>
+    </Card>
   );
 }

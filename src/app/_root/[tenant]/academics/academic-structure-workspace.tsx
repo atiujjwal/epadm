@@ -2,6 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FormError, FormSuccess } from "@/components/ui/form";
 
 type ClassRecord = {
   id: string;
@@ -221,236 +227,243 @@ export function AcademicStructureWorkspace({
 
   return (
     <div className="space-y-6">
-      {error ? (
-        <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {error}
-        </p>
-      ) : null}
-      {success ? (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {success}
-        </p>
-      ) : null}
+      {error && <FormError>{error}</FormError>}
+      {success && <FormSuccess>{success}</FormSuccess>}
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-zinc-950">Create class</h2>
-          <form className="mt-4 space-y-4" onSubmit={handleCreateClass}>
-            <input
-              value={classForm.code}
-              onChange={(event) => setClassForm((v) => ({ ...v, code: event.target.value }))}
-              placeholder="Code"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            />
-            <input
-              value={classForm.name}
-              onChange={(event) => setClassForm((v) => ({ ...v, name: event.target.value }))}
-              placeholder="Class name"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            />
-            <input
-              value={classForm.academicYear}
-              onChange={(event) =>
-                setClassForm((v) => ({ ...v, academicYear: event.target.value }))
-              }
-              placeholder="Academic year"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            />
-            <select
-              value={classForm.homeroomStaffId}
-              onChange={(event) =>
-                setClassForm((v) => ({ ...v, homeroomStaffId: event.target.value }))
-              }
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-            >
-              <option value="">Homeroom staff</option>
-              {staff.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.label}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
-              Add class
-            </button>
-          </form>
+        <section>
+          <Card variant="elevated" padding="lg">
+            <h2 className="text-lg font-semibold text-zinc-950">Create class</h2>
+            <form className="mt-4 space-y-4" onSubmit={handleCreateClass}>
+              <Input
+                value={classForm.code}
+                onChange={(event) => setClassForm((v) => ({ ...v, code: event.target.value }))}
+                placeholder="Code"
+                className="w-full"
+                required
+              />
+              <Input
+                value={classForm.name}
+                onChange={(event) => setClassForm((v) => ({ ...v, name: event.target.value }))}
+                placeholder="Class name"
+                className="w-full"
+                required
+              />
+              <Input
+                value={classForm.academicYear}
+                onChange={(event) =>
+                  setClassForm((v) => ({ ...v, academicYear: event.target.value }))
+                }
+                placeholder="Academic year"
+                className="w-full"
+                required
+              />
+              <Select
+                value={classForm.homeroomStaffId}
+                onChange={(event) =>
+                  setClassForm((v) => ({ ...v, homeroomStaffId: event.target.value }))
+                }
+                className="w-full"
+              >
+                <option value="">Homeroom staff</option>
+                {staff.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.label}
+                  </option>
+                ))}
+              </Select>
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={isPending}
+              >
+                Add class
+              </Button>
+            </form>
+          </Card>
         </section>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-zinc-950">Create section</h2>
-          <form className="mt-4 space-y-4" onSubmit={handleCreateSection}>
-            <select
-              value={sectionForm.classId}
-              onChange={(event) => setSectionForm((v) => ({ ...v, classId: event.target.value }))}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            >
-              <option value="">Select class</option>
-              {classes.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name} ({item.code})
-                </option>
-              ))}
-            </select>
-            <input
-              value={sectionForm.name}
-              onChange={(event) => setSectionForm((v) => ({ ...v, name: event.target.value }))}
-              placeholder="Section name"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            />
-            <input
-              value={sectionForm.capacity}
-              onChange={(event) =>
-                setSectionForm((v) => ({ ...v, capacity: event.target.value }))
-              }
-              placeholder="Capacity"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-            />
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
-              Add section
-            </button>
-          </form>
+        <section>
+          <Card variant="elevated" padding="lg">
+            <h2 className="text-lg font-semibold text-zinc-950">Create section</h2>
+            <form className="mt-4 space-y-4" onSubmit={handleCreateSection}>
+              <Select
+                value={sectionForm.classId}
+                onChange={(event) => setSectionForm((v) => ({ ...v, classId: event.target.value }))}
+                className="w-full"
+                required
+              >
+                <option value="">Select class</option>
+                {classes.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.code})
+                  </option>
+                ))}
+              </Select>
+              <Input
+                value={sectionForm.name}
+                onChange={(event) => setSectionForm((v) => ({ ...v, name: event.target.value }))}
+                placeholder="Section name"
+                className="w-full"
+                required
+              />
+              <Input
+                value={sectionForm.capacity}
+                onChange={(event) =>
+                  setSectionForm((v) => ({ ...v, capacity: event.target.value }))
+                }
+                placeholder="Capacity"
+                className="w-full"
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={isPending}
+              >
+                Add section
+              </Button>
+            </form>
+          </Card>
         </section>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-zinc-950">Enroll student</h2>
-          <form className="mt-4 space-y-4" onSubmit={handleCreateEnrollment}>
-            <select
-              value={enrollmentForm.studentId}
-              onChange={(event) =>
-                setEnrollmentForm((v) => ({ ...v, studentId: event.target.value }))
-              }
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            >
-              <option value="">Select student</option>
-              {students.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {student.label} ({student.admissionNumber})
-                </option>
-              ))}
-            </select>
-            <select
-              value={enrollmentForm.classId}
-              onChange={(event) =>
-                setEnrollmentForm((v) => ({
-                  ...v,
-                  classId: event.target.value,
-                  sectionId: "",
-                }))
-              }
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            >
-              <option value="">Select class</option>
-              {classes.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name} ({item.code})
-                </option>
-              ))}
-            </select>
-            <select
-              value={enrollmentForm.sectionId}
-              onChange={(event) =>
-                setEnrollmentForm((v) => ({ ...v, sectionId: event.target.value }))
-              }
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-            >
-              <option value="">Section</option>
-              {sectionOptionsForSelectedClass.map((section) => (
-                <option key={section.id} value={section.id}>
-                  {section.name}
-                </option>
-              ))}
-            </select>
-            <input
-              value={enrollmentForm.academicYear}
-              onChange={(event) =>
-                setEnrollmentForm((v) => ({ ...v, academicYear: event.target.value }))
-              }
-              placeholder="Academic year"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400"
-              required
-            />
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
-              Enroll student
-            </button>
-          </form>
+        <section>
+          <Card variant="elevated" padding="lg">
+            <h2 className="text-lg font-semibold text-zinc-950">Enroll student</h2>
+            <form className="mt-4 space-y-4" onSubmit={handleCreateEnrollment}>
+              <Select
+                value={enrollmentForm.studentId}
+                onChange={(event) =>
+                  setEnrollmentForm((v) => ({ ...v, studentId: event.target.value }))
+                }
+                className="w-full"
+                required
+              >
+                <option value="">Select student</option>
+                {students.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.label} ({student.admissionNumber})
+                  </option>
+                ))}
+              </Select>
+              <Select
+                value={enrollmentForm.classId}
+                onChange={(event) =>
+                  setEnrollmentForm((v) => ({
+                    ...v,
+                    classId: event.target.value,
+                    sectionId: "",
+                  }))
+                }
+                className="w-full"
+                required
+              >
+                <option value="">Select class</option>
+                {classes.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.code})
+                  </option>
+                ))}
+              </Select>
+              <Select
+                value={enrollmentForm.sectionId}
+                onChange={(event) =>
+                  setEnrollmentForm((v) => ({ ...v, sectionId: event.target.value }))
+                }
+                className="w-full"
+              >
+                <option value="">Section</option>
+                {sectionOptionsForSelectedClass.map((section) => (
+                  <option key={section.id} value={section.id}>
+                    {section.name}
+                  </option>
+                ))}
+              </Select>
+              <Input
+                value={enrollmentForm.academicYear}
+                onChange={(event) =>
+                  setEnrollmentForm((v) => ({ ...v, academicYear: event.target.value }))
+                }
+                placeholder="Academic year"
+                className="w-full"
+                required
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={isPending}
+              >
+                Enroll student
+              </Button>
+            </form>
+          </Card>
         </section>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <section className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-          <div className="border-b border-zinc-200 px-5 py-4">
-            <h3 className="font-semibold text-zinc-950">Classes</h3>
-          </div>
-          <div className="space-y-3 p-5">
-            {classes.map((item) => (
-              <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <div className="font-medium text-zinc-900">{item.name}</div>
-                <div className="mt-1 text-sm text-zinc-600">
-                  {item.code} • {item.academicYear}
-                </div>
-                {item.homeroomStaffName ? (
-                  <div className="mt-1 text-xs text-zinc-500">
-                    Homeroom: {item.homeroomStaffName}
+        <section>
+          <Card variant="elevated" padding="none">
+            <div className="border-b border-zinc-200 px-5 py-4">
+              <h3 className="font-semibold text-zinc-950">Classes</h3>
+            </div>
+            <div className="space-y-3 p-5">
+              {classes.map((item) => (
+                <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+                  <div className="font-medium text-zinc-900">{item.name}</div>
+                  <div className="mt-1 text-sm text-zinc-600">
+                    {item.code} • {item.academicYear}
                   </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
+                  {item.homeroomStaffName && (
+                    <div className="mt-1 text-xs text-zinc-500">
+                      Homeroom: {item.homeroomStaffName}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
         </section>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-          <div className="border-b border-zinc-200 px-5 py-4">
-            <h3 className="font-semibold text-zinc-950">Sections</h3>
-          </div>
-          <div className="space-y-3 p-5">
-            {sections.map((item) => (
-              <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <div className="font-medium text-zinc-900">
-                  {item.classCode} / {item.name}
+        <section>
+          <Card variant="elevated" padding="none">
+            <div className="border-b border-zinc-200 px-5 py-4">
+              <h3 className="font-semibold text-zinc-950">Sections</h3>
+            </div>
+            <div className="space-y-3 p-5">
+              {sections.map((item) => (
+                <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+                  <div className="font-medium text-zinc-900">
+                    {item.classCode} / {item.name}
+                  </div>
+                  <div className="mt-1 text-sm text-zinc-600">{item.className}</div>
+                  {item.capacity && (
+                    <div className="mt-1 text-xs text-zinc-500">Capacity: {item.capacity}</div>
+                  )}
                 </div>
-                <div className="mt-1 text-sm text-zinc-600">{item.className}</div>
-                {item.capacity ? (
-                  <div className="mt-1 text-xs text-zinc-500">Capacity: {item.capacity}</div>
-                ) : null}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         </section>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-          <div className="border-b border-zinc-200 px-5 py-4">
-            <h3 className="font-semibold text-zinc-950">Enrollments</h3>
-          </div>
-          <div className="space-y-3 p-5">
-            {enrollments.map((item) => (
-              <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <div className="font-medium text-zinc-900">{item.studentName}</div>
-                <div className="mt-1 text-sm text-zinc-600">
-                  {item.className}{item.sectionName ? ` / ${item.sectionName}` : ""} • {item.academicYear}
+        <section>
+          <Card variant="elevated" padding="none">
+            <div className="border-b border-zinc-200 px-5 py-4">
+              <h3 className="font-semibold text-zinc-950">Enrollments</h3>
+            </div>
+            <div className="space-y-3 p-5">
+              {enrollments.map((item) => (
+                <div key={item.id} className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+                  <div className="font-medium text-zinc-900">{item.studentName}</div>
+                  <div className="mt-1 text-sm text-zinc-600">
+                    {item.className}{item.sectionName ? ` / ${item.sectionName}` : ""} • {item.academicYear}
+                  </div>
+                  <div className="mt-1 text-xs text-zinc-500">{item.admissionNumber}</div>
                 </div>
-                <div className="mt-1 text-xs text-zinc-500">{item.admissionNumber}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         </section>
       </div>
     </div>

@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
@@ -53,7 +56,7 @@ export default function SecurityPage() {
       {/* Hero */}
       <div className="security-page__hero">
         <div className="container security-page__hero-inner">
-          <p className="label" style={{ marginBottom: 'var(--space-4)' }}>Security & Compliance</p>
+          <Badge variant="accent" style={{ marginBottom: 'var(--space-4)' }}>Security & Compliance</Badge>
           <h1 className="security-page__heading">
             Enterprise-Grade School Data Protection
           </h1>
@@ -78,31 +81,31 @@ export default function SecurityPage() {
 
         <div className="security-page__content">
           {sections.map((section) => (
-            <section key={section.id} id={section.id} className="security-page__section" aria-labelledby={`sh-${section.id}`}>
+            <Card key={section.id} id={section.id} variant="outlined" padding="lg" className="security-page__section" aria-labelledby={`sh-${section.id}`}>
               <h2 id={`sh-${section.id}`} className="security-page__section-title">
                 {section.title}
               </h2>
               {section.content.split('\n\n').map((para, i) => (
                 <p key={i} className="security-page__section-body">{para}</p>
               ))}
-            </section>
+            </Card>
           ))}
 
           {/* Contact */}
-          <div className="security-page__contact">
+          <Card variant="elevated" padding="lg" className="security-page__contact">
             <h2>DPDP & Security Inquiries</h2>
             <p>
               Do you have specific questions about data residency in India or need to review our DPDP Data Processing Agreement (DPA)? Contact our compliance team.
             </p>
             <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
-              <a href={`mailto:${siteConfig.contactEmail}`} className="btn btn--secondary">
+              <Button href={`mailto:${siteConfig.contactEmail}`} variant="secondary">
                 Email Compliance Team
-              </a>
-              <Link href="/demo" className="btn btn--primary">
+              </Button>
+              <Button href="/demo" variant="primary">
                 Schedule Compliance Review
-              </Link>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 

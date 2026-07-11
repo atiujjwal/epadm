@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export const metadata: Metadata = {
   title: 'About EPADM',
@@ -13,7 +16,7 @@ export default function AboutPage() {
     <div className="about-page">
       <div className="about-page__hero">
         <div className="container about-page__hero-inner">
-          <p className="label" style={{ marginBottom: 'var(--space-4)' }}>About Us</p>
+          <Badge variant="accent" style={{ marginBottom: 'var(--space-4)' }}>About Us</Badge>
           <h1 className="about-page__heading">
             Modern School Administration, Reimagined
           </h1>
@@ -49,29 +52,29 @@ export default function AboutPage() {
                 },
                 {
                   title: 'DPDP Act 2023 Compliance',
-                  body: 'As a data fiduciary helper, we provide the verifiable consent portals, audit trails, and data erasure workflows necessary to safeguard minors’ data under India’s modern privacy laws.',
+                  body: 'As a data fiduciary helper, we provide the verifiable consent portals, audit trails, and data erasure workflows necessary to safeguard minors data under India modern privacy laws.',
                 },
               ].map((v) => (
-                <div key={v.title} className="about-page__value">
+                <Card key={v.title} variant="elevated" padding="md" className="about-page__value">
                   <h3 className="about-page__value-title">{v.title}</h3>
                   <p className="about-page__value-body">{v.body}</p>
-                </div>
+                </Card>
               ))}
             </div>
           </section>
         </div>
 
         {/* CTA */}
-        <div className="about-page__cta">
+        <Card variant="outlined" padding="lg" className="about-page__cta">
           <h2>Bring EPADM to Your School</h2>
           <p>
             Want to see how EPADM fits your academic board requirements (CBSE, ICSE, or State Board)? Talk to our product team for a customized setup walk-through.
           </p>
           <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
-            <Link href="/demo" className="btn btn--primary">Request a Demo</Link>
-            <Link href="/contact" className="btn btn--secondary">Contact Sales</Link>
+            <Button href="/demo" variant="primary">Request a Demo</Button>
+            <Button href="/contact" variant="secondary">Contact Sales</Button>
           </div>
-        </div>
+        </Card>
       </div>
 
       <style>{`

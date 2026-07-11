@@ -1,12 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@source "../app/**/*.{js,ts,jsx,tsx}";
+@source "../components/**/*.{js,ts,jsx,tsx}";
+@source "./src/app/**/*.{js,ts,jsx,tsx}";
+@source "./src/components/**/*.{js,ts,jsx,tsx}";
+
+
+
+
 /* ============================================================
    EPADM Design System — globals.css
    Production-grade CSS foundation with full token system
+   Unified Light Theme (Default)
    ============================================================ */
 
-/* ── Google Fonts ─────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 /* ── Design Tokens ────────────────────────────────────────── */
+
 :root {
   /* === Color Primitives === */
   --color-navy-950: #04060f;
@@ -17,6 +27,7 @@
   --color-navy-500: #253060;
   --color-navy-400: #2e3e7a;
 
+  --color-indigo-700: #2e45c7;
   --color-indigo-600: #3a56e0;
   --color-indigo-500: #4f6ef7;
   --color-indigo-400: #6b87fa;
@@ -49,36 +60,40 @@
   --color-success-600: #059669;
   --color-success-500: #10b981;
   --color-success-100: #d1fae5;
+  --color-success-50:  #ecfdf5;
   --color-warning-600: #d97706;
   --color-warning-500: #f59e0b;
   --color-warning-100: #fef3c7;
+  --color-warning-50:  #fffbeb;
   --color-error-600:   #dc2626;
   --color-error-500:   #ef4444;
   --color-error-100:   #fee2e2;
+  --color-error-50:    #fef2f2;
 
-  /* === Semantic Tokens — Dark (default) === */
-  --bg-base:          var(--color-navy-900);
-  --bg-surface:       var(--color-navy-800);
-  --bg-surface-2:     var(--color-navy-700);
-  --bg-elevated:      var(--color-navy-600);
-  --bg-overlay:       rgba(10, 15, 30, 0.85);
+  /* === Semantic Tokens — Light Theme (Default) === */
+  --bg-base:          var(--color-slate-50);
+  --bg-surface:       var(--color-white);
+  --bg-surface-2:     var(--color-slate-50);
+  --bg-elevated:      var(--color-white);
+  --bg-overlay:       rgba(15, 23, 42, 0.75);
 
   --accent-primary:   var(--color-indigo-500);
-  --accent-hover:     var(--color-indigo-400);
-  --accent-muted:     var(--color-indigo-600);
-  --accent-subtle:    rgba(79, 110, 247, 0.12);
-  --accent-glow:      rgba(79, 110, 247, 0.25);
+  --accent-hover:     var(--color-indigo-600);
+  --accent-muted:     var(--color-indigo-400);
+  --accent-subtle:    var(--color-indigo-50);
+  --accent-glow:      rgba(79, 110, 247, 0.15);
+  --accent-border:    rgba(79, 110, 247, 0.3);
 
-  --text-primary:     var(--color-white);
-  --text-secondary:   var(--color-white-80);
-  --text-tertiary:    var(--color-white-60);
-  --text-muted:       var(--color-white-40);
-  --text-inverse:     var(--color-navy-900);
+  --text-primary:     var(--color-slate-900);
+  --text-secondary:   var(--color-slate-600);
+  --text-tertiary:    var(--color-slate-500);
+  --text-muted:       var(--color-slate-400);
+  --text-inverse:     var(--color-white);
 
-  --border-default:   var(--color-white-10);
-  --border-subtle:    var(--color-white-06);
-  --border-strong:    var(--color-white-20);
-  --border-accent:    rgba(79, 110, 247, 0.40);
+  --border-default:   var(--color-slate-200);
+  --border-subtle:    var(--color-slate-100);
+  --border-strong:    var(--color-slate-300);
+  --border-accent:    var(--accent-border);
 
   /* === Typography === */
   --font-display: 'Syne', system-ui, sans-serif;
@@ -169,14 +184,20 @@
   --radius-3xl:  2rem;
   --radius-full: 9999px;
 
-  /* === Elevation / Shadows === */
-  --shadow-sm:    0 1px 2px rgba(0,0,0,0.4);
-  --shadow-md:    0 4px 12px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.2);
-  --shadow-lg:    0 10px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-xl:    0 20px 60px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.3);
+  /* === Elevation / Shadows (light-optimized) === */
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:    0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg:    0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-xl:    0 20px 25px rgba(0,0,0,0.1), 0 8px 10px rgba(0,0,0,0.06);
   --shadow-glow:  0 0 40px var(--accent-glow);
   --shadow-glow-sm: 0 0 16px var(--accent-glow);
-  --shadow-inner: inset 0 1px 0 var(--color-white-10);
+  --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.05);
+
+  /* === Chart Colors === */
+  --chart-amber:     var(--color-warning-500);
+  --chart-amber-fill: rgba(245, 158, 11, 0.15);
+  --chart-green:     var(--color-success-600);
+  --chart-grid:      var(--border-subtle);
 
   /* === Transitions === */
   --duration-fast:   120ms;
@@ -471,45 +492,91 @@ code, kbd, samp {
 .btn--primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
-  box-shadow: 0 4px 20px var(--accent-glow);
+  box-shadow: 0 4px 16px rgba(79, 110, 247, 0.25);
   color: var(--color-white);
 }
 
-/* Secondary / Outline */
+.btn--primary:disabled {
+  background: var(--accent-muted);
+  border-color: var(--accent-muted);
+}
+
+/* Secondary */
 .btn--secondary {
-  background: transparent;
+  background: var(--bg-surface);
   color: var(--text-primary);
-  border-color: var(--border-strong);
+  border: 1px solid var(--border-strong);
 }
 
 .btn--secondary:hover {
-  background: var(--color-white-06);
-  border-color: var(--color-white-40);
+  background: var(--bg-surface-2);
+  border-color: var(--border-accent);
   color: var(--text-primary);
+}
+
+.btn--secondary:disabled {
+  background: var(--bg-surface-2);
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
 }
 
 /* Ghost */
 .btn--ghost {
   background: transparent;
   color: var(--text-secondary);
-  border-color: transparent;
 }
 
 .btn--ghost:hover {
-  background: var(--color-white-06);
+  background: var(--bg-surface-2);
   color: var(--text-primary);
 }
 
+/* Danger */
+.btn--danger {
+  background: var(--color-error-500);
+  color: var(--color-white);
+  border-color: var(--color-error-500);
+}
+
+.btn--danger:hover {
+  background: var(--color-error-600);
+  border-color: var(--color-error-600);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+  color: var(--color-white);
+}
+
 /* Sizes */
-.btn--sm  { padding: var(--space-2) var(--space-4); font-size: var(--text-xs); }
-.btn--lg  { padding: var(--space-4) var(--space-8); font-size: var(--text-base); border-radius: var(--radius-lg); }
-.btn--xl  { padding: var(--space-5) var(--space-10); font-size: var(--text-lg); border-radius: var(--radius-lg); }
+.btn--sm  { padding: var(--space-2) var(--space-4); font-size: var(--text-xs); border-radius: var(--radius-md); }
+.btn--md  { padding: var(--space-3) var(--space-5); font-size: var(--text-sm); }
+.btn--lg  { padding: var(--space-4) var(--space-6); font-size: var(--text-base); border-radius: var(--radius-lg); }
+.btn--xl  { padding: var(--space-5) var(--space-8); font-size: var(--text-lg); border-radius: var(--radius-lg); }
 
 /* Icon button */
 .btn--icon {
-  padding: var(--space-2-5);
+  padding: var(--space-2);
   border-radius: var(--radius-md);
   aspect-ratio: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Button content */
+.btn__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn__icon > svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.btn__content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* ── Badge / Chip ─────────────────────────────────────────── */
@@ -906,10 +973,216 @@ hr {
   }
 }
 
-/* ── Print ────────────────────────────────────────────────── */
+/* ── Print Styles ─────────────────────────────────────────── */
 @media print {
-  * { background: white !important; color: black !important; }
-  nav, footer, .btn { display: none !important; }
+  /* === Global resets === */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* === Hide non-essential elements === */
+  nav,
+  footer,
+  header,
+  aside,
+  .btn,
+  button,
+  [role="button"],
+  .no-print,
+  .skip-link,
+  .tooltip,
+  .dropdown,
+  .modal,
+  .toast,
+  .pagination,
+  .fab,
+  .sticky,
+  .fixed {
+    display: none !important;
+  }
+
+  /* === Layout adjustments === */
+  body {
+    font-size: 12pt;
+    line-height: 1.6;
+    max-width: none;
+    padding: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+
+  a[href^="#"],
+  a[href^="javascript"] {
+    text-decoration: none;
+  }
+
+  a[href^="#"]::after,
+  a[href^="javascript"]::after {
+    content: "";
+  }
+
+  /* === Tables for invoices/ledgers === */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    page-break-inside: auto;
+  }
+
+  th {
+    border-bottom: 2px solid black;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11pt;
+  }
+
+  td, th {
+    padding: 8pt;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* === Cards as sections === */
+  .card {
+    border: 1px solid #ccc;
+    border-radius: 0;
+    padding: 12pt;
+    page-break-inside: avoid;
+    box-shadow: none;
+  }
+
+  .card__title {
+    font-size: 14pt;
+    margin-bottom: 6pt;
+    color: black;
+  }
+
+  .card__body {
+    font-size: 11pt;
+    color: black;
+  }
+
+  /* === Badges as text labels === */
+  .badge {
+    border: 1px solid black;
+    border-radius: 4pt;
+    padding: 2pt 6pt;
+    font-size: 9pt;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+
+  .badge--success {
+    border-color: black;
+  }
+
+  /* === Forms === */
+  .form-item {
+    page-break-inside: avoid;
+  }
+
+  .form-label {
+    font-weight: 600;
+    display: block;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    border: 1px solid #ccc;
+    background: none;
+    font-size: 11pt;
+  }
+
+  /* === Typography === */
+  h1, h2, h3, h4, h5, h6 {
+    color: black;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1 { font-size: 18pt; }
+  h2 { font-size: 16pt; }
+  h3 { font-size: 14pt; }
+  h4 { font-size: 12pt; }
+
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* === Page breaks === */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* === Specific page print optimizations === */
+  /* Invoice-specific */
+  .invoice-header {
+    border-bottom: 2px solid black;
+    padding-bottom: 12pt;
+    margin-bottom: 12pt;
+  }
+
+  .invoice-total {
+    font-weight: 700;
+    font-size: 14pt;
+    border-top: 2px solid black;
+    padding-top: 6pt;
+    margin-top: 12pt;
+  }
+
+  /* Student/Staff list */
+  .student-card,
+  .staff-card {
+    page-break-inside: avoid;
+    margin-bottom: 8pt;
+  }
+
+  /* QR/barcodes - ensure they print */
+  img[qrcode],
+  img[alt*="QR"],
+  .qr-code {
+    max-width: 120pt;
+    page-break-inside: avoid;
+  }
 }
 
 /* ── Utility Overrides ────────────────────────────────────── */

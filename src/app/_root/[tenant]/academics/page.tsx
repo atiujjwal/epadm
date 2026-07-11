@@ -7,6 +7,8 @@ import {
 import { listStaff, listStudents } from "@/lib/admin/registries";
 import { getCtx } from "@/lib/context";
 import { AcademicStructureWorkspace } from "./academic-structure-workspace";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default async function AcademicsPage() {
   const ctx = await getCtx();
@@ -22,18 +24,18 @@ export default async function AcademicsPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <Card variant="elevated" padding="md">
           <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Classes</div>
           <div className="mt-2 text-3xl font-semibold text-zinc-950">{summary.classCount}</div>
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        </Card>
+        <Card variant="elevated" padding="md">
           <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Sections</div>
           <div className="mt-2 text-3xl font-semibold text-zinc-950">{summary.sectionCount}</div>
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        </Card>
+        <Card variant="elevated" padding="md">
           <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Enrollments</div>
           <div className="mt-2 text-3xl font-semibold text-zinc-950">{summary.enrollmentCount}</div>
-        </div>
+        </Card>
       </section>
 
       <div>

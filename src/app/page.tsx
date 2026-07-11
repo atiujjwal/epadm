@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { siteConfig, ctaNav } from '@/config/site';
+import { ctaNav } from '@/config/site';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 
 /* ── Motion Variants ────────────────────────────────────────── */
 const containerVariants = {
@@ -31,138 +33,6 @@ const cardHoverVariants = {
     transition: { duration: 0.25 }
   }
 };
-
-/* ── Interactive School Nodes Topology Visual ─────────────── */
-function SchoolTopologyVisual() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
-  if (!mounted) {
-    return (
-      <div className="school-topo-fallback" style={{ height: '320px', background: 'rgba(15,22,41,0.4)', borderRadius: 'var(--radius-xl)' }} />
-    );
-  }
-
-  const nodes = [
-    { id: 'bio', label: 'Biometric ADMS Sync', x: 20, y: 20, desc: 'Hardware ADMS sync' },
-    { id: 'ai', label: 'AI Exams & RAG', x: 80, y: 18, desc: 'Generative paper engine' },
-    { id: 'timetable', label: 'Genetic Scheduler', x: 75, y: 65, desc: 'Timetable optimizer' },
-    { id: 'dpdp', label: 'DPDP Fiduciary Tools', x: 25, y: 68, desc: 'Parent consent validation' },
-  ];
-  const center = { x: 50, y: 44, label: 'EPADM AI Hub' };
-
-  return (
-    <div className="school-topo" aria-hidden="true">
-      <svg viewBox="0 0 100 80" className="school-topo__svg">
-        {/* Connection lines */}
-        {nodes.map((node, i) => (
-          <m.line
-            key={`line-${node.id}`}
-            x1={`${node.x}%`}
-            y1={`${node.y}%`}
-            x2={`${center.x}%`}
-            y2={`${center.y}%`}
-            stroke="rgba(79, 110, 247, 0.22)"
-            strokeWidth="1.25"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.8, delay: i * 0.15 }}
-          />
-        ))}
-
-        {/* Data flow packets */}
-        {nodes.map((node, i) => (
-          <m.circle
-            key={`packet-${node.id}`}
-            r="3"
-            fill="var(--accent-primary)"
-            initial={{ opacity: 0 }}
-            animate={{
-              opacity: [0, 1, 1, 0],
-              cx: [`${node.x}%`, `${center.x}%`],
-              cy: [`${node.y}%`, `${center.y}%`],
-            }}
-            transition={{
-              duration: 2.2,
-              delay: i * 0.5,
-              repeat: Infinity,
-            }}
-          />
-        ))}
-
-        {/* Outer nodes */}
-        {nodes.map((node, i) => (
-          <m.g
-            key={node.id}
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-          >
-            <circle cx={`${node.x}%`} cy={`${node.y}%`} r="6" fill="var(--bg-surface)" stroke="var(--accent-primary)" strokeWidth="1.5" />
-            <circle cx={`${node.x}%`} cy={`${node.y}%`} r="3" fill="var(--color-indigo-300)" />
-            <text
-              x={`${node.x}%`}
-              y={`${node.y + 11}%`}
-              textAnchor="middle"
-              fill="var(--text-secondary)"
-              fontSize="3.8"
-              fontFamily="var(--font-mono)"
-              fontWeight="500"
-            >
-              {node.label}
-            </text>
-          </m.g>
-        ))}
-
-        {/* Center Node */}
-        <m.g
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <m.circle
-            cx={`${center.x}%`}
-            cy={`${center.y}%`}
-            r="12"
-            fill="none"
-            stroke="rgba(79, 110, 247, 0.15)"
-            strokeWidth="1"
-            animate={{ r: [12, 15, 12], opacity: [0.4, 0.1, 0.4] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          />
-          <circle cx={`${center.x}%`} cy={`${center.y}%`} r="8" fill="var(--accent-primary)" opacity="0.15" />
-          <circle cx={`${center.x}%`} cy={`${center.y}%`} r="5" fill="var(--accent-primary)" />
-          <text
-            x={`${center.x}%`}
-            y={`${center.y}% + 13%`}
-            textAnchor="middle"
-            fill="var(--text-primary)"
-            fontSize="4.5"
-            fontFamily="var(--font-display)"
-            fontWeight="bold"
-          >
-            {center.label}
-          </text>
-        </m.g>
-      </svg>
-
-      <style>{`
-        .school-topo {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .school-topo__svg {
-          width: 100%;
-          height: auto;
-          max-height: 380px;
-        }
-      `}</style>
-    </div>
-  );
-}
 
 export default function HomePage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -306,10 +176,10 @@ export default function HomePage() {
             animate="visible"
           >
             <m.div variants={itemVariants} className="hero-eyebrow">
-              <span className="badge badge--accent">
+              <Badge variant="accent">
                 <span className="status-dot status-dot--live" aria-hidden="true" />
                 End-to-End K-12 School Management
-              </span>
+              </Badge>
             </m.div>
 
             <m.h1 variants={itemVariants} className="hero-heading">
@@ -323,15 +193,15 @@ export default function HomePage() {
             </m.p>
 
             <m.div variants={itemVariants} className="hero-ctas">
-              <Link href={ctaNav.primary.href} className="btn btn--primary btn--lg">
+              <Button href={ctaNav.primary.href} variant="primary" size="lg">
                 {ctaNav.primary.label}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-              </Link>
-              <Link href="/demo" className="btn btn--secondary btn--lg">
+              </Button>
+              <Button href="/demo" variant="secondary" size="lg">
                 Request a Demo
-              </Link>
+              </Button>
             </m.div>
 
             <m.div variants={itemVariants} className="hero-trust">
@@ -397,24 +267,26 @@ export default function HomePage() {
             {pillars.map((pillar) => (
               <m.div
                 key={pillar.num}
-                className="feature-card card card--feature"
+                className="feature-card"
                 variants={cardHoverVariants}
                 whileHover="hover"
               >
-                <div className="feature-card-header">
-                  <div className="card__icon">{pillar.icon}</div>
-                  <span className="feature-num">{pillar.num}</span>
-                </div>
+                <Card variant="interactive" padding="md">
+                  <div className="feature-card-header">
+                    <div className="card__icon">{pillar.icon}</div>
+                    <span className="feature-num">{pillar.num}</span>
+                  </div>
 
-                <h3 className="card__title">{pillar.title}</h3>
-                <p className="feature-card-subtitle">{pillar.subtitle}</p>
-                <p className="card__body">{pillar.desc}</p>
+                  <h3 className="card__title">{pillar.title}</h3>
+                  <p className="feature-card-subtitle">{pillar.subtitle}</p>
+                  <p className="card__body">{pillar.desc}</p>
 
-                <div className="feature-badges">
-                  {pillar.badges.map((b) => (
-                    <span key={b} className="badge badge--surface">{b}</span>
-                  ))}
-                </div>
+                  <div className="feature-badges">
+                    {pillar.badges.map((b) => (
+                      <Badge key={b} variant="outline">{b}</Badge>
+                    ))}
+                  </div>
+                </Card>
               </m.div>
             ))}
           </div>
@@ -443,7 +315,7 @@ export default function HomePage() {
                 whileHover="hover"
               >
                 {tier.popular && (
-                  <span className="popular-badge">Most Popular</span>
+                  <Badge variant="success">Most Popular</Badge>
                 )}
 
                 <div className="pricing-card-header">
@@ -468,13 +340,14 @@ export default function HomePage() {
                   ))}
                 </ul>
 
-                <Link
+                <Button
                   href={tier.href}
-                  className={`btn w-full ${tier.popular ? 'btn--primary' : 'btn--secondary'}`}
+                  variant={tier.popular ? 'primary' : 'secondary'}
+                  className="w-full"
                   style={{ marginTop: 'auto' }}
                 >
                   {tier.cta}
-                </Link>
+                </Button>
               </m.div>
             ))}
           </div>
@@ -795,7 +668,7 @@ export default function HomePage() {
         .price-amount {
           font-family: var(--font-display);
           font-size: var(--text-4xl);
-          font-weight: var(--weight-extrabod);
+          font-weight: var(--weight-extrabold);
           color: var(--text-primary);
         }
 

@@ -1,6 +1,8 @@
 import { getStaffSummary, listStaff } from "@/lib/admin/registries";
 import { getCtx } from "@/lib/context";
 import { StaffRegistry } from "./staff-registry";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default async function StaffPage() {
   const ctx = await getCtx();
@@ -12,18 +14,18 @@ export default async function StaffPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <Card variant="elevated" padding="md">
           <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Total staff</div>
           <div className="mt-2 text-3xl font-semibold text-zinc-950">{summary.total}</div>
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        </Card>
+        <Card variant="elevated" padding="md">
           <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Active</div>
           <div className="mt-2 text-3xl font-semibold text-emerald-700">{summary.active}</div>
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        </Card>
+        <Card variant="elevated" padding="md">
           <div className="text-xs uppercase tracking-[0.14em] text-zinc-500">Non-active</div>
           <div className="mt-2 text-3xl font-semibold text-zinc-700">{summary.inactive}</div>
-        </div>
+        </Card>
       </section>
 
       <div>

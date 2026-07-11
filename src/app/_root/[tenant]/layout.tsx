@@ -1,84 +1,96 @@
+"use client";
+
 import type { ReactNode } from "react";
-import Link from "next/link";
-import { getCtx } from "@/lib/context";
+import { useState } from "react";
+import { TenantSidebar } from "@/components/layout/tenant-sidebar";
 import { TenantSignOutButton } from "./tenant-sign-out-button";
 
 type Props = {
   children: ReactNode;
   params: { tenant: string };
+  ctx: {
+    role: string;
+    tenantName: string;
+    tenantSlug: string;
+    planTier: string;
+  };
 };
 
-export default async function TenantLayout({ children }: Props) {
-  const ctx = await getCtx();
+function TenantClientLayout({ children, params, ctx }: Props) {
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   if (ctx.role === "teacher" || ctx.role === "student") {
     return <>{children}</>;
   }
 
   const navItems = [
-    { href: "/dashboard", label: "Overview" },
-    { href: "/users", label: "Tenant users" },
-    { href: "/students", label: "Students" },
-    { href: "/staff", label: "Staff" },
-    { href: "/academics", label: "Academics" },
+    { href: `/${params.tenant}/dashboard`, label: "Overview" },
+    { href: `/${params.tenant}/users`, label: "Tenant users" },
+    { href: `/${params.tenant}/students`, label: "Students" },
+    { href: `/${params.tenant}/staff`, label: "Staff" },
+    { href: `/${params.tenant}/academics`, label: "Academics" },
   ];
 
   if (ctx.role === "admin" || ctx.role === "accountant") {
-    navItems.push({ href: "/finance", label: "Finance" });
+    navItems.push({ href: `/${params.tenant}/finance`, label: "Finance" });
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f6faf6_0%,#f8fafc_48%,#ffffff_100%)]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-0">
-        <aside className="hidden w-72 border-r border-zinc-200/80 bg-white/80 px-5 py-6 backdrop-blur md:block">
-          <div className="rounded-2xl bg-zinc-950 px-4 py-5 text-white shadow-sm">
-            <div className="text-xs uppercase tracking-[0.18em] text-emerald-200">
-              EPADM
-            </div>
-            <div className="mt-2 text-xl font-semibold">Tenant operations</div>
-            <div className="mt-2 text-sm text-zinc-300">
-              Role-aware control surface for school administration.
-            </div>
-          </div>
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#f6faf6_0%,#f8fafc_48%,#ffffff_100%)" }}>
+      {/* Mobile header */}
+      <header className="md:hidden sticky top-0 z-[200] bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+            aria-label="Open navigation menu"
+            aria-controls="tenant-sidebar"
+            aria-expanded={mobileOpen}
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <span className="font-semibold text-gray-900">Tenant Operations</span>
+        </div>
+        <button onClick={() => {}} className="text-sm text-gray-600 hover:text-gray-900" aria-label="Sign out">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </header>
 
-          <nav className="mt-6 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-emerald-50 hover:text-emerald-800"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4 text-sm text-zinc-700">
-            <div className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Active context
-            </div>
-            <div className="mt-3 space-y-3">
-              <div>
-                <div className="text-xs text-zinc-500">Role</div>
-                <div className="font-medium text-zinc-950">{ctx.role}</div>
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500">Plan</div>
-                <div className="font-medium text-zinc-950">{ctx.planTier}</div>
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500">User</div>
-                <div className="break-all font-medium text-zinc-950">{ctx.userId}</div>
-              </div>
-            </div>
-          </div>
-
-          <TenantSignOutButton />
-        </aside>
-
+      <div className="mx-auto flex min-h-screen w-full max-w-[1600px]">
+        <TenantSidebar
+          items={navItems}
+          tenantName={ctx.tenantName}
+          tenantSlug={ctx.tenantSlug}
+          userRole={ctx.role}
+          planTier={ctx.planTier}
+          mobileOpen={mobileOpen}
+          onMobileClose={() => setMobileOpen(false)}
+        />
         <main className="flex-1 px-4 py-6 md:px-8 lg:px-10">{children}</main>
       </div>
     </div>
   );
+}
+
+export default async function TenantLayout({ children, params }: { children: ReactNode; params: { tenant: string } }) {
+  // This wrapper exists just to satisfy Next.js - actual routing below
+  const { getCtx } = await import("@/lib/context");
+  const ctx = await getCtx();
+
+  if (ctx.role === "teacher" || ctx.role === "student") {
+    return <>{children}</>;
+  }
+
+  return <TenantClientLayout children={children} params={params} ctx={{
+    role: ctx.role,
+    tenantName: ctx.tenantName,
+    tenantSlug: ctx.tenantSlug,
+    planTier: ctx.planTier,
+  }} />;
 }
 

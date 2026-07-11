@@ -5,6 +5,12 @@ import { m, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { scaleIn } from '@/lib/motion';
 import { siteConfig } from '@/config/site';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -58,7 +64,7 @@ export default function ContactPage() {
       <div className="container contact-page__layout">
         {/* Left column */}
         <div className="contact-page__info">
-          <p className="label" style={{ marginBottom: 'var(--space-4)' }}>Contact Us</p>
+          <Badge variant="accent" style={{ marginBottom: 'var(--space-4)' }}>Contact Us</Badge>
           <h1 className="contact-page__heading">Get in touch</h1>
           <p className="contact-page__body">
             Have questions about billing, integrations, biometric machine support (ADMS), or how our platform maps to CBSE/ICSE regulatory norms? Drop us a line.
@@ -94,7 +100,7 @@ export default function ContactPage() {
         </div>
 
         {/* Right column — Form */}
-        <div className="contact-page__form-wrap">
+        <Card variant="elevated" padding="lg" className="contact-page__form-wrap">
           {formState === 'success' ? (
             <m.div className="contact-page__success" variants={scaleIn} initial="hidden" animate="visible" role="status">
               <div className="contact-page__success-icon" aria-hidden="true">
@@ -108,39 +114,38 @@ export default function ContactPage() {
           ) : (
             <form onSubmit={handleSubmit} noValidate aria-label="Contact form">
               <div className="form-group">
-                <label className="form-label" htmlFor="contact-name">Name *</label>
-                <input
+                <Label htmlFor="contact-name">Name *</Label>
+                <Input
                   id="contact-name"
                   type="text"
-                  className={`form-input${errors.name ? ' form-input--error' : ''}`}
                   value={name}
                   onChange={e => { setName(e.target.value); setErrors(prev => ({ ...prev, name: '' })); }}
                   autoComplete="name"
                   aria-required="true"
+                  error={!!errors.name}
                 />
                 {errors.name && <p className="form-error" role="alert">{errors.name}</p>}
               </div>
 
               <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-                <label className="form-label" htmlFor="contact-email">School Email *</label>
-                <input
+                <Label htmlFor="contact-email">School Email *</Label>
+                <Input
                   id="contact-email"
                   type="email"
-                  className={`form-input${errors.email ? ' form-input--error' : ''}`}
                   value={email}
                   onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: '' })); }}
                   autoComplete="email"
                   aria-required="true"
+                  error={!!errors.email}
                 />
                 {errors.email && <p className="form-error" role="alert">{errors.email}</p>}
               </div>
 
               <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-                <label className="form-label" htmlFor="contact-subject">Subject</label>
-                <input
+                <Label htmlFor="contact-subject">Subject</Label>
+                <Input
                   id="contact-subject"
                   type="text"
-                  className="form-input"
                   value={subject}
                   placeholder="e.g. CBSE multi-branch setup"
                   onChange={e => setSubject(e.target.value)}
@@ -148,15 +153,15 @@ export default function ContactPage() {
               </div>
 
               <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-                <label className="form-label" htmlFor="contact-message">Message *</label>
-                <textarea
+                <Label htmlFor="contact-message">Message *</Label>
+                <Textarea
                   id="contact-message"
-                  className={`form-textarea${errors.message ? ' form-input--error' : ''}`}
                   value={message}
                   onChange={e => { setMessage(e.target.value); setErrors(prev => ({ ...prev, message: '' })); }}
                   rows={5}
                   placeholder="Details about your school size, current ERP system..."
                   aria-required="true"
+                  error={!!errors.message}
                 />
                 {errors.message && <p className="form-error" role="alert">{errors.message}</p>}
               </div>
@@ -169,18 +174,19 @@ export default function ContactPage() {
                 )}
               </AnimatePresence>
 
-              <button
+              <Button
                 type="submit"
-                className="btn btn--primary w-full"
+                variant="primary"
+                className="w-full"
                 style={{ marginTop: 'var(--space-6)' }}
                 disabled={formState === 'submitting'}
                 aria-busy={formState === 'submitting'}
               >
                 {formState === 'submitting' ? <><span className="spinner" aria-hidden="true" />Sending…</> : 'Send message'}
-              </button>
+              </Button>
             </form>
           )}
-        </div>
+        </Card>
       </div>
 
       <style>{`

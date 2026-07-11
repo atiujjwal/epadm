@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* 
+  Add these @source directives so Tailwind v4 knows to scan your files.
+  Adjust the paths if your app directory is nested differently.
+*/
+@source "../app";
+@source "../components";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

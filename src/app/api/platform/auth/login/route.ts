@@ -10,24 +10,14 @@ import {
 } from "@/lib/platform/auth/token";
 import { badRequest, ok, unauthorized } from "@/lib/http/responses";
 
-const isDev = process.env.NODE_ENV !== "production";
-
-const loginSchema = z.object({
-  email: isDev
-    ? z.string().trim().min(1)
-    : z.string().trim().email(),
-  password: isDev
-    ? z.string().min(1)
-    : z.string().min(8),
-});
 
 export async function POST(req: Request) {
   try {
     const json = await req.json();
-    const body = loginSchema.parse(json);
+    const { email, password } = json;
     const result = await authenticatePlatformOperator(
-      body.email,
-      body.password,
+      email ?? "",
+      password ?? "",
     );
 
     if (!result.ok) {
