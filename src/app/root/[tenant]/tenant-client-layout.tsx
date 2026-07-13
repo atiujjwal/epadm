@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { TenantSidebar, type NavGroup } from "@/components/layout/tenant-sidebar";
 import { AppTopbar } from "@/components/layout/app-topbar";
+import { AppFooter } from "@/components/layout/app-footer";
 
 type Props = {
   children: ReactNode;
@@ -123,6 +124,7 @@ export function TenantClientLayout({ children, ctx }: Props) {
         >
           {children}
         </main>
+        <AppFooter />
       </div>
     </div>
   );

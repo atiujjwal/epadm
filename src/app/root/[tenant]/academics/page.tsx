@@ -28,18 +28,38 @@ export default async function AcademicsPage() {
         description="Define classes, organize sections, and map students into academic structure."
       />
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-muted">Classes</div>
-          <div className="mt-2 text-3xl font-semibold text-primary">{summary.classCount}</div>
+      <section className="grid gap-4 sm:grid-cols-3">
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--indigo" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Classes</div>
+          <div className="stat-card__value">{summary.classCount}</div>
         </Card>
-        <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-muted">Sections</div>
-          <div className="mt-2 text-3xl font-semibold text-primary">{summary.sectionCount}</div>
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--emerald" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Sections</div>
+          <div className="stat-card__value">{summary.sectionCount}</div>
         </Card>
-        <Card variant="elevated" padding="md">
-          <div className="text-xs uppercase tracking-[0.14em] text-muted">Enrollments</div>
-          <div className="mt-2 text-3xl font-semibold text-primary">{summary.enrollmentCount}</div>
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--amber" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 10L12 5 2 10l10 5 10-5z" />
+              <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Enrollments</div>
+          <div className="stat-card__value">{summary.enrollmentCount}</div>
         </Card>
       </section>
 

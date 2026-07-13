@@ -2,9 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Syne, JetBrains_Mono } from 'next/font/google';
 import '../styles/globals.css';
 import { Providers } from '@/components/layout/Providers';
-import { Navigation } from '@/components/layout/Navigation';
-import { Footer } from '@/components/layout/Footer';
-import { ConditionalShell } from '@/components/layout/ConditionalShell';
 import { SkipLink } from '@/components/ui/SkipLink';
 import { siteConfig } from '@/config/site';
 
@@ -157,12 +154,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
         {/* Global providers: motion config, theme, etc. */}
         <Providers>
-          <ConditionalShell
-            navigation={<Navigation />}
-            footer={<Footer />}
-          >
-            {children}
-          </ConditionalShell>
+          {children}
         </Providers>
 
         {/* Analytics: non-blocking, deferred

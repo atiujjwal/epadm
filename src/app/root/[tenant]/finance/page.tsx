@@ -354,20 +354,36 @@ export default async function FinancePage({
       {/* Tab Contents */}
       {currentTab === "ledger" && (
         <div className="space-y-6">
-          <div className="grid gap-6 sm:grid-cols-3">
-            <Card variant="elevated" padding="md">
-              <div className="text-xs uppercase tracking-[0.14em] text-muted font-semibold">Total Collections</div>
-              <div className="mt-2 text-3xl font-bold text-primary">₹{totalCollections.toLocaleString()}</div>
-            </Card>
-            <Card variant="elevated" padding="md">
-              <div className="text-xs uppercase tracking-[0.14em] text-muted font-semibold">Total Expenditures</div>
-              <div className="mt-2 text-3xl font-bold text-primary">₹{totalExpenses.toLocaleString()}</div>
-            </Card>
-            <Card variant="elevated" padding="md">
-              <div className="text-xs uppercase tracking-[0.14em] text-muted font-semibold">Net Reserves</div>
-              <div className={`mt-2 text-3xl font-bold ${netBalance >= 0 ? "text-emerald-700" : "text-red-700"}`}>
-                ₹{netBalance.toLocaleString()}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card variant="elevated" padding="md" className="stat-card">
+              <div className="stat-card__icon stat-card__icon--emerald" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                  <polyline points="17 6 23 6 23 12" />
+                </svg>
               </div>
+              <div className="stat-card__label">Total Collections</div>
+              <div className="stat-card__value">₹{totalCollections.toLocaleString()}</div>
+            </Card>
+            <Card variant="elevated" padding="md" className="stat-card">
+              <div className="stat-card__icon stat-card__icon--amber" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                  <polyline points="17 18 23 18 23 12" />
+                </svg>
+              </div>
+              <div className="stat-card__label">Total Expenditures</div>
+              <div className="stat-card__value">₹{totalExpenses.toLocaleString()}</div>
+            </Card>
+            <Card variant="elevated" padding="md" className="stat-card">
+              <div className="stat-card__icon stat-card__icon--indigo" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div className="stat-card__label">Net Reserves</div>
+              <div className="stat-card__value">₹{netBalance.toLocaleString()}</div>
             </Card>
           </div>
 

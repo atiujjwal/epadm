@@ -3,16 +3,8 @@ import { getTenantMemberSummary, listTenantMembers } from "@/lib/admin/tenant-us
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const roleTone: Record<string, string> = {
-  admin: "bg-emerald-50 text-emerald-700",
-  teacher: "bg-sky-50 text-sky-700",
-  student: "bg-fuchsia-50 text-fuchsia-700",
-  parent: "bg-amber-50 text-amber-700",
-  staff: "bg-zinc-100 text-zinc-700",
-  accountant: "bg-teal-50 text-teal-700",
-  librarian: "bg-indigo-50 text-indigo-700",
-};
+import { PageHeader } from "@/components/layout/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function DashboardPage() {
   const ctx = await getCtx();
@@ -22,48 +14,59 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="dashboard-hero" padding="lg">
-        <p className="text-sm font-medium uppercase tracking-[0.16em]" style={{ color: "var(--color-success-100)" }}>
-          Phase 1 admin foundation
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold">
-          {summary?.tenantName ?? "SchoolOS"} control room
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6" style={{ color: "var(--color-indigo-100)" }}>
-          This dashboard is now wired to real tenant data, role-aware membership
-          management, and the first operational metrics for the school workspace.
-        </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <Card variant="outlined" padding="md" style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.15)" }}>
-            <div className="text-xs uppercase tracking-[0.16em]" style={{ color: "var(--color-success-100)" }}>
-              Active members
-            </div>
-            <div className="mt-2 text-3xl font-semibold">
-              {summary?.activeMemberCount ?? 0}
-            </div>
-          </Card>
-          <Card variant="outlined" padding="md" style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.15)" }}>
-            <div className="text-xs uppercase tracking-[0.16em]" style={{ color: "var(--color-success-100)" }}>
-              Total memberships
-            </div>
-            <div className="mt-2 text-3xl font-semibold">
-              {summary?.memberCount ?? 0}
-            </div>
-          </Card>
-          <Card variant="outlined" padding="md" style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.15)" }}>
-            <div className="text-xs uppercase tracking-[0.16em]" style={{ color: "var(--color-success-100)" }}>
-              Tenant slug
-            </div>
-            <div className="mt-2 text-lg font-semibold">{summary?.tenantSlug ?? "-"}</div>
-          </Card>
-          <Card variant="outlined" padding="md" style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.15)" }}>
-            <div className="text-xs uppercase tracking-[0.16em]" style={{ color: "var(--color-success-100)" }}>
-              Plan tier
-            </div>
-            <div className="mt-2 text-lg font-semibold">{ctx.planTier}</div>
-          </Card>
-        </div>
-      </Card>
+      <PageHeader
+        title={`${summary?.tenantName ?? "School"} overview`}
+        description="Live operational metrics and recent activity for the school workspace."
+      />
+
+      {/* Stat cards */}
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--indigo" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Active members</div>
+          <div className="stat-card__value">{summary?.activeMemberCount ?? 0}</div>
+        </Card>
+
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--emerald" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <line x1="19" y1="8" x2="19" y2="14" />
+              <line x1="22" y1="11" x2="16" y2="11" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Total memberships</div>
+          <div className="stat-card__value">{summary?.memberCount ?? 0}</div>
+        </Card>
+
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--slate" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Tenant slug</div>
+          <div className="stat-card__value stat-card__value--mono">{summary?.tenantSlug ?? "-"}</div>
+        </Card>
+
+        <Card variant="elevated" padding="md" className="stat-card">
+          <div className="stat-card__icon stat-card__icon--amber" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <div className="stat-card__label">Plan tier</div>
+          <div className="stat-card__value stat-card__value--capitalize">{ctx.planTier}</div>
+        </Card>
+      </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card variant="elevated" padding="lg">
@@ -81,19 +84,32 @@ export default async function DashboardPage() {
 
           <div className="space-y-3">
             {recentMembers.length === 0 ? (
-              <div className="empty-state text-sm">
-                No tenant members yet. Add the first school operator from the users view.
-              </div>
+              <EmptyState
+                icon={
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                }
+                title="No tenant members yet"
+                description="Add the first school operator from the users view to start tracking membership."
+                action={
+                  <Button href="/users" variant="primary">
+                    Add members
+                  </Button>
+                }
+              />
             ) : (
               recentMembers.map((member) => (
                 <div
                   key={member.membershipId}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
                   style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                 >
                   <div>
                     <div className="font-medium text-primary">{member.name}</div>
-                    <div className="mt-1 text-sm text-secondary">{member.email}</div>
+                    <div className="mt-0.5 text-sm text-secondary">{member.email}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="default">{member.role}</Badge>
@@ -114,7 +130,7 @@ export default async function DashboardPage() {
               {summary?.roleBreakdown.length ? (
                 summary.roleBreakdown.map((item) => (
                   <div key={item.role} className="flex items-center justify-between">
-                    <span className="text-sm text-secondary">{item.role}</span>
+                    <span className="text-sm text-secondary capitalize">{item.role}</span>
                     <span className="text-sm font-semibold text-primary">
                       {item.count}
                     </span>
@@ -151,7 +167,7 @@ export default async function DashboardPage() {
                 <div className="text-xs uppercase tracking-[0.14em] text-muted">
                   Role
                 </div>
-                <div className="mt-1 font-medium text-primary">{ctx.role}</div>
+                <div className="mt-1 font-medium text-primary capitalize">{ctx.role}</div>
               </div>
             </div>
           </Card>
@@ -160,4 +176,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
