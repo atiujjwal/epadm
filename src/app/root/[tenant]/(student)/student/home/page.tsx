@@ -14,7 +14,9 @@ import { redirect } from "next/navigation";
 export default async function StudentHomePage() {
   const ctx = await getCtx();
   if (ctx.role !== "student") {
-    redirect("/login");
+    // Wrong role, but still authenticated — route back through "/" so they land
+    // on their own role's home, not the login page.
+    redirect("/");
   }
 
   // 1. Resolve student enrollment details

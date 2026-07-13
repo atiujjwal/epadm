@@ -1,7 +1,7 @@
 'use client';
 
 import { m } from 'framer-motion';
-import { staggerContainer, fadeUp, fadeIn, viewportConfig } from '@/lib/motion';
+import { staggerContainer, fadeUp, viewportConfig } from '@/lib/motion';
 
 const steps = [
   {

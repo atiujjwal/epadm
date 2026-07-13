@@ -103,14 +103,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: dark)',  color: '#0a0f1e' },
-    { media: '(prefers-color-scheme: light)', color: '#0a0f1e' },
-  ],
+  // The marketing surface is a single light theme (see src/styles/globals.css).
+  // The browser chrome (address bar, native controls, scrollbars) must match it,
+  // otherwise a dark user-agent palette bleeds through the light page.
+  themeColor: '#f8fafc', // --color-slate-50, the page's --bg-base
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  colorScheme: 'dark',
+  colorScheme: 'light',
 };
 
 /* ── Root Layout ────────────────────────────────────────────── */

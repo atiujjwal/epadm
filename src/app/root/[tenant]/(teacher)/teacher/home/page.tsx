@@ -23,7 +23,9 @@ export default async function TeacherHomePage({
 }) {
   const ctx = await getCtx();
   if (ctx.role !== "teacher") {
-    redirect("/login");
+    // Wrong role, but still authenticated — route back through "/" so they land
+    // on their own role's home, not the login page.
+    redirect("/");
   }
 
   const params = await searchParams;

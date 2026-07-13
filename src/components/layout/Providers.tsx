@@ -1,7 +1,6 @@
 'use client';
 
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion';
-import { useReducedMotion } from 'framer-motion';
 
 interface ProvidersProps {
   children: React.ReactNode;

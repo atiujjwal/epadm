@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { accordionContent, viewportConfig, staggerContainer, fadeUp } from '@/lib/motion';
+import { accordionContent, viewportConfig } from '@/lib/motion';
 
 const faqs = [
   {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { viewportConfig, tabContent, staggerContainer, fadeUp } from '@/lib/motion';
+import { viewportConfig, tabContent } from '@/lib/motion';
 
 const tabs = [
   {

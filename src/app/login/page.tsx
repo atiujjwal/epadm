@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardBody } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormItem, FormError } from "@/components/ui/form";
@@ -40,7 +40,7 @@ export default function LoginPage() {
       }
 
       // After successful login, middleware will rewrite /dashboard into
-      // /_root/{tenantId}/dashboard based on the auth_token cookie.
+      // /root/{tenantId}/dashboard based on the auth_token cookie.
       router.push("/dashboard");
     } catch (err) {
       console.error("[login] Unexpected error:", err);

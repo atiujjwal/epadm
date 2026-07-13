@@ -396,7 +396,7 @@ code, kbd, samp {
 .text-right  { text-align: right; }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-indigo-300) 100%);
+  background: linear-gradient(135deg, var(--color-indigo-700) 0%, var(--color-indigo-500) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -594,7 +594,7 @@ code, kbd, samp {
 
 .badge--accent {
   background: var(--accent-subtle);
-  color: var(--color-indigo-200);
+  color: var(--accent-hover);
   border: 1px solid var(--border-accent);
 }
 

@@ -13,6 +13,10 @@ export default async function TenantRootPage() {
   } else if (ctx.role === "accountant") {
     redirect("/finance");
   } else {
-    redirect("/login");
+    // parent / staff / librarian have no dedicated portal yet — land them on the
+    // generic tenant dashboard. This MUST be a terminal page with no role guard:
+    // redirecting to "/login" here loops (the proxy bounces an authenticated
+    // "/login" back to "/", which re-enters this page).
+    redirect("/dashboard");
   }
 }

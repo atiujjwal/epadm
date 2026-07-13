@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { footerNav, siteConfig, appUrls } from '@/config/site';
+import { footerNav, appUrls } from '@/config/site';
 
 const currentYear = new Date().getFullYear();
 

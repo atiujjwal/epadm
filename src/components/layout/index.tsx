@@ -12,7 +12,10 @@ export { AdminSidebar, AdminSidebarStyles } from "./admin-sidebar";
 export type { AdminSidebarProps } from "./admin-sidebar";
 
 export { TenantSidebar, TenantSidebarStyles } from "./tenant-sidebar";
-export type { TenantSidebarProps } from "./tenant-sidebar";
+export type { TenantSidebarProps, NavItem, NavGroup } from "./tenant-sidebar";
+
+export { AppTopbar } from "./app-topbar";
+export type { AppTopbarProps } from "./app-topbar";
 
 // Helper to render all layout styles globally (call once in root layout)
 export function renderLayoutStyles() {

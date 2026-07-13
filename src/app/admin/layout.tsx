@@ -13,8 +13,14 @@ export default async function AdminLayout({ children }: Props) {
     ctx = null;
   }
 
+  // Unauthenticated (e.g. /admin/login): no operator shell, but still own the
+  // single <main id="main-content"> so the global skip-link resolves.
   if (!ctx) {
-    return <>{children}</>;
+    return (
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
+    );
   }
 
   const navItems = [
@@ -30,7 +36,13 @@ export default async function AdminLayout({ children }: Props) {
           operatorName={ctx.name}
           operatorEmail={ctx.email}
         />
-        <main className="flex-1 px-4 py-6 md:px-8 lg:px-10 admin-main-content">{children}</main>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 px-4 py-6 md:px-8 lg:px-10 admin-main-content"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

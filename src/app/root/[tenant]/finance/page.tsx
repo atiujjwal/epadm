@@ -30,7 +30,9 @@ export default async function FinancePage({
 }) {
   const ctx = await getCtx();
   if (ctx.role !== "admin" && ctx.role !== "accountant") {
-    redirect("/login");
+    // Wrong role, but still authenticated — route back through "/" so they land
+    // on their own role's home, not the login page.
+    redirect("/");
   }
 
   const params = await searchParams;

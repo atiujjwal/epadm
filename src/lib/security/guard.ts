@@ -14,7 +14,7 @@ export function requireModule(moduleName: string) {
         const ctx = await getCtx();
 
         if (!ctx.activeModules.includes(moduleName)) {
-          const isApi = args[0] instanceof Request;
+          const isApi = (args[0] as unknown) instanceof Request;
           if (isApi) {
             return NextResponse.json(
               { error: `Institution is not subscribed to module: ${moduleName}` },
@@ -31,7 +31,7 @@ export function requireModule(moduleName: string) {
           throw error;
         }
 
-        const isApi = args[0] instanceof Request;
+        const isApi = (args[0] as unknown) instanceof Request;
         if (isApi) {
           return NextResponse.json(
             { error: message || "Internal server error" },

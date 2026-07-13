@@ -8,9 +8,19 @@ import {
 import { attachCsrfCookie, validateCsrf } from "./lib/security/csrf";
 import { checkAuthRateLimit } from "./lib/security/rate-limit";
 
+/**
+ * True only for control-plane (ops) routes under `/admin`. Must match `/admin`
+ * exactly or a `/admin/` sub-path — NOT sibling tenant routes that merely share
+ * the prefix, e.g. `/admin-dashboard`. A naive `startsWith("/admin")` would send
+ * the tenant admin dashboard to the ops host and bounce it to `/admin/login`.
+ */
+function isAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
 function finalize(req: NextRequest, response: NextResponse) {
   const { pathname } = req.nextUrl;
-  if (pathname.startsWith("/api") || pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/api") || isAdminPath(pathname)) {
     return attachCsrfCookie(req, response);
   }
   return response;
@@ -77,7 +87,7 @@ export async function proxy(req: NextRequest) {
     res = NextResponse.next();
   } else if (opsMode) {
     res = await handleOpsRequest(req, pathname);
-  } else if (pathname.startsWith("/admin")) {
+  } else if (isAdminPath(pathname)) {
     const hostHeader = req.headers.get("host") ?? "";
     const parts = hostHeader.split(":");
     const port = parts[1] ? `:${parts[1]}` : "";
@@ -92,7 +102,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // 3. Attach CSRF cookie to responses
-  if (pathname.startsWith("/api") || pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/api") || isAdminPath(pathname)) {
     return attachCsrfCookie(req, res);
   }
   return res;
@@ -213,8 +223,31 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
     return finalize(req, NextResponse.next());
   }
 
+  // Authenticated below. Public/pre-auth paths must NOT be rewritten into the
+  // tenant workspace (`/root/{tenantId}/...`) — no such pages exist there, so
+  // the rewrite would 404. An already-authenticated visit to the login page is
+  // sent to the workspace root, which role-redirects to the right dashboard.
+  if (pathname === "/login") {
+    const homeUrl = req.nextUrl.clone();
+    homeUrl.pathname = "/";
+    homeUrl.search = "";
+    return finalize(req, NextResponse.redirect(homeUrl));
+  }
+
+  // Other public marketing/legal pages stay viewable without tenant scoping.
+  // `/` is intentionally excluded so it still rewrites to the tenant root and
+  // performs its role-based dashboard redirect.
+  if (isPublicPage && pathname !== "/") {
+    return finalize(
+      req,
+      NextResponse.next({
+        request: { headers: requestHeaders },
+      }),
+    );
+  }
+
   const url = req.nextUrl.clone();
-  url.pathname = `/_root/${tenantId}${pathname}`;
+  url.pathname = `/root/${tenantId}${pathname}`;
 
   return finalize(
     req,
