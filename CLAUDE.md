@@ -66,7 +66,7 @@ RLS is enforced at the DB via migrations `0004_enable_rls.sql` (+ 0006–0009 pe
 - **Module/subscription gating**: `requireModule(name)` HOF and `assertModule(name)` (`src/lib/security/guard.ts`) check `ctx.activeModules`; the HOF returns 403 for API requests (arg is a `Request`) and throws for server actions.
 - **Tokens**: tenant sessions are JWTs in the `auth_token` cookie (`src/lib/auth/token.ts`); operator sessions use `PLATFORM_COOKIE` + `src/lib/platform/auth/token.ts` (`jose`). Passwords use `argon2`. MFA via `otplib`.
 
-Role-based layout: `src/app/_root/[tenant]/layout.tsx` renders a bare shell for `teacher`/`student` roles and the full admin `TenantClientLayout` otherwise. Route groups `(teacher)` and `(student)` hold those portals.
+Role-based layout: `src/app/root/[tenant]/layout.tsx` renders a bare shell for `teacher`/`student` roles and the full admin `TenantClientLayout` otherwise. Route groups `(teacher)` and `(student)` hold those portals.
 
 ## Database schema
 
@@ -76,7 +76,7 @@ Migration workflow: edit `schema.ts` → `npm run db:generate` → review the SQ
 
 ## AI
 
-Gemini via `@google/genai` in `src/lib/ai/client.ts` (SDK with a fetch fallback). Exam generation: `src/app/api/ai/exam-gen/` and `src/app/api/admin/ai-exam-gen/`; teacher UI in `_root/[tenant]/(teacher)/`. `exams.content` is stored as jsonb (type it as `unknown`, not `any`).
+Gemini via `@google/genai` in `src/lib/ai/client.ts` (SDK with a fetch fallback). Exam generation: `src/app/api/ai/exam-gen/` and `src/app/api/admin/ai-exam-gen/`; teacher UI in `root/[tenant]/(teacher)/`. `exams.content` is stored as jsonb (type it as `unknown`, not `any`).
 
 ## Integrations
 

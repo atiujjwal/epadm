@@ -1,15 +1,29 @@
 import { getCtx } from "@/lib/context";
 import { getTenantMemberSummary, listTenantMembers } from "@/lib/admin/tenant-users";
+import { getStudentSummary, getStaffSummary } from "@/lib/admin/registries";
+import { getAcademicStructureSummary } from "@/lib/admin/academic-structure";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { MetricCard } from "@/components/ui/metric-card";
+import { ActivityRow } from "@/components/ui/activity-row";
+import { RoleChart } from "@/components/ui/role-chart";
+import { CopyableId } from "@/components/ui/copyable-id";
 
 export default async function DashboardPage() {
   const ctx = await getCtx();
-  const summary = await getTenantMemberSummary(ctx.tenantId);
-  const members = await listTenantMembers(ctx.tenantId);
+
+  const [summary, members, studentSummary, staffSummary, academicSummary] =
+    await Promise.all([
+      getTenantMemberSummary(ctx.tenantId),
+      listTenantMembers(ctx.tenantId),
+      getStudentSummary(ctx.tenantId),
+      getStaffSummary(ctx.tenantId),
+      getAcademicStructureSummary(ctx.tenantId),
+    ]);
+
   const recentMembers = members.slice(0, 5);
 
   return (
@@ -17,72 +31,91 @@ export default async function DashboardPage() {
       <PageHeader
         title={`${summary?.tenantName ?? "School"} overview`}
         description="Live operational metrics and recent activity for the school workspace."
+        badge={<Badge variant="accent">{ctx.planTier}</Badge>}
+        action={
+          <Button href="/users" variant="secondary">
+            Manage users
+          </Button>
+        }
       />
 
-      {/* Stat cards */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card variant="elevated" padding="md" className="stat-card">
-          <div className="stat-card__icon stat-card__icon--indigo" aria-hidden="true">
+      {/* KPI Metrics */}
+      <section className="dashboard-metrics">
+        <MetricCard
+          icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-          </div>
-          <div className="stat-card__label">Active members</div>
-          <div className="stat-card__value">{summary?.activeMemberCount ?? 0}</div>
-        </Card>
-
-        <Card variant="elevated" padding="md" className="stat-card">
-          <div className="stat-card__icon stat-card__icon--emerald" aria-hidden="true">
+          }
+          label="Active members"
+          value={summary?.activeMemberCount ?? 0}
+          colorScheme="indigo"
+        />
+        <MetricCard
+          icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <line x1="19" y1="8" x2="19" y2="14" />
               <line x1="22" y1="11" x2="16" y2="11" />
             </svg>
-          </div>
-          <div className="stat-card__label">Total memberships</div>
-          <div className="stat-card__value">{summary?.memberCount ?? 0}</div>
-        </Card>
-
-        <Card variant="elevated" padding="md" className="stat-card">
-          <div className="stat-card__icon stat-card__icon--slate" aria-hidden="true">
+          }
+          label="Total memberships"
+          value={summary?.memberCount ?? 0}
+          colorScheme="emerald"
+        />
+        <MetricCard
+          icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
             </svg>
-          </div>
-          <div className="stat-card__label">Tenant slug</div>
-          <div className="stat-card__value stat-card__value--mono">{summary?.tenantSlug ?? "-"}</div>
-        </Card>
-
-        <Card variant="elevated" padding="md" className="stat-card">
-          <div className="stat-card__icon stat-card__icon--amber" aria-hidden="true">
+          }
+          label="Students"
+          value={studentSummary.total}
+          subtitle={`${studentSummary.active} active`}
+          colorScheme="blue"
+        />
+        <MetricCard
+          icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
             </svg>
-          </div>
-          <div className="stat-card__label">Plan tier</div>
-          <div className="stat-card__value stat-card__value--capitalize">{ctx.planTier}</div>
-        </Card>
+          }
+          label="Staff"
+          value={staffSummary.total}
+          subtitle={`${staffSummary.active} active`}
+          colorScheme="violet"
+        />
+        <MetricCard
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          }
+          label="Classes"
+          value={academicSummary.classCount}
+          subtitle={`${academicSummary.sectionCount} sections`}
+          colorScheme="amber"
+        />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      {/* Content grid */}
+      <section className="dashboard-content">
+        {/* Recent members */}
         <Card variant="elevated" padding="lg">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold text-primary">Recent tenant members</h2>
-              <p className="mt-1 text-sm text-secondary">
-                Fresh memberships across the current school workspace.
-              </p>
-            </div>
-            <Button href="/users" variant="secondary">
-              Manage users
-            </Button>
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-primary">Recent members</h2>
+            <p className="mt-1 text-sm text-secondary">
+              Latest memberships across the workspace.
+            </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {recentMembers.length === 0 ? (
               <EmptyState
                 icon={
@@ -92,8 +125,8 @@ export default async function DashboardPage() {
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 }
-                title="No tenant members yet"
-                description="Add the first school operator from the users view to start tracking membership."
+                title="No members yet"
+                description="Add the first school member from the users view."
                 action={
                   <Button href="/users" variant="primary">
                     Add members
@@ -102,72 +135,48 @@ export default async function DashboardPage() {
               />
             ) : (
               recentMembers.map((member) => (
-                <div
+                <ActivityRow
                   key={member.membershipId}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
-                  style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
-                >
-                  <div>
-                    <div className="font-medium text-primary">{member.name}</div>
-                    <div className="mt-0.5 text-sm text-secondary">{member.email}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="default">{member.role}</Badge>
-                    <Badge variant={member.isActive ? "success" : "default"}>
-                      {member.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
-                </div>
+                  name={member.name}
+                  email={member.email}
+                  role={member.role}
+                  isActive={member.isActive}
+                  joinedAt={member.joinedAt}
+                />
               ))
             )}
           </div>
         </Card>
 
-        <div className="space-y-6">
+        {/* Right sidebar */}
+        <div className="dashboard-sidebar">
           <Card variant="elevated" padding="lg">
             <h2 className="text-lg font-semibold text-primary">Role distribution</h2>
-            <div className="mt-4 space-y-3">
-              {summary?.roleBreakdown.length ? (
-                summary.roleBreakdown.map((item) => (
-                  <div key={item.role} className="flex items-center justify-between">
-                    <span className="text-sm text-secondary capitalize">{item.role}</span>
-                    <span className="text-sm font-semibold text-primary">
-                      {item.count}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-secondary">
-                  Role metrics will appear once memberships are added.
-                </p>
-              )}
+            <div className="mt-4">
+              <RoleChart
+                data={summary?.roleBreakdown ?? []}
+                total={summary?.memberCount ?? 0}
+              />
             </div>
           </Card>
 
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-primary">Current context</h2>
-            <div className="mt-4 grid gap-3 text-sm text-secondary">
-              <div className="rounded-xl px-4 py-3" style={{ backgroundColor: "var(--bg-surface-2)" }}>
-                <div className="text-xs uppercase tracking-[0.14em] text-muted">
-                  Tenant ID
-                </div>
-                <div className="mt-1 break-all font-medium text-primary">
-                  {ctx.tenantId}
-                </div>
+            <h2 className="text-lg font-semibold text-primary">Workspace context</h2>
+            <div className="mt-4 space-y-1">
+              <CopyableId label="Tenant ID" value={ctx.tenantId} />
+              <CopyableId label="User ID" value={ctx.userId} />
+              <CopyableId label="Slug" value={summary?.tenantSlug ?? "-"} truncate={false} />
+              <div className="copyable-id" style={{ cursor: "default" }}>
+                <span className="copyable-id__label">Role</span>
+                <span className="copyable-id__value" style={{ textTransform: "capitalize" }}>
+                  {ctx.role}
+                </span>
               </div>
-              <div className="rounded-xl px-4 py-3" style={{ backgroundColor: "var(--bg-surface-2)" }}>
-                <div className="text-xs uppercase tracking-[0.14em] text-muted">
-                  User ID
-                </div>
-                <div className="mt-1 break-all font-medium text-primary">
-                  {ctx.userId}
-                </div>
-              </div>
-              <div className="rounded-xl px-4 py-3" style={{ backgroundColor: "var(--bg-surface-2)" }}>
-                <div className="text-xs uppercase tracking-[0.14em] text-muted">
-                  Role
-                </div>
-                <div className="mt-1 font-medium text-primary capitalize">{ctx.role}</div>
+              <div className="copyable-id" style={{ cursor: "default" }}>
+                <span className="copyable-id__label">Plan</span>
+                <span className="copyable-id__value" style={{ textTransform: "capitalize" }}>
+                  {ctx.planTier}
+                </span>
               </div>
             </div>
           </Card>

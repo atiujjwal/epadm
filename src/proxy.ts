@@ -131,34 +131,28 @@ async function handleOpsRequest(req: NextRequest, pathname: string) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.search = "";
-    return finalize(req, NextResponse.redirect(loginUrl));
+    return NextResponse.redirect(loginUrl);
   }
 
   if (pathname.startsWith("/api/platform")) {
     if (!operatorId && !isPublic) {
-      return finalize(req, NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return finalize(
-      req,
-      NextResponse.next({
-        request: { headers: requestHeaders },
-      }),
-    );
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
 
   if (!operatorId && !isPublic) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
-    return finalize(req, NextResponse.redirect(loginUrl));
+    return NextResponse.redirect(loginUrl);
   }
 
-  return finalize(
-    req,
-    NextResponse.next({
-      request: { headers: requestHeaders },
-    }),
-  );
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 }
 
 async function handleTenantRequest(req: NextRequest, pathname: string) {
@@ -199,20 +193,17 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.search = "";
-    return finalize(req, NextResponse.redirect(loginUrl));
+    return NextResponse.redirect(loginUrl);
   }
 
   if (pathname.startsWith("/api")) {
-    return finalize(
-      req,
-      NextResponse.next({
-        request: { headers: requestHeaders },
-      }),
-    );
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
 
   if (!userId) {
-    return finalize(req, NextResponse.next());
+    return NextResponse.next();
   }
 
   // Authenticated below. Public/pre-auth paths must NOT be rewritten into the
@@ -223,30 +214,24 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
     const homeUrl = req.nextUrl.clone();
     homeUrl.pathname = "/";
     homeUrl.search = "";
-    return finalize(req, NextResponse.redirect(homeUrl));
+    return NextResponse.redirect(homeUrl);
   }
 
   // Other public marketing/legal pages stay viewable without tenant scoping.
   // `/` is intentionally excluded so it still rewrites to the tenant root and
   // performs its role-based dashboard redirect.
   if (isPublicPage && pathname !== "/") {
-    return finalize(
-      req,
-      NextResponse.next({
-        request: { headers: requestHeaders },
-      }),
-    );
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
 
   const url = req.nextUrl.clone();
   url.pathname = `/root/${tenantId}${pathname}`;
 
-  return finalize(
-    req,
-    NextResponse.rewrite(url, {
-      request: { headers: requestHeaders },
-    }),
-  );
+  return NextResponse.rewrite(url, {
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {

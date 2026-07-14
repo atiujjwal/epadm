@@ -45,7 +45,7 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
  */
 export function StatCardSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-${count}`}>
+    <div className="dashboard-metrics" style={{ '--stat-cols': count } as React.CSSProperties}>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="card card--elevated card--padding-md stat-card">
           <Skeleton width="2.25rem" height="2.25rem" style={{ borderRadius: "var(--radius-lg)" }} />
