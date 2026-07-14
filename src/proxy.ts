@@ -19,11 +19,7 @@ function isAdminPath(pathname: string): boolean {
 }
 
 function finalize(req: NextRequest, response: NextResponse) {
-  const { pathname } = req.nextUrl;
-  if (pathname.startsWith("/api") || isAdminPath(pathname)) {
-    return attachCsrfCookie(req, response);
-  }
-  return response;
+  return attachCsrfCookie(req, response);
 }
 
 const PUBLIC_PATHS = new Set<string>([
@@ -101,11 +97,7 @@ export async function proxy(req: NextRequest) {
     res = await handleTenantRequest(req, pathname);
   }
 
-  // 3. Attach CSRF cookie to responses
-  if (pathname.startsWith("/api") || isAdminPath(pathname)) {
-    return attachCsrfCookie(req, res);
-  }
-  return res;
+  return finalize(req, res);
 }
 
 async function handleOpsRequest(req: NextRequest, pathname: string) {
