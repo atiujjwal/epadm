@@ -108,8 +108,8 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             variant="primary"
-            className="w-full justify-center"
-            style={{ marginTop: 'var(--space-2)' }}
+            size="lg"
+            className="w-full mt-4"
           >
             {loading ? "Signing in..." : "Sign in"}
           </Button>

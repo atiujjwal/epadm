@@ -1,6 +1,13 @@
 "use client";
 
 import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef } from "react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+// Utility to cleanly merge Tailwind classes without collisions
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
@@ -23,15 +30,9 @@ export interface ButtonAnchorProps extends AnchorHTMLAttributes<HTMLAnchorElemen
 type ButtonElementProps = ButtonProps | ButtonAnchorProps;
 
 /**
- * EPADM Button Component
+ * Modern EPADM Button Component
  *
- * Unified button primitive with consistent styling across the application.
- * Supports both button and anchor (link) variants via props.
- *
- * @example
- * <Button variant="primary">Click me</Button>
- * <Button variant="secondary" size="lg" href="/docs">Learn more</Button>
- * <Button variant="ghost" size="sm" icon={<Icon />}>Quick</Button>
+ * Fully backward-compatible drop-in replacement featuring an upgraded aesthetic.
  */
 export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonElementProps>(
   function Button(props, ref) {
@@ -46,31 +47,34 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
 
     const isAnchor = "href" in props && props.href !== undefined;
 
-    const baseClasses = "btn";
+    // Modern, accessible base design primitives
+    const baseClasses = "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none active:scale-[0.98]";
+
     const variantClasses = {
-      primary: "btn--primary",
-      secondary: "btn--secondary",
-      ghost: "btn--ghost",
-      danger: "btn--danger",
+      primary: "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm focus-visible:ring-blue-500",
+      secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 active:bg-slate-300 border border-slate-200 focus-visible:ring-slate-500",
+      ghost: "text-slate-700 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-slate-400",
+      danger: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm focus-visible:ring-red-500",
     }[variant];
 
     const sizeClasses = {
-      sm: "btn--sm",
-      md: "btn--md",
-      lg: "btn--lg",
-      xl: "btn--xl",
+      sm: iconOnly ? "p-1.5 text-xs" : "px-3 py-1.5 text-xs gap-1.5",
+      md: iconOnly ? "p-2 text-sm" : "px-4 py-2 text-sm gap-2",
+      lg: iconOnly ? "p-3 text-base" : "px-5 py-2.5 text-base gap-2.5",
+      xl: iconOnly ? "p-4 text-lg" : "px-6 py-3.5 text-lg gap-3",
     }[size];
 
-    const iconOnlyClass = iconOnly ? "btn--icon-only" : "";
-
-    const combinedClasses = [baseClasses, variantClasses, sizeClasses, iconOnlyClass, className]
-      .filter(Boolean)
-      .join(" ");
+    // Merge styles dynamically while maintaining full support for legacy custom class overrides
+    const combinedClasses = cn(baseClasses, variantClasses, sizeClasses, className);
 
     const content = (
       <>
-        {icon && <span className="btn__icon" aria-hidden="true">{icon}</span>}
-        {!iconOnly && children && <span className="btn__content">{children}</span>}
+        {icon && (
+          <span className="flex items-center justify-center shrink-0" aria-hidden="true">
+            {icon}
+          </span>
+        )}
+        {!iconOnly && children && <span>{children}</span>}
       </>
     );
 
@@ -104,8 +108,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
   }
 );
 
-// Styles are now consolidated into global CSS
-const ButtonStyles = () => null;
+// Retained strictly for backward compatibility so imports don't break elsewhere
+export const ButtonStyles = () => null;
 
-export { ButtonStyles };
 export default Button;
