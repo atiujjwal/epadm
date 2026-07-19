@@ -39,8 +39,6 @@ yarn-error.log*
 .vercel
 
 
-/epadm_new_design
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
