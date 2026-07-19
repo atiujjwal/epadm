@@ -38,8 +38,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+
+/epadm_new_design
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 postman
 TODOs.ts
+

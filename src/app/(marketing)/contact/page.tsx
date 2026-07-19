@@ -182,7 +182,7 @@ export default function ContactPage() {
                     </m.p>
                   )}
                 </AnimatePresence>
-
+              </div>
               <Button
                 type="submit"
                 variant="primary"
