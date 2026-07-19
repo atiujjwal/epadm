@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/epadm_new_design/.next/
 /out/
 
 # production
