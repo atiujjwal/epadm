@@ -67,23 +67,23 @@ export function WorkflowSection() {
   const current = personas.find((p) => p.id === active)!;
 
   return (
-    <section className="section workflow" aria-labelledby="workflow-heading">
-      <div className="container">
+    <section className="py-[var(--section-padding-y)]" aria-labelledby="workflow-heading">
+      <div className="mx-auto w-full max-w-[90rem] px-[var(--gutter-xs)] sm:px-[var(--gutter-sm)] md:px-[var(--gutter-md)] lg:px-[var(--gutter-lg)] xl:px-[var(--gutter-xl)]">
         {/* Header */}
         <m.div
-          className="section-header section-header--center"
+          className="flex flex-col gap-4 max-w-3xl items-center text-center mx-auto"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <p className="section-header__eyebrow" style={{ justifyContent: 'center' }}>
+          <p className="font-sans text-xs font-semibold tracking-[0.1em] uppercase text-[var(--accent-primary)] flex items-center gap-2 justify-center">
             Built for every role
           </p>
-          <h2 className="section-header__title" id="workflow-heading">
+          <h2 className="m-0 text-[var(--text-primary)]" id="workflow-heading">
             Different teams. One platform. No compromise.
           </h2>
-          <p className="section-header__subtitle">
+          <p className="text-lg text-[var(--text-secondary)] leading-relaxed max-w-[52ch] m-0">
             EPADM is designed so that platform teams, enterprise administrators, and
             data governance teams all get a purpose-fit experience — from the same system.
           </p>
@@ -91,7 +91,7 @@ export function WorkflowSection() {
 
         {/* Persona selector */}
         <m.div
-          className="workflow__selector"
+          className="flex flex-wrap items-center justify-center gap-2 mt-10 p-1 rounded-[var(--radius-lg)] bg-[var(--bg-surface-2)] border border-[var(--border-default)] w-fit mx-auto"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
@@ -105,7 +105,7 @@ export function WorkflowSection() {
               role="tab"
               aria-selected={active === p.id}
               aria-controls={`workflow-panel-${p.id}`}
-              className={`workflow__selector-btn${active === p.id ? ' workflow__selector-btn--active' : ''}`}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 cursor-pointer ${active === p.id ? 'bg-[var(--bg-surface)] text-[var(--accent-primary)] shadow-sm border border-[var(--border-accent)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent'}`}
               onClick={() => setActive(p.id)}
             >
               {p.icon}
@@ -121,31 +121,31 @@ export function WorkflowSection() {
             id={`workflow-panel-${active}`}
             role="tabpanel"
             aria-labelledby={`workflow-tab-${active}`}
-            className="workflow__panel"
+            className="mt-8 grid gap-8 lg:grid-cols-2 items-start bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-xl)] p-6 md:p-8"
             variants={tabContent}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
             {/* Copy */}
-            <div className="workflow__panel-copy">
-              <h3 className="workflow__panel-headline">{current.headline}</h3>
-              <p className="workflow__panel-description">{current.description}</p>
+            <div className="flex flex-col gap-3">
+              <h3 className="font-[var(--font-display)] text-xl font-semibold text-[var(--text-primary)] m-0 leading-snug">{current.headline}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0">{current.description}</p>
             </div>
 
             {/* Workflow table */}
-            <div className="workflow__panel-table">
-              <div className="workflow__table-header">
+            <div className="flex flex-col gap-0 rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--bg-surface-2)] text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-default)]">
                 <span>Common workflow</span>
                 <span>Time to complete</span>
               </div>
               {current.workflows.map((w) => (
-                <div key={w.action} className="workflow__table-row">
-                  <div className="workflow__table-action">
-                    <span className="workflow__table-dot" aria-hidden="true" />
+                <div key={w.action} className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-default)] last:border-b-0">
+                  <div className="flex items-center gap-2.5 text-sm text-[var(--text-primary)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] shrink-0" aria-hidden="true" />
                     {w.action}
                   </div>
-                  <div className="workflow__table-time">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-success-500)" strokeWidth="2.5" aria-hidden="true">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M12 6v6l4 2" />

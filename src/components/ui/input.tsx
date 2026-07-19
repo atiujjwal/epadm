@@ -31,55 +31,36 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
     ...rest
   } = props;
 
-  const baseClasses = "input";
-  const variantClasses = {
-    default: "input--default",
-    flush: "input--flush",
-  }[variant];
-
   const sizeClasses = {
-    sm: "input--sm",
-    md: "input--md",
-    lg: "input--lg",
+    sm: "px-3 py-2 text-sm",
+    md: "px-4 py-2.5 text-sm",
+    lg: "px-4 py-3 text-base",
   }[size];
 
   const stateClasses = error
-    ? "input--error"
+    ? "border-red-500 ring-1 ring-red-100 focus:border-red-500 focus:ring-red-100"
     : success
-    ? "input--success"
-    : "";
+    ? "border-emerald-500 ring-1 ring-emerald-100 focus:border-emerald-500 focus:ring-emerald-100"
+    : "border-slate-200 focus:border-indigo-500 focus:ring-indigo-100";
 
-  const hasLeftElement = !!leftElement;
-  const hasRightElement = !!rightElement;
-
-  const wrapperClasses = [
-    "input__wrapper",
-    hasLeftElement && "input__wrapper--has-left",
-    hasRightElement && "input__wrapper--has-right",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const combinedClasses = [
-    baseClasses,
-    variantClasses,
-    sizeClasses,
-    stateClasses,
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const variantClasses = variant === "flush"
+    ? "bg-transparent border-transparent"
+    : "bg-white border";
 
   return (
-    <div className={wrapperClasses}>
+    <div className={`relative w-full ${leftElement ? 'pl-10' : ''} ${rightElement ? 'pr-10' : ''}`}>
       {leftElement && (
-        <span className="input__element input__element--left" aria-hidden="true">
+        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-slate-500">
           {leftElement}
         </span>
       )}
-      <input ref={ref} className={combinedClasses} {...rest} />
+      <input
+        ref={ref}
+        className={`block w-full rounded-xl text-slate-900 outline-none transition duration-200 ${sizeClasses} ${variantClasses} ${stateClasses} ${className}`}
+        {...rest}
+      />
       {rightElement && (
-        <span className="input__element input__element--right" aria-hidden="true">
+        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
           {rightElement}
         </span>
       )}

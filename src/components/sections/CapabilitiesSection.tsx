@@ -88,23 +88,23 @@ const capabilities = [
 
 export function CapabilitiesSection() {
   return (
-    <section className="section capabilities" aria-labelledby="capabilities-heading">
-      <div className="container">
+    <section className="py-[var(--section-padding-y)]" aria-labelledby="capabilities-heading">
+      <div className="mx-auto w-full max-w-[90rem] px-[var(--gutter-xs)] sm:px-[var(--gutter-sm)] md:px-[var(--gutter-md)] lg:px-[var(--gutter-lg)] xl:px-[var(--gutter-xl)]">
         {/* Header */}
         <m.div
-          className="section-header section-header--center"
+          className="flex flex-col gap-4 max-w-3xl items-center text-center mx-auto"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <p className="section-header__eyebrow" style={{ justifyContent: 'center' }}>
+          <p className="font-sans text-xs font-semibold tracking-[0.1em] uppercase text-[var(--accent-primary)] flex items-center gap-2 justify-center">
             Capabilities
           </p>
-          <h2 className="section-header__title" id="capabilities-heading">
+          <h2 className="m-0 text-[var(--text-primary)]" id="capabilities-heading">
             Built for the demands of enterprise platforms
           </h2>
-          <p className="section-header__subtitle">
+          <p className="text-lg text-[var(--text-secondary)] leading-relaxed max-w-[52ch] m-0">
             EPADM ships with the capabilities that enterprise platform teams need
             to operate confidently at scale — not just the basics.
           </p>
@@ -112,7 +112,7 @@ export function CapabilitiesSection() {
 
         {/* Capabilities grid */}
         <m.div
-          className="capabilities__grid"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-12"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -121,14 +121,14 @@ export function CapabilitiesSection() {
           {capabilities.map((cap) => (
             <m.article
               key={cap.title}
-              className="capabilities__card card card--feature"
+              className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-xl)] p-8 bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-surface-2)] transition-all duration-200 hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow-sm)]"
               variants={fadeUp}
             >
-              <div className="card__icon" aria-hidden="true">
+              <div className="w-10 h-10 flex items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-subtle)] text-[var(--accent-primary)] mb-4" aria-hidden="true">
                 {cap.icon}
               </div>
-              <h3 className="card__title">{cap.title}</h3>
-              <p className="card__body">{cap.body}</p>
+              <h3 className="font-[var(--font-display)] text-xl font-semibold text-[var(--text-primary)] m-0 leading-snug">{cap.title}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0 mt-2">{cap.body}</p>
             </m.article>
           ))}
         </m.div>

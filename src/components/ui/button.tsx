@@ -1,13 +1,7 @@
 "use client";
 
 import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef } from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-// Utility to cleanly merge Tailwind classes without collisions
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { cn } from "@/lib/cn";
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   variant?: "primary" | "secondary" | "ghost" | "danger";

@@ -28,29 +28,30 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(prop
     ...rest
   } = props;
 
-  const baseClasses = "badge";
+  const baseClasses = "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] transition-colors duration-200";
+
   const variantClasses = {
-    default: "badge--default",
-    accent: "badge--accent",
-    success: "badge--success",
-    warning: "badge--warning",
-    error: "badge--error",
-    outline: "badge--outline",
+    default: "bg-slate-100 text-slate-700 border-slate-200",
+    accent: "bg-indigo-50 text-indigo-700 border-indigo-100",
+    success: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    warning: "bg-amber-100 text-amber-700 border-amber-200",
+    error: "bg-rose-100 text-rose-700 border-rose-200",
+    outline: "bg-transparent text-slate-700 border-slate-300",
   }[variant];
 
   const sizeClasses = {
-    sm: "badge--sm",
-    md: "badge--md",
+    sm: "px-2 py-1 text-[0.625rem]",
+    md: "px-3 py-1 text-xs",
   }[size];
 
-  const combinedClasses = [baseClasses, variantClasses, sizeClasses, className]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <span ref={ref} className={combinedClasses} {...rest}>
-      {dot && <span className="badge__dot" aria-hidden="true" />}
-      <span className="badge__content">{children}</span>
+    <span
+      ref={ref}
+      className={`${baseClasses} ${variantClasses} ${sizeClasses} ${className}`}
+      {...rest}
+    >
+      {dot && <span className="inline-flex h-2.5 w-2.5 rounded-full bg-current" aria-hidden="true" />}
+      <span>{children}</span>
     </span>
   );
 });

@@ -1,4 +1,5 @@
 import { LabelHTMLAttributes, forwardRef } from "react";
+import { cn } from "@/lib/cn";
 
 export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
   required?: boolean;
@@ -7,17 +8,6 @@ export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
   children: React.ReactNode;
 }
 
-/**
- * EPADM Label Component
- *
- * Form label with consistent styling, required/optional indicators, and error states.
- *
- * @example
- * <Label htmlFor="email">Email</Label>
- * <Label htmlFor="name" required>Full Name</Label>
- * <Label htmlFor="phone" optional>Phone</Label>
- * <Label htmlFor="email" error="Invalid email">Email</Label>
- */
 export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(props, ref) {
   const {
     required = false,
@@ -29,22 +19,36 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(pro
     ...rest
   } = props;
 
-  const combinedClasses = ["label", className, error && "label--error"]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <label ref={ref} className={combinedClasses} htmlFor={htmlFor} {...rest}>
-      <span className="label__text">{children}</span>
-      {required && <span className="label__indicator label__indicator--required" aria-hidden="true">*</span>}
-      {optional && <span className="label__indicator label__indicator--optional">(optional)</span>}
-      {error && <span className="label__error">{error}</span>}
+    <label
+      ref={ref}
+      className={cn(
+        "flex flex-wrap items-center gap-1 text-sm font-semibold select-none cursor-pointer text-slate-700",
+        error && "text-red-600",
+        className
+      )}
+      htmlFor={htmlFor}
+      {...rest}
+    >
+      <span>{children}</span>
+      {required && (
+        <span className="text-red-500 font-bold text-xs" aria-hidden="true">
+          *
+        </span>
+      )}
+      {optional && (
+        <span className="text-xs text-slate-400 font-normal">
+          (optional)
+        </span>
+      )}
+      {error && (
+        <span className="ml-auto text-xs font-normal text-red-500">
+          {error}
+        </span>
+      )}
     </label>
   );
 });
 
-// Styles are now consolidated into global CSS
-const LabelStyles = () => null;
-
-export { LabelStyles };
+export const LabelStyles = () => null;
 export default Label;

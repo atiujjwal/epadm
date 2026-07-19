@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { cn } from "@/lib/cn";
 
 export interface CopyableIdProps {
   label: string;
@@ -39,22 +40,24 @@ export function CopyableId({ label, value, truncate = true }: CopyableIdProps) {
     <button
       type="button"
       onClick={handleCopy}
-      className="copyable-id"
+      className="flex w-full items-center justify-between gap-3 text-xs text-slate-500 hover:text-slate-900 transition-colors duration-150 py-1 text-left font-normal focus:outline-none group"
       title={`Copy ${label}: ${value}`}
     >
-      <span className="copyable-id__label">{label}</span>
-      <span className="copyable-id__value">
-        <code>{displayed}</code>
+      <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] shrink-0">
+        {label}
+      </span>
+      <span className="font-mono text-slate-700 bg-slate-100/80 px-1.5 py-0.5 rounded truncate select-all ml-auto max-w-[180px]">
+        {displayed}
       </span>
       {copied ? (
         <svg
-          className="copyable-id__icon copyable-id__icon--success"
+          className="h-3.5 w-3.5 text-emerald-600 shrink-0"
           width="14"
           height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
@@ -63,7 +66,7 @@ export function CopyableId({ label, value, truncate = true }: CopyableIdProps) {
         </svg>
       ) : (
         <svg
-          className="copyable-id__icon"
+          className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 shrink-0 transition-colors duration-150"
           width="14"
           height="14"
           viewBox="0 0 24 24"

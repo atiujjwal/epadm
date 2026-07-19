@@ -1,38 +1,29 @@
 import type { ReactNode } from "react";
 
 export interface EmptyStateProps {
-  /** Icon rendered above the title (lucide-react or inline SVG). */
   icon?: ReactNode;
-  /** Short, plain-language title. */
   title: string;
-  /** One-sentence explanation — what this view shows when populated. */
   description?: string;
-  /** Primary call-to-action (e.g. <Button>Add student</Button>). */
   action?: ReactNode;
 }
 
-/**
- * Empty state block for lists, tables, and card grids.
- *
- * Renders a centered, dashed-border box with an icon, title, description, and
- * optional CTA. Use whenever a data list can legally be empty — never leave a
- * blank section without explanation.
- *
- * @example
- * <EmptyState
- *   icon={<UsersIcon />}
- *   title="No students enrolled"
- *   description="Once students are added, their records will appear here."
- *   action={<Button href="/students/new" variant="primary">Add student</Button>}
- * />
- */
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="empty-state">
-      {icon && <div className="empty-state__icon">{icon}</div>}
-      <div className="empty-state__title">{title}</div>
-      {description && <p className="empty-state__description">{description}</p>}
-      {action && <div className="empty-state__action">{action}</div>}
+    <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed border-slate-200 rounded-xl bg-slate-50/30 max-w-sm mx-auto">
+      {icon && (
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500 mb-4" aria-hidden="true">
+          {icon}
+        </div>
+      )}
+      <h3 className="text-sm font-semibold text-slate-900 mb-1">{title}</h3>
+      {description && (
+        <p className="text-xs text-slate-500 max-w-[280px] mb-4 leading-normal">
+          {description}
+        </p>
+      )}
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }
+
+export default EmptyState;

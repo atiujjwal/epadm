@@ -83,21 +83,24 @@ export function PlatformSection() {
   const activeTabData = tabs.find((t) => t.id === activeTab)!;
 
   return (
-    <section className="section platform" aria-labelledby="platform-heading">
-      <div className="container">
+    <section className="py-[var(--section-padding-y)]" aria-labelledby="platform-heading">
+      <div className="mx-auto w-full max-w-[90rem] px-[var(--gutter-xs)] sm:px-[var(--gutter-sm)] md:px-[var(--gutter-md)] lg:px-[var(--gutter-lg)] xl:px-[var(--gutter-xl)]">
         {/* Header */}
         <m.div
-          className="section-header"
+          className="flex flex-col gap-4 max-w-3xl"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <p className="section-header__eyebrow">School Operations</p>
-          <h2 className="section-header__title" id="platform-heading">
+          <p className="font-sans text-xs font-semibold tracking-[0.1em] uppercase text-[var(--accent-primary)] flex items-center gap-2">
+            <span className="block w-6 h-px bg-[var(--accent-primary)] shrink-0" aria-hidden="true" />
+            School Operations
+          </p>
+          <h2 className="m-0 text-[var(--text-primary)]" id="platform-heading">
             One Unified Platform.<br />Every School Dimension.
           </h2>
-          <p className="section-header__subtitle">
+          <p className="text-lg text-[var(--text-secondary)] leading-relaxed max-w-[52ch] m-0">
             EPADM gives school administrators a single, unified system to manage the entire
             lifecycle of a K-12 school.
           </p>
@@ -105,7 +108,7 @@ export function PlatformSection() {
 
         {/* Tab navigation */}
         <m.div
-          className="platform__tabs"
+          className="mt-10 flex flex-wrap gap-2 rounded-xl bg-[var(--bg-surface-2)] p-1.5"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
@@ -120,7 +123,7 @@ export function PlatformSection() {
               id={`tab-${tab.id}`}
               aria-selected={activeTab === tab.id}
               aria-controls={`panel-${tab.id}`}
-              className={`platform__tab${activeTab === tab.id ? ' platform__tab--active' : ''}`}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.id ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.icon}
@@ -136,19 +139,19 @@ export function PlatformSection() {
             id={`panel-${activeTab}`}
             role="tabpanel"
             aria-labelledby={`tab-${activeTab}`}
-            className="platform__panel"
+            className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] items-start"
             variants={tabContent}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
-            <div className="platform__panel-copy">
-              <h3 className="platform__panel-heading">{activeTabData.heading}</h3>
-              <p className="platform__panel-body">{activeTabData.body}</p>
-              <ul className="platform__panel-points" role="list">
+            <div className="flex flex-col gap-5">
+              <h3 className="font-[var(--font-display)] text-xl font-semibold text-[var(--text-primary)] m-0 leading-snug">{activeTabData.heading}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0">{activeTabData.body}</p>
+              <ul className="mt-2 grid gap-3" role="list">
                 {activeTabData.points.map((point) => (
-                  <li key={point} className="platform__panel-point">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" strokeWidth="2.5" aria-hidden="true">
+                  <li key={point} className="flex items-start gap-2.5 text-sm text-[var(--text-secondary)]">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" strokeWidth="2.5" aria-hidden="true" className="mt-0.5 shrink-0">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                     {point}
@@ -158,7 +161,7 @@ export function PlatformSection() {
             </div>
 
             {/* Visual — simplified data card mock */}
-            <div className="platform__panel-visual" aria-hidden="true">
+            <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-5" aria-hidden="true">
               <PlatformVisual tab={activeTab} />
             </div>
           </m.div>

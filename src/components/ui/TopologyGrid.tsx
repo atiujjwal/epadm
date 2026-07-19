@@ -87,11 +87,11 @@ export function TopologyGrid() {
   if (!mounted) return null;
 
   return (
-    <div className="topology" aria-hidden="true" role="img" aria-label="EPADM tenant topology visualization">
+    <div className="relative overflow-hidden rounded-[2rem] bg-slate-950/95 p-4 text-slate-100 shadow-2xl ring-1 ring-white/10" aria-hidden="true" role="img" aria-label="EPADM tenant topology visualization">
       <svg
         viewBox="0 0 100 80"
         preserveAspectRatio="xMidYMid meet"
-        className="topology__svg"
+        className="h-[22rem] w-full"
       >
         {/* Connection lines */}
         {edges.map((edge, i) => (
@@ -200,18 +200,18 @@ export function TopologyGrid() {
       </svg>
 
       {/* Legend */}
-      <div className="topology__legend">
-        <div className="topology__legend-item">
-          <span className="topology__legend-dot topology__legend-dot--active" />
-          <span>Active tenant</span>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="flex items-center gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-sm text-slate-100">
+          <span className="inline-flex h-2.5 w-2.5 rounded-full bg-indigo-400" aria-hidden="true" />
+          Active tenant
         </div>
-        <div className="topology__legend-item">
-          <span className="topology__legend-dot topology__legend-dot--inactive" />
-          <span>Suspended</span>
+        <div className="flex items-center gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-sm text-slate-100">
+          <span className="inline-flex h-2.5 w-2.5 rounded-full bg-slate-500" aria-hidden="true" />
+          Suspended
         </div>
-        <div className="topology__legend-item">
-          <span className="topology__legend-dot topology__legend-dot--hub" />
-          <span>Control plane</span>
+        <div className="flex items-center gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-sm text-slate-100">
+          <span className="inline-flex h-2.5 w-2.5 rounded-full border border-indigo-400 bg-indigo-400/30" aria-hidden="true" />
+          Control plane
         </div>
       </div>
     </div>

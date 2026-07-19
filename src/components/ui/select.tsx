@@ -32,66 +32,36 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
     ...rest
   } = props;
 
-  const baseClasses = "select";
-  const variantClasses = {
-    default: "select--default",
-    flush: "select--flush",
-  }[variant];
-
   const sizeClasses = {
-    sm: "select--sm",
-    md: "select--md",
-    lg: "select--lg",
+    sm: "px-3 py-2 text-sm",
+    md: "px-4 py-2.5 text-sm",
+    lg: "px-4 py-3 text-base",
   }[size];
 
   const stateClasses = error
-    ? "select--error"
+    ? "border-red-500 ring-1 ring-red-100"
     : success
-    ? "select--success"
-    : "";
+    ? "border-emerald-500 ring-1 ring-emerald-100"
+    : "border-slate-200 ring-1 ring-transparent focus:border-indigo-500 focus:ring-indigo-100";
 
-  const hasLeftElement = !!leftElement;
-
-  const wrapperClasses = [
-    "select__wrapper",
-    hasLeftElement && "select__wrapper--has-left",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const combinedClasses = [
-    baseClasses,
-    variantClasses,
-    sizeClasses,
-    stateClasses,
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const variantClasses = variant === "flush" ? "bg-transparent border-transparent" : "bg-white border";
 
   return (
-    <div className={wrapperClasses}>
+    <div className="relative w-full">
       {leftElement && (
-        <span className="select__element" aria-hidden="true">
+        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-slate-500">
           {leftElement}
         </span>
       )}
-      <select ref={ref} className={combinedClasses} {...rest}>
+      <select
+        ref={ref}
+        className={`block w-full rounded-xl pr-10 text-slate-900 outline-none transition duration-200 ${sizeClasses} ${variantClasses} ${stateClasses} ${className} ${leftElement ? 'pl-10' : 'pl-4'}`}
+        {...rest}
+      >
         {children}
       </select>
-      <svg
-        className="select__chevron"
-        viewBox="0 0 20 20"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M5.5 7.5L10 12L14.5 7.5"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      <svg className="pointer-events-none absolute inset-y-0 right-3 h-full w-5 text-slate-400" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M5.5 7.5L10 12L14.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   );

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { m, AnimatePresence } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 import {
   mainNav,
   ctaNav,
@@ -33,19 +34,16 @@ const overlayVariants = {
 /* ── Logo ─────────────────────────────────────────────────── */
 function Logo() {
   return (
-    <Link href="/" aria-label="EPADM — home" className="nav__logo">
+    <Link href="/" aria-label="EPADM — home" className="inline-flex items-center gap-3 text-base font-semibold text-slate-900 no-underline">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        {/* E — three horizontal bars of decreasing width */}
-        <rect x="4" y="6"  width="14" height="2.5" rx="1.25" fill="var(--accent-primary)" />
+        <rect x="4" y="6" width="14" height="2.5" rx="1.25" fill="var(--accent-primary)" />
         <rect x="4" y="14.75" width="10" height="2.5" rx="1.25" fill="var(--accent-primary)" />
         <rect x="4" y="23.5" width="14" height="2.5" rx="1.25" fill="var(--accent-primary)" />
-        {/* Vertical bar */}
         <rect x="4" y="6" width="2.5" height="20" rx="1.25" fill="var(--accent-primary)" />
-        {/* Dot — precision mark */}
         <circle cx="24" cy="24" r="4" fill="var(--color-indigo-300)" opacity="0.7" />
         <circle cx="24" cy="24" r="2" fill="var(--accent-primary)" />
       </svg>
-      <span className="nav__logo-text">EPADM</span>
+      <span>EPADM</span>
     </Link>
   );
 }
@@ -63,7 +61,7 @@ function Dropdown({ group, isOpen, onClose }: DropdownProps) {
     <AnimatePresence>
       {isOpen && (
         <m.div
-          className="nav__dropdown"
+          className="absolute left-0 top-full z-20 mt-3 min-w-[18rem] overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-2xl"
           variants={dropdownVariants}
           initial="hidden"
           animate="visible"
@@ -75,18 +73,16 @@ function Dropdown({ group, isOpen, onClose }: DropdownProps) {
             <Link
               key={item.href}
               href={item.href}
-              className="nav__dropdown-item"
+              className="block rounded-2xl px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
               role="menuitem"
               onClick={onClose}
               {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
-              <span className="nav__dropdown-item-label">
-                {item.label}
-                {item.badge && <span className="badge badge--accent">{item.badge}</span>}
-              </span>
-              {item.description && (
-                <span className="nav__dropdown-item-desc">{item.description}</span>
-              )}
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium text-slate-900">{item.label}</span>
+                {item.badge && <Badge variant="accent" size="sm">{item.badge}</Badge>}
+              </div>
+              {item.description && <p className="mt-1 text-sm text-slate-500">{item.description}</p>}
             </Link>
           ))}
         </m.div>
@@ -127,7 +123,7 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
         <>
           {/* Overlay */}
           <m.div
-            className="nav__mobile-overlay"
+            className="fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-sm"
             variants={overlayVariants}
             initial="hidden"
             animate="visible"
@@ -138,7 +134,7 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
 
           {/* Drawer */}
           <m.div
-            className="nav__mobile-drawer"
+            className="fixed right-0 top-0 z-40 h-full w-full max-w-xs bg-white p-6 shadow-2xl"
             variants={drawerVariants}
             initial="hidden"
             animate="visible"
@@ -148,10 +144,10 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
             aria-label="Navigation menu"
           >
             {/* Drawer header */}
-            <div className="nav__mobile-header">
+            <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
               <Logo />
               <button
-                className="btn btn--ghost btn--icon"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100"
                 onClick={onClose}
                 aria-label="Close navigation"
               >
@@ -162,13 +158,13 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
             </div>
 
             {/* Drawer nav */}
-            <nav className="nav__mobile-nav" aria-label="Mobile navigation">
+            <nav className="space-y-4" aria-label="Mobile navigation">
               {mainNav.map((group) => (
-                <div key={group.label} className="nav__mobile-group">
+                <div key={group.label} className="space-y-3">
                   {group.items ? (
                     <>
                       <button
-                        className="nav__mobile-group-trigger"
+                        className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
                         onClick={() => setOpenGroup(openGroup === group.label ? null : group.label)}
                         aria-expanded={openGroup === group.label}
                       >
@@ -186,12 +182,12 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
                         </svg>
                       </button>
                       {openGroup === group.label && (
-                        <div className="nav__mobile-sub">
+                        <div className="space-y-2 px-2">
                           {group.items.map((item) => (
                             <Link
                               key={item.href}
                               href={item.href}
-                              className="nav__mobile-sub-item"
+                              className="block rounded-2xl px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-100"
                               onClick={onClose}
                               {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                             >
@@ -204,7 +200,7 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
                   ) : (
                     <Link
                       href={group.href!}
-                      className="nav__mobile-group-trigger"
+                      className="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
                       onClick={onClose}
                     >
                       {group.label}
@@ -215,17 +211,17 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
             </nav>
 
             {/* Drawer CTAs */}
-            <div className="nav__mobile-ctas">
+            <div className="mt-8 flex flex-col gap-3">
               <Link
                 href={ctaNav.tenantLogin.href}
-                className="btn btn--secondary w-full"
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                 onClick={onClose}
               >
                 {ctaNav.tenantLogin.label}
               </Link>
               <Link
                 href={ctaNav.primary.href}
-                className="btn btn--primary w-full"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                 onClick={onClose}
               >
                 {ctaNav.primary.label}
@@ -233,7 +229,7 @@ function MobileDrawer({ isOpen, onClose, pathname }: MobileDrawerProps) {
               {features.showCmsAccess && (
                 <Link
                   href={ctaNav.cms.href}
-                  className="nav__mobile-cms-link"
+                  className="inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
                   onClick={onClose}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -312,27 +308,25 @@ export function Navigation() {
   return (
     <>
       <header
-        className={`nav${scrolled ? ' nav--scrolled' : ''}`}
+        className={`sticky top-0 z-50 border-b border-transparent bg-white/90 backdrop-blur transition duration-300 ${scrolled ? 'border-slate-200/80 shadow-sm' : ''}`}
         ref={navRef}
         role="banner"
       >
-        <div className="nav__inner container">
-          {/* Logo */}
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Logo />
 
-          {/* Desktop nav */}
-          <nav className="nav__desktop" aria-label="Main navigation">
-            <ul className="nav__list" role="list">
+          <nav className="hidden items-center gap-8 lg:flex" aria-label="Main navigation">
+            <ul className="flex items-center gap-1" role="list">
               {mainNav.map((group) => (
                 <li
                   key={group.label}
-                  className="nav__item"
+                  className="relative"
                   onMouseEnter={() => group.items && handleGroupEnter(group.label)}
                   onMouseLeave={() => group.items && handleGroupLeave()}
                 >
                   {group.items ? (
                     <button
-                      className={`nav__trigger${isGroupActive(group) ? ' nav__trigger--active' : ''}`}
+                      className={`inline-flex items-center gap-1 rounded-2xl px-3 py-2 text-sm font-medium transition ${isGroupActive(group) ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'}`}
                       aria-haspopup="true"
                       aria-expanded={activeGroup === group.label}
                       onClick={() =>
@@ -343,10 +337,9 @@ export function Navigation() {
                       <svg
                         width="12" height="12" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" strokeWidth="2.5" aria-hidden="true"
-                        className="nav__chevron"
+                        className="transition-transform duration-200"
                         style={{
                           transform: activeGroup === group.label ? 'rotate(180deg)' : 'rotate(0)',
-                          transition: 'transform 0.18s ease',
                         }}
                       >
                         <path d="M6 9l6 6 6-6" />
@@ -355,7 +348,7 @@ export function Navigation() {
                   ) : (
                     <Link
                       href={group.href!}
-                      className={`nav__trigger${isGroupActive(group) ? ' nav__trigger--active' : ''}`}
+                      className={`inline-flex rounded-2xl px-3 py-2 text-sm font-medium transition ${isGroupActive(group) ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'}`}
                     >
                       {group.label}
                     </Link>
@@ -373,12 +366,11 @@ export function Navigation() {
             </ul>
           </nav>
 
-          {/* Desktop CTAs */}
-          <div className="nav__ctas">
+          <div className="hidden items-center gap-3 lg:flex">
             {features.showCmsAccess && (
               <Link
                 href={ctaNav.cms.href}
-                className="nav__cms-link"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                 aria-label="Access EPADM Control Plane"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -391,18 +383,17 @@ export function Navigation() {
               </Link>
             )}
 
-            <Link href={ctaNav.tenantLogin.href} className="btn btn--ghost btn--sm">
+            <Link href={ctaNav.tenantLogin.href} className="inline-flex rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
               {ctaNav.tenantLogin.label}
             </Link>
 
-            <Link href={ctaNav.primary.href} className="btn btn--primary btn--sm">
+            <Link href={ctaNav.primary.href} className="inline-flex rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
               {ctaNav.primary.label}
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
           <button
-            className="nav__hamburger btn btn--ghost btn--icon"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 lg:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
             aria-expanded={mobileOpen}
@@ -431,7 +422,7 @@ export function Navigation() {
       </header>
 
       {/* Nav Spacer */}
-      <div className="nav__spacer" aria-hidden="true" />
+      <div className="h-20 lg:h-[4.5rem]" aria-hidden="true" />
     </>
   );
 }

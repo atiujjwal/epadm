@@ -1,30 +1,26 @@
 import { HTMLAttributes, forwardRef, ReactNode } from "react";
 
+const cx = (...classes: Array<string | undefined | false>) =>
+  classes.filter(Boolean).join(" ");
+
 export interface FormItemProps extends HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   error?: string;
 }
 
-/**
- * EPADM FormItem Component
- *
- * Wrapper for form fields with consistent spacing and error handling.
- *
- * @example
- * <FormItem error={errors.email}>
- *   <Label htmlFor="email">Email</Label>
- *   <Input id="email" type="email" />
- * </FormItem>
- */
 export const FormItem = forwardRef<HTMLDivElement, FormItemProps>(function FormItem(props, ref) {
   const { children, error, className = "", ...rest } = props;
 
-  const combinedClasses = ["form-item", error && "form-item--error", className]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <div ref={ref} className={combinedClasses} {...rest}>
+    <div
+      ref={ref}
+      className={cx(
+        "grid gap-3",
+        error ? "text-red-700" : "text-slate-900",
+        className,
+      )}
+      {...rest}
+    >
       {children}
       {error && <FormError>{error}</FormError>}
     </div>
@@ -37,20 +33,6 @@ export interface FormProps extends HTMLAttributes<HTMLFormElement> {
   labelWidth?: string;
 }
 
-/**
- * EPADM Form Component
- *
- * Form wrapper with layout options for vertical or horizontal forms.
- *
- * @example
- * <Form layout="vertical">
- *   <FormItem>...</FormItem>
- * </Form>
- *
- * <Form layout="horizontal" labelWidth="200px">
- *   <FormItem>...</FormItem>
- * </Form>
- */
 export const Form = forwardRef<HTMLFormElement, FormProps>(function Form(props, ref) {
   const {
     children,
@@ -60,16 +42,18 @@ export const Form = forwardRef<HTMLFormElement, FormProps>(function Form(props, 
     ...rest
   } = props;
 
-  const combinedClasses = ["form", `form--${layout}`, className]
-    .filter(Boolean)
-    .join(" ");
+  const classNameValue = cx(
+    "grid gap-6",
+    layout === "horizontal" && "items-start md:grid-cols-[minmax(var(--form-label-width),auto)_1fr]",
+    className,
+  );
 
   const style = labelWidth && layout === "horizontal"
     ? { "--form-label-width": labelWidth, ...rest.style }
     : rest.style;
 
   return (
-    <form ref={ref} className={combinedClasses} style={style} {...rest}>
+    <form ref={ref} className={classNameValue} style={style} {...rest}>
       {children}
     </form>
   );
@@ -85,13 +69,16 @@ export const FormError = forwardRef<HTMLParagraphElement, FormErrorProps>(functi
   return (
     <p
       ref={ref}
-      className={`form-error ${className}`}
+      className={cx(
+        "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700",
+        className,
+      )}
       role="alert"
       {...rest}
     >
-      <svg className="form-error__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-      </svg>
+      <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-700" aria-hidden="true">
+        !
+      </span>
       {children}
     </p>
   );
@@ -107,13 +94,16 @@ export const FormSuccess = forwardRef<HTMLParagraphElement, FormSuccessProps>(fu
   return (
     <p
       ref={ref}
-      className={`form-success ${className}`}
+      className={cx(
+        "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700",
+        className,
+      )}
       role="status"
       {...rest}
     >
-      <svg className="form-success__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-      </svg>
+      <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700" aria-hidden="true">
+        ✓
+      </span>
       {children}
     </p>
   );
@@ -127,11 +117,7 @@ export const FormDescription = forwardRef<HTMLParagraphElement, FormDescriptionP
   const { className = "", children, ...rest } = props;
 
   return (
-    <p
-      ref={ref}
-      className={`form-description ${className}`}
-      {...rest}
-    >
+    <p className={cx("text-sm text-slate-500", className)} ref={ref} {...rest}>
       {children}
     </p>
   );
@@ -147,14 +133,14 @@ export const FormGroup = forwardRef<HTMLDivElement, FormGroupProps>(function For
   const { children, title, description, className = "", ...rest } = props;
 
   return (
-    <div ref={ref} className={`form-group ${className}`} {...rest}>
+    <div ref={ref} className={cx("grid gap-3", className)} {...rest}>
       {(title || description) && (
-        <div className="form-group__header">
-          {title && <h3 className="form-group__title">{title}</h3>}
-          {description && <p className="form-group__description">{description}</p>}
+        <div className="space-y-1">
+          {title && <h3 className="text-sm font-semibold text-slate-900">{title}</h3>}
+          {description && <p className="text-sm text-slate-500">{description}</p>}
         </div>
       )}
-      <div className="form-group__content">{children}</div>
+      <div>{children}</div>
     </div>
   );
 });

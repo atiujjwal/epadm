@@ -4,29 +4,13 @@ import { useRouter } from "next/navigation";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 
 export interface AppTopbarProps {
-  /** Workspace (tenant / operator org) name shown on the left. */
   workspaceName: string;
-  /** Current user's role, shown as a compact badge next to the profile. */
   userRole?: string;
-  /** Opens the mobile navigation drawer. Shown only below the md breakpoint. */
   onOpenNav?: () => void;
-  /** Controls the hamburger's aria-expanded / aria-controls wiring. */
   navOpen?: boolean;
-  /** Override the default POST /api/auth/logout → /login sign-out flow. */
   onSignOut?: () => void;
 }
 
-/**
- * AppTopbar
- *
- * Persistent application header that spans the content pane of the authenticated
- * shell. It carries workspace identity on the left and the signed-in user's
- * identity + sign-out on the right, and hosts the mobile navigation trigger so
- * the app has a single header rather than a separate marketing-style bar.
- *
- * Deliberately does not include search or notifications: those require real
- * backing data and would otherwise be non-functional placeholders.
- */
 export function AppTopbar({
   workspaceName,
   userRole,
@@ -46,11 +30,11 @@ export function AppTopbar({
   const initials = deriveInitials(workspaceName);
 
   return (
-    <header className="app-topbar">
-      <div className="app-topbar__left">
+    <header className="flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 sticky top-0 z-30">
+      <div className="flex items-center gap-3">
         <button
           type="button"
-          className="app-topbar__hamburger"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 active:bg-slate-100 lg:hidden focus:outline-none transition-colors duration-150"
           onClick={onOpenNav}
           aria-label="Open navigation menu"
           aria-controls="tenant-sidebar"
@@ -60,22 +44,26 @@ export function AppTopbar({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <div className="app-topbar__workspace">
-          <span className="app-topbar__workspace-avatar" aria-hidden="true">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded bg-slate-100 text-[11px] font-bold text-slate-700" aria-hidden="true">
             {initials}
           </span>
-          <span className="app-topbar__workspace-name">{workspaceName}</span>
+          <span className="text-sm font-bold text-slate-800">{workspaceName}</span>
         </div>
       </div>
 
-      <div className="app-topbar__right">
+      <div className="flex items-center gap-3">
         {userRole && (
-          <span className="app-topbar__role" title="Your role in this workspace">
+          <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200/50 capitalize" title="Your role in this workspace">
             {userRole}
           </span>
         )}
-        <button type="button" className="app-topbar__signout" onClick={signOut}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <button
+          type="button"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100 focus:outline-none transition-colors duration-150"
+          onClick={signOut}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" className="text-slate-500">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7M13 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           <span>Sign out</span>
@@ -85,7 +73,6 @@ export function AppTopbar({
   );
 }
 
-/** First letters of the first two words, uppercased — e.g. "Springfield High" → "SH". */
 function deriveInitials(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "•";

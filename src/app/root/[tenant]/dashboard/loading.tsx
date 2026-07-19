@@ -3,22 +3,20 @@ import { Card } from "@/components/ui/card";
 
 export default function DashboardLoading() {
   return (
-    <div className="flex flex-col gap-8 pb-8">
+    <div className="space-y-8 pb-8">
       {/* Page header skeleton */}
-      <div className="page-header">
-        <div className="page-header__content">
-          <Skeleton width="16rem" height="1.75rem" />
-          <Skeleton width="24rem" height="0.875rem" />
-        </div>
+      <div className="space-y-4">
+        <Skeleton width="16rem" height="1.75rem" />
+        <Skeleton width="24rem" height="0.875rem" />
       </div>
 
       {/* 5 metric cards matching your global CSS grid */}
-      <section className="dashboard-metrics">
+      <section className="grid gap-6 xl:grid-cols-5">
         <StatCardSkeleton count={5} />
       </section>
 
       {/* Content grid */}
-      <section className="dashboard-content">
+      <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         {/* Left: recent members */}
         <Card variant="elevated" padding="lg">
           <div className="mb-6 space-y-2">
@@ -31,7 +29,7 @@ export default function DashboardLoading() {
         </Card>
 
         {/* Right sidebar */}
-        <div className="dashboard-sidebar">
+        <div className="space-y-6">
           {/* Role chart skeleton */}
           <Card variant="elevated" padding="lg">
             <Skeleton width="10rem" height="1.5rem" className="mb-6" />

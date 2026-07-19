@@ -76,26 +76,28 @@ const trustIndicators = [
 
 export function SecuritySection() {
   return (
-    <section className="section security" aria-labelledby="security-heading">
+    <section className="py-[var(--section-padding-y)] relative" aria-labelledby="security-heading">
       {/* Accent background */}
-      <div className="security__bg" aria-hidden="true" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-[radial-gradient(ellipse_at_center,var(--accent-subtle)_0%,transparent_70%)] opacity-40" />
+      </div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="mx-auto w-full max-w-[90rem] px-[var(--gutter-xs)] sm:px-[var(--gutter-sm)] md:px-[var(--gutter-md)] lg:px-[var(--gutter-lg)] xl:px-[var(--gutter-xl)] relative z-[1]">
         {/* Header */}
         <m.div
-          className="section-header section-header--center"
+          className="flex flex-col gap-4 max-w-3xl items-center text-center mx-auto"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
           transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <p className="section-header__eyebrow" style={{ justifyContent: 'center' }}>
-            Security & governance
+          <p className="font-sans text-xs font-semibold tracking-[0.1em] uppercase text-[var(--accent-primary)] flex items-center gap-2 justify-center">
+            Security &amp; governance
           </p>
-          <h2 className="section-header__title" id="security-heading">
+          <h2 className="m-0 text-[var(--text-primary)]" id="security-heading">
             Security is the architecture, not the afterthought
           </h2>
-          <p className="section-header__subtitle">
+          <p className="text-lg text-[var(--text-secondary)] leading-relaxed max-w-[52ch] m-0">
             EPADM&apos;s security model is designed from the ground up for multi-tenant
             enterprise environments where isolation, auditability, and least-privilege
             are non-negotiable.
@@ -104,7 +106,7 @@ export function SecuritySection() {
 
         {/* Security pillars */}
         <m.div
-          className="security__grid"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-12"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -113,15 +115,15 @@ export function SecuritySection() {
           {securityPillars.map((pillar) => (
             <m.article
               key={pillar.title}
-              className="security__card"
+              className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[var(--radius-xl)] p-6 transition-all duration-200 hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-glow-sm)] flex items-start gap-4"
               variants={fadeUp}
             >
-              <div className="security__card-icon" aria-hidden="true">
+              <div className="w-10 h-10 flex items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-subtle)] text-[var(--accent-primary)] shrink-0" aria-hidden="true">
                 {pillar.icon}
               </div>
               <div>
-                <h3 className="security__card-title">{pillar.title}</h3>
-                <p className="security__card-body">{pillar.body}</p>
+                <h3 className="font-[var(--font-display)] text-xl font-semibold text-[var(--text-primary)] m-0 leading-snug">{pillar.title}</h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0 mt-1">{pillar.body}</p>
               </div>
             </m.article>
           ))}
@@ -129,22 +131,22 @@ export function SecuritySection() {
 
         {/* Trust indicators row */}
         <m.div
-          className="security__trust"
+          className="mt-12 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportConfig}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <p className="security__trust-label">Platform security guarantees</p>
-          <div className="security__trust-grid">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)] mb-4">Platform security guarantees</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {trustIndicators.map((indicator) => (
-              <div key={indicator.label} className="security__trust-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success-500)" strokeWidth="2.5" aria-hidden="true">
+              <div key={indicator.label} className="flex items-start gap-2 text-left">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success-500)" strokeWidth="2.5" aria-hidden="true" className="shrink-0 mt-0.5">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
                 <div>
-                  <span className="security__trust-item-label">{indicator.label}</span>
-                  <span className="security__trust-item-desc">{indicator.desc}</span>
+                  <span className="block text-sm font-semibold text-[var(--text-primary)]">{indicator.label}</span>
+                  <span className="block text-xs text-[var(--text-muted)]">{indicator.desc}</span>
                 </div>
               </div>
             ))}

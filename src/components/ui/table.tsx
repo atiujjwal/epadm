@@ -4,7 +4,10 @@ import {
   ThHTMLAttributes,
   HTMLAttributes,
   forwardRef,
+  createContext,
+  useContext,
 } from "react";
+import { cn } from "@/lib/cn";
 
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   variant?: "default" | "compact" | "spacious";
@@ -13,27 +16,16 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   children: React.ReactNode;
 }
 
-/**
- * EPADM Table Component
- *
- * Unified table with consistent styling, optional striping, and hover states.
- *
- * @example
- * <Table hoverable>
- *   <TableHeader>
- *     <TableRow>
- *       <TableHead>Name</TableHead>
- *       <TableHead>Email</TableHead>
- *     </TableRow>
- *   </TableHeader>
- *   <TableBody>
- *     <TableRow>
- *       <TableCell>John Doe</TableCell>
- *       <TableCell>john@example.com</TableCell>
- *     </TableRow>
- *   </TableBody>
- * </Table>
- */
+const TableContext = createContext<{
+  variant: "default" | "compact" | "spacious";
+  striped: boolean;
+  hoverable: boolean;
+}>({
+  variant: "default",
+  striped: false,
+  hoverable: false,
+});
+
 export const Table = forwardRef<HTMLTableElement, TableProps>(function Table(props, ref) {
   const {
     variant = "default",
@@ -44,30 +36,18 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(function Table(pro
     ...rest
   } = props;
 
-  const baseClasses = "table";
-  const variantClasses = {
-    default: "table--default",
-    compact: "table--compact",
-    spacious: "table--spacious",
-  }[variant];
-
-  const modifierClasses = [
-    striped && "table--striped",
-    hoverable && "table--hoverable",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const combinedClasses = [baseClasses, variantClasses, modifierClasses, className]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <div className="table__wrapper">
-      <table ref={ref} className={combinedClasses} {...rest}>
-        {children}
-      </table>
-    </div>
+    <TableContext.Provider value={{ variant, striped, hoverable }}>
+      <div className="w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
+        <table
+          ref={ref}
+          className={cn("w-full border-collapse text-left text-sm text-slate-600", className)}
+          {...rest}
+        >
+          {children}
+        </table>
+      </div>
+    </TableContext.Provider>
   );
 });
 
@@ -79,7 +59,11 @@ export const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>
   const { className = "", children, ...rest } = props;
 
   return (
-    <thead ref={ref} className={`table__header ${className}`} {...rest}>
+    <thead
+      ref={ref}
+      className={cn("border-b border-slate-200 bg-slate-50/75 font-semibold text-slate-900 backdrop-blur-xs sticky top-0", className)}
+      {...rest}
+    >
       {children}
     </thead>
   );
@@ -93,7 +77,11 @@ export const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(fun
   const { className = "", children, ...rest } = props;
 
   return (
-    <tbody ref={ref} className={`table__body ${className}`} {...rest}>
+    <tbody
+      ref={ref}
+      className={cn("divide-y divide-slate-200/60 bg-white", className)}
+      {...rest}
+    >
       {children}
     </tbody>
   );
@@ -107,7 +95,11 @@ export const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>
   const { className = "", children, ...rest } = props;
 
   return (
-    <tfoot ref={ref} className={`table__footer ${className}`} {...rest}>
+    <tfoot
+      ref={ref}
+      className={cn("border-t border-slate-200 bg-slate-50/50 font-medium text-slate-900", className)}
+      {...rest}
+    >
       {children}
     </tfoot>
   );
@@ -119,9 +111,19 @@ export interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
 
 export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(props, ref) {
   const { className = "", children, ...rest } = props;
+  const { striped, hoverable } = useContext(TableContext);
 
   return (
-    <tr ref={ref} className={`table__row ${className}`} {...rest}>
+    <tr
+      ref={ref}
+      className={cn(
+        "transition-colors duration-150",
+        striped && "even:bg-slate-50/40",
+        hoverable && "hover:bg-slate-50/75",
+        className
+      )}
+      {...rest}
+    >
       {children}
     </tr>
   );
@@ -141,35 +143,44 @@ export const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(functi
     sortDirection = "none",
     ...rest
   } = props;
+  const { variant } = useContext(TableContext);
 
-  const combinedClasses = [
-    "table__head",
-    sortable && "table__head--sortable",
-    sortDirection !== "none" && `table__head--sorted-${sortDirection}`,
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const paddingClasses = {
+    compact: "px-3 py-2 text-xs",
+    default: "px-4 py-3.5 text-xs font-semibold uppercase tracking-wider",
+    spacious: "px-6 py-4 text-sm font-semibold uppercase tracking-wider",
+  }[variant];
 
   return (
-    <th ref={ref} className={combinedClasses} {...rest}>
-      {children}
-      {sortable && (
-        <span className="table__sort-icon" aria-hidden="true">
-          {sortDirection === "asc" && (
-            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 12.5L10 7.5L14.5 12.5" /></svg>
-          )}
-          {sortDirection === "desc" && (
-            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 7.5L10 12.5L14.5 7.5" /></svg>
-          )}
-          {sortDirection === "none" && (
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path d="M5.5 12.5L10 7.5L14.5 12.5" />
-              <path d="M5.5 7.5L10 12.5L14.5 7.5" />
-            </svg>
-          )}
-        </span>
+    <th
+      ref={ref}
+      className={cn(
+        "font-semibold text-slate-700 select-none align-middle",
+        paddingClasses,
+        sortable && "cursor-pointer hover:text-slate-900 transition-colors duration-150 group",
+        className
       )}
+      {...rest}
+    >
+      <div className="flex items-center gap-1.5">
+        <span>{children}</span>
+        {sortable && (
+          <span className="inline-flex h-3.5 w-3.5 items-center justify-center text-slate-400 group-hover:text-slate-600 transition-colors duration-150" aria-hidden="true">
+            {sortDirection === "asc" && (
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5"><path d="M5.5 12.5L10 7.5L14.5 12.5" /></svg>
+            )}
+            {sortDirection === "desc" && (
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5"><path d="M5.5 7.5L10 12.5L14.5 7.5" /></svg>
+            )}
+            {sortDirection === "none" && (
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100">
+                <path d="M5.5 12.5L10 7.5L14.5 12.5" />
+                <path d="M5.5 7.5L10 12.5L14.5 7.5" />
+              </svg>
+            )}
+          </span>
+        )}
+      </div>
     </th>
   );
 });
@@ -188,25 +199,36 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(functi
     variant = "default",
     ...rest
   } = props;
+  const { variant: tableVariant } = useContext(TableContext);
 
-  const combinedClasses = [
-    "table__cell",
-    `table__cell--${align}`,
-    variant === "emphasized" && "table__cell--emphasized",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const paddingClasses = {
+    compact: "px-3 py-2 text-xs",
+    default: "px-4 py-3.5 text-sm",
+    spacious: "px-6 py-5 text-base",
+  }[tableVariant];
+
+  const alignClasses = {
+    left: "text-left",
+    center: "text-center",
+    right: "text-right",
+  }[align];
 
   return (
-    <td ref={ref} className={combinedClasses} {...rest}>
+    <td
+      ref={ref}
+      className={cn(
+        "align-middle",
+        paddingClasses,
+        alignClasses,
+        variant === "emphasized" && "font-semibold text-slate-900",
+        className
+      )}
+      {...rest}
+    >
       {children}
     </td>
   );
 });
 
-// Styles are now consolidated into global CSS
-const TableStyles = () => null;
-
-export { TableStyles };
+export const TableStyles = () => null;
 export default Table;

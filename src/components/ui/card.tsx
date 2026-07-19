@@ -27,27 +27,24 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(props, r
     ...rest
   } = props;
 
-  const baseClasses = "card";
+  const baseClasses = "rounded-2xl bg-white border transition-all duration-200 ease-in-out";
+
   const variantClasses = {
-    default: "card--default",
-    elevated: "card--elevated",
-    outlined: "card--outlined",
-    interactive: "card--interactive",
+    default: "border-slate-200",
+    elevated: "border-slate-200 shadow-sm",
+    outlined: "border-slate-300 bg-transparent",
+    interactive: "border-slate-200 bg-white hover:border-indigo-200 hover:shadow-md cursor-pointer",
   }[variant];
 
   const paddingClasses = {
-    none: "card--padding-none",
-    sm: "card--padding-sm",
-    md: "card--padding-md",
-    lg: "card--padding-lg",
+    none: "p-0",
+    sm: "p-4",
+    md: "p-6",
+    lg: "p-8",
   }[padding];
 
-  const combinedClasses = [baseClasses, variantClasses, paddingClasses, className]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <div ref={ref} className={combinedClasses} {...rest}>
+    <div ref={ref} className={`${baseClasses} ${variantClasses} ${paddingClasses} ${className}`} {...rest}>
       {children}
     </div>
   );
@@ -61,7 +58,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(function C
   const { className = "", children, ...rest } = props;
 
   return (
-    <div ref={ref} className={`card__header ${className}`} {...rest}>
+    <div ref={ref} className={`flex items-start justify-between gap-4 border-b border-slate-200 pb-4 mb-4 ${className}`} {...rest}>
       {children}
     </div>
   );
@@ -75,7 +72,7 @@ export const CardBody = forwardRef<HTMLDivElement, CardBodyProps>(function CardB
   const { className = "", children, ...rest } = props;
 
   return (
-    <div ref={ref} className={`card__body ${className}`} {...rest}>
+    <div ref={ref} className={`flex flex-col gap-4 ${className}`} {...rest}>
       {children}
     </div>
   );
@@ -89,7 +86,7 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(function C
   const { className = "", children, ...rest } = props;
 
   return (
-    <div ref={ref} className={`card__footer ${className}`} {...rest}>
+    <div ref={ref} className={`flex items-center justify-end gap-3 border-t border-slate-200 pt-4 mt-4 ${className}`} {...rest}>
       {children}
     </div>
   );

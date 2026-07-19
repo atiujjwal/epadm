@@ -32,22 +32,24 @@ function relativeTime(date: Date | string): string {
 
 export function ActivityRow({ name, email, role, isActive, joinedAt }: ActivityRowProps) {
   return (
-    <div className="activity-row">
-      <div className="activity-row__avatar" aria-hidden="true">
+    <div className="flex items-center justify-between gap-4 p-3 hover:bg-slate-50/50 rounded-xl transition-colors duration-150 border border-slate-100/50 bg-white">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700" aria-hidden="true">
         {getInitials(name)}
       </div>
-      <div className="activity-row__info">
-        <span className="activity-row__name">{name}</span>
-        <span className="activity-row__email">{email}</span>
+      <div className="flex-1 min-w-0 flex flex-col">
+        <span className="text-sm font-semibold text-slate-900 truncate">{name}</span>
+        <span className="text-xs text-slate-500 truncate">{email}</span>
       </div>
-      <div className="activity-row__meta">
+      <div className="flex items-center gap-2.5">
         <Badge variant={isActive ? "success" : "default"} size="sm">
           {isActive ? "Active" : "Inactive"}
         </Badge>
         <Badge variant="outline" size="sm">
           {role}
         </Badge>
-        <span className="activity-row__date">{relativeTime(joinedAt)}</span>
+        <span className="text-xs text-slate-400 font-medium whitespace-nowrap min-w-[50px] text-right">
+          {relativeTime(joinedAt)}
+        </span>
       </div>
     </div>
   );

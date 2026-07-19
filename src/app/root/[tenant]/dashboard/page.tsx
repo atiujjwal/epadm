@@ -27,7 +27,7 @@ export default async function DashboardPage() {
   const recentMembers = members.slice(0, 5);
 
   return (
-    <div className="flex flex-col gap-8 pb-8">
+    <div className="space-y-8 pb-8">
       <PageHeader
         title={`${summary?.tenantName ?? "School"} overview`}
         description="Live operational metrics and recent activity for the school workspace."
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
       />
 
       {/* KPI Metrics */}
-      <section className="dashboard-metrics">
+      <section className="grid gap-6 xl:grid-cols-5">
         <MetricCard
           icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -105,12 +105,11 @@ export default async function DashboardPage() {
       </section>
 
       {/* Content grid */}
-      <section className="dashboard-content">
-        {/* Recent members */}
+      <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         <Card variant="elevated" padding="lg">
           <div className="mb-6 flex flex-col space-y-1.5">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">Recent members</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-xl font-semibold tracking-tight text-slate-900">Recent members</h2>
+            <p className="text-sm text-slate-600">
               Latest memberships and activity across the workspace.
             </p>
           </div>
@@ -151,9 +150,9 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Right sidebar */}
-        <div className="dashboard-sidebar">
+        <div className="space-y-6">
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground mb-4">Role distribution</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900 mb-4">Role distribution</h2>
             <RoleChart
               data={summary?.roleBreakdown ?? []}
               total={summary?.memberCount ?? 0}

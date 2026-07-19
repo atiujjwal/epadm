@@ -42,15 +42,15 @@ function FaqItem({ question, answer, isOpen, onToggle }: {
   onToggle: () => void;
 }) {
   return (
-    <div className={`faq__item${isOpen ? ' faq__item--open' : ''}`}>
+    <div className={`border-b border-[var(--border-default)] ${isOpen ? 'pb-4' : ''}`}>
       <button
-        className="faq__question"
+        className="w-full flex items-center justify-between gap-4 py-4 text-left text-sm font-medium text-[var(--text-primary)] cursor-pointer bg-transparent border-0 hover:text-[var(--accent-primary)] transition-colors duration-200"
         onClick={onToggle}
         aria-expanded={isOpen}
         aria-controls={`faq-answer-${question.slice(0, 20).replace(/\s+/g, '-')}`}
       >
         <span>{question}</span>
-        <span className="faq__chevron" aria-hidden="true">
+        <span className="shrink-0 text-[var(--text-muted)]" aria-hidden="true">
           <svg
             width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2"
@@ -65,14 +65,14 @@ function FaqItem({ question, answer, isOpen, onToggle }: {
         {isOpen && (
           <m.div
             id={`faq-answer-${question.slice(0, 20).replace(/\s+/g, '-')}`}
-            className="faq__answer"
+            className="overflow-hidden"
             variants={accordionContent}
             initial="hidden"
             animate="visible"
             exit="exit"
             style={{ overflow: 'hidden' }}
           >
-            <p className="faq__answer-text">{answer}</p>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0 pb-2">{answer}</p>
           </m.div>
         )}
       </AnimatePresence>
@@ -88,22 +88,25 @@ export function FaqSection() {
   };
 
   return (
-    <section className="section faq" aria-labelledby="faq-heading">
-      <div className="container">
-        <div className="faq__layout">
+    <section className="py-[var(--section-padding-y)]" aria-labelledby="faq-heading">
+      <div className="mx-auto w-full max-w-[90rem] px-[var(--gutter-xs)] sm:px-[var(--gutter-sm)] md:px-[var(--gutter-md)] lg:px-[var(--gutter-lg)] xl:px-[var(--gutter-xl)]">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-16 items-start">
           {/* Header */}
           <m.div
-            className="faq__header"
+            className="flex flex-col gap-4 max-w-3xl"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewportConfig}
             transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <p className="section-header__eyebrow">FAQ</p>
-            <h2 className="section-header__title" id="faq-heading">
+            <p className="font-sans text-xs font-semibold tracking-[0.1em] uppercase text-[var(--accent-primary)] flex items-center gap-2">
+              <span className="block w-6 h-px bg-[var(--accent-primary)] shrink-0" aria-hidden="true" />
+              FAQ
+            </p>
+            <h2 className="m-0 text-[var(--text-primary)]" id="faq-heading">
               Questions from enterprise teams
             </h2>
-            <p className="section-header__subtitle">
+            <p className="text-lg text-[var(--text-secondary)] leading-relaxed max-w-[52ch] m-0">
               Answers to what platform engineers, enterprise admins, and
               technical decision-makers ask before deploying EPADM.
             </p>
@@ -111,7 +114,7 @@ export function FaqSection() {
 
           {/* FAQ list */}
           <m.div
-            className="faq__list"
+            className="flex flex-col"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewportConfig}

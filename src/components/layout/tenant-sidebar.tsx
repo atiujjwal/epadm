@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { forwardRef, HTMLAttributes, ReactNode } from "react";
+import { cn } from "@/lib/cn";
 
 export interface NavItem {
   label: string;
@@ -12,15 +13,12 @@ export interface NavItem {
 }
 
 export interface NavGroup {
-  /** Optional section heading. Omit for an ungrouped block (e.g. Overview). */
   label?: string;
   items: NavItem[];
 }
 
 export interface TenantSidebarProps extends HTMLAttributes<HTMLElement> {
-  /** Grouped navigation (preferred). Rendered as labelled sections. */
   groups?: NavGroup[];
-  /** Flat navigation (legacy). Used when `groups` is not provided. */
   items?: NavItem[];
   tenantName?: string;
   tenantSlug?: string;
@@ -30,23 +28,6 @@ export interface TenantSidebarProps extends HTMLAttributes<HTMLElement> {
   onMobileClose?: () => void;
 }
 
-/**
- * EPADM Tenant Sidebar
- *
- * Persistent, grouped navigation for the authenticated tenant workspace. Sign-out
- * lives in the top app bar (see AppTopbar), so the sidebar footer only surfaces
- * the active workspace context.
- *
- * @example
- * <TenantSidebar
- *   groups={[
- *     { items: [{ label: "Dashboard", href: "/dashboard", icon: <Icon /> }] },
- *     { label: "People", items: [{ label: "Students", href: "/students", icon: <Icon /> }] },
- *   ]}
- *   tenantName="Springfield Public School"
- *   userRole="admin"
- * />
- */
 export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(function TenantSidebar(props, ref) {
   const {
     groups,
@@ -62,7 +43,6 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
   } = props;
 
   const pathname = usePathname();
-  const combinedClasses = ["tenant-sidebar", className].filter(Boolean).join(" ");
 
   // Prefer grouped nav; fall back to a single unlabelled group for legacy `items`.
   const resolvedGroups: NavGroup[] = groups ?? [{ items }];
@@ -75,57 +55,69 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
     <>
       {/* Overlay for mobile */}
       <div
-        className="tenant-sidebar-overlay"
-        data-mobile-open={mobileOpen}
+        className={cn(
+          "fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300 lg:hidden",
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
         onClick={onMobileClose}
         aria-hidden="true"
       />
       <aside
         ref={ref}
         id="tenant-sidebar"
-        className={combinedClasses}
-        data-mobile-open={mobileOpen}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 text-slate-100 transition-transform duration-300 ease-in-out border-r border-slate-800 lg:sticky lg:translate-x-0 lg:z-0 lg:h-screen lg:top-0",
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          className
+        )}
         {...rest}
       >
-        <div className="tenant-sidebar__brand">
-          <div className="tenant-sidebar__logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-              <rect x="4" y="6" width="14" height="2.5" rx="1.25" fill="var(--color-white)" />
-              <rect x="4" y="14.75" width="10" height="2.5" rx="1.25" fill="var(--color-white)" />
-              <rect x="4" y="23.5" width="14" height="2.5" rx="1.25" fill="var(--color-white)" />
-              <rect x="4" y="6" width="2.5" height="20" rx="1.25" fill="var(--color-white)" />
-              <circle cx="24" cy="24" r="4" fill="var(--color-white)" opacity="0.55" />
-              <circle cx="24" cy="24" r="2" fill="var(--color-white)" />
+        <div className="flex h-16 items-center gap-3 px-6 border-b border-slate-800/60 shrink-0">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white border border-blue-500/20">
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true" className="text-white">
+              <rect x="4" y="6" width="14" height="2.5" rx="1.25" fill="currentColor" />
+              <rect x="4" y="14.75" width="10" height="2.5" rx="1.25" fill="currentColor" />
+              <rect x="4" y="23.5" width="14" height="2.5" rx="1.25" fill="currentColor" />
+              <rect x="4" y="6" width="2.5" height="20" rx="1.25" fill="currentColor" />
+              <circle cx="24" cy="24" r="4" fill="currentColor" opacity="0.55" />
+              <circle cx="24" cy="24" r="2" fill="currentColor" />
             </svg>
           </div>
-          <div className="tenant-sidebar__brand-text">
-            <span className="tenant-sidebar__brand-label">EPADM</span>
-            <span className="tenant-sidebar__brand-title">
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] font-bold tracking-wider text-blue-400 uppercase leading-none mb-0.5">EPADM</span>
+            <span className="text-sm font-semibold text-slate-200 truncate">
               {tenantName ?? "Tenant Operations"}
             </span>
           </div>
         </div>
 
-        <nav className="tenant-sidebar__nav" aria-label="Tenant navigation">
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-7" aria-label="Tenant navigation">
           {resolvedGroups.map((group, groupIndex) => (
-            <div key={group.label ?? `group-${groupIndex}`} className="tenant-sidebar__group">
+            <div key={group.label ?? `group-${groupIndex}`} className="space-y-2">
               {group.label && (
-                <p className="tenant-sidebar__group-label">{group.label}</p>
+                <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{group.label}</p>
               )}
-              <ul className="tenant-sidebar__list">
+              <ul className="space-y-1 list-none p-0 m-0">
                 {group.items.map((item) => {
                   const active = isActive(item.href);
                   return (
-                    <li key={item.href} className="tenant-sidebar__item">
+                    <li key={item.href} className="list-none">
                       <Link
                         href={item.href}
                         onClick={onMobileClose}
                         aria-current={active ? "page" : undefined}
-                        className={`tenant-sidebar__link ${active ? "tenant-sidebar__link--active" : ""}`}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 group",
+                          active && "text-slate-100 bg-slate-800/80 hover:bg-slate-800 hover:text-white border-l-2 border-blue-500 pl-2.5 rounded-l-none"
+                        )}
                       >
-                        {item.icon && <span className="tenant-sidebar__link-icon">{item.icon}</span>}
-                        <span className="tenant-sidebar__link-label">{item.label}</span>
-                        {item.badge && <span className="tenant-sidebar__link-badge">{item.badge}</span>}
+                        {item.icon && (
+                          <span className="h-4 w-4 shrink-0 opacity-80 group-hover:opacity-100">
+                            {item.icon}
+                          </span>
+                        )}
+                        <span className="truncate">{item.label}</span>
+                        {item.badge && <span className="ml-auto">{item.badge}</span>}
                       </Link>
                     </li>
                   );
@@ -136,25 +128,25 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
         </nav>
 
         {(tenantSlug || userRole || planTier) && (
-          <div className="tenant-sidebar__context">
-            <div className="tenant-sidebar__context-label">Active workspace</div>
-            <div className="tenant-sidebar__context-grid">
+          <div className="p-4 border-t border-slate-800/60 bg-slate-950/40 shrink-0 space-y-2.5">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active workspace</div>
+            <div className="grid grid-cols-1 gap-2">
               {userRole && (
-                <div className="tenant-sidebar__context-item">
-                  <span className="tenant-sidebar__context-key">Role</span>
-                  <span className="tenant-sidebar__context-value">{userRole}</span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Role</span>
+                  <span className="font-semibold text-slate-300 capitalize">{userRole}</span>
                 </div>
               )}
               {planTier && (
-                <div className="tenant-sidebar__context-item">
-                  <span className="tenant-sidebar__context-key">Plan</span>
-                  <span className="tenant-sidebar__context-value">{planTier}</span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Plan</span>
+                  <span className="font-semibold text-slate-300 capitalize">{planTier}</span>
                 </div>
               )}
               {tenantSlug && (
-                <div className="tenant-sidebar__context-item">
-                  <span className="tenant-sidebar__context-key">Slug</span>
-                  <span className="tenant-sidebar__context-value tenant-sidebar__context-value--mono">{tenantSlug}</span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Slug</span>
+                  <span className="font-mono text-[11px] text-slate-400">{tenantSlug}</span>
                 </div>
               )}
             </div>
@@ -166,7 +158,4 @@ export const TenantSidebar = forwardRef<HTMLElement, TenantSidebarProps>(functio
 });
 
 export default TenantSidebar;
-
-// Styles are consolidated into global CSS; kept as a no-op for the layout
-// barrel's renderLayoutStyles() helper (backward compatibility).
 export const TenantSidebarStyles = () => null;
