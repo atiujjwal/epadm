@@ -102,7 +102,7 @@ export const FormSuccess = forwardRef<HTMLParagraphElement, FormSuccessProps>(fu
       {...rest}
     >
       <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700" aria-hidden="true">
-        ✓
+        Γ£ô
       </span>
       {children}
     </p>

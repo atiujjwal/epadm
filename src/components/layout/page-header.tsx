@@ -34,9 +34,9 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(function P
   } = props;
 
   return (
-    <div ref={ref} className={`flex flex-col gap-6 ${className}`} {...rest}>
+    <div ref={ref} className={`border-b border-[#e8e9ed] bg-white px-4 py-4 md:px-6 ${className}`} {...rest}>
       {breadcrumb && breadcrumb.length > 0 && (
-        <nav className="text-sm text-slate-500" aria-label="Breadcrumb">
+        <nav className="mb-2 text-[11px] text-slate-500" aria-label="Breadcrumb">
           <ol className="flex flex-wrap items-center gap-2">
             {breadcrumb.map((item, index) => (
               <li key={index} className="flex items-center gap-2">
@@ -56,16 +56,16 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(function P
         </nav>
       )}
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">{title}</h1>
-            {badge && <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">{badge}</span>}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-[18px] font-semibold leading-tight tracking-tight text-[#252936]">{title}</h1>
+            {badge && <span className="inline-flex items-center">{badge}</span>}
           </div>
-          {description && <p className="max-w-3xl text-sm leading-6 text-slate-600">{description}</p>}
+          {description && <p className="mt-0.5 max-w-3xl text-[12px] leading-relaxed text-[#747a86]">{description}</p>}
         </div>
 
-        {action && <div className="flex items-center">{action}</div>}
+        {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
       </div>
     </div>
   );

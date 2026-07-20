@@ -1,5 +1,5 @@
 import { HTMLAttributes, forwardRef } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils";
 
 export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
   width?: string;
@@ -13,16 +13,16 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
       <div
         ref={ref}
         className={cn(
-          "animate-pulse bg-slate-100 rounded-lg",
+          "animate-pulse rounded-lg bg-slate-100",
           circle && "rounded-full",
-          className
+          className,
         )}
         style={{ width, height, ...style }}
         aria-hidden="true"
         {...rest}
       />
     );
-  }
+  },
 );
 
 export function StatCardSkeleton({ count = 5 }: { count?: number }) {
@@ -45,7 +45,10 @@ export function MemberListSkeleton({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 p-3 bg-white">
+        <div
+          key={i}
+          className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white p-3"
+        >
           <div className="space-y-2">
             <Skeleton className="h-3.5 w-32" />
             <Skeleton className="h-3 w-48" />

@@ -110,12 +110,12 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Parameter Selection Grid */}
-      <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+      <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
         <div>
-          <h2 className="text-lg font-semibold text-primary">AI Exam Creator</h2>
-          <p className="text-sm text-secondary">
+          <h2 className="text-sm font-semibold text-primary">AI exam creator</h2>
+          <p className="text-xs text-secondary">
             Generate formatted, class-aligned tests instantly using Google Gemini AI.
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
               id="subject-select"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-xs"
               style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               <option value="Science">Science</option>
@@ -148,7 +148,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
               id="class-select"
               value={classId}
               onChange={(e) => setClassId(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-xs"
               style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               {classes.map((c) => (
@@ -167,7 +167,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
               id="difficulty-select"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-xs"
               style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               <option value="Easy">Easy</option>
@@ -184,7 +184,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
               id="format-select"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2.5 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-xs"
               style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
             >
               <option value="MCQ">Multiple Choice (MCQ)</option>
@@ -196,7 +196,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
         <button
           onClick={handleGenerate}
           disabled={loading || !classId}
-          className="w-full rounded-xl bg-sky-600 hover:bg-sky-700 disabled:bg-zinc-300 px-4 py-2.5 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#3f5ca8] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#344e91] disabled:bg-zinc-300"
           aria-busy={loading}
           aria-disabled={!classId || loading}
         >
@@ -213,7 +213,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span>Generate Exam Paper</span>
+              <span>Generate exam paper</span>
             </>
           )}
         </button>
@@ -221,31 +221,31 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
 
       {/* Errors / Success alerts */}
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
           ⚠️ {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">
           ✅ {successMsg}
         </div>
       )}
 
       {/* Live Preview Container */}
       {exam && (
-        <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+        <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b pb-3" style={{ borderColor: "var(--border-default)" }}>
             <div>
-              <span className="text-xs uppercase tracking-[0.12em] font-bold text-sky-700">AI Draft Preview</span>
-              <h3 className="text-xl font-bold text-primary mt-1">{exam.title}</h3>
+              <span className="text-[10px] font-bold uppercase text-[#3f5ca8]">AI draft preview</span>
+              <h3 className="mt-1 text-base font-bold text-primary">{exam.title}</h3>
             </div>
             <button
               onClick={handleSave}
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition"
+              className="rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
               aria-label="Save and publish exam"
             >
-              Save & Publish Exam
+              Save and publish exam
             </button>
           </div>
 
@@ -253,7 +253,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
             {exam.questions.map((q, idx) => (
               <div 
                 key={q.id || idx} 
-                className="p-4 border rounded-xl space-y-3"
+                className="space-y-3 rounded-md border p-3"
                 style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
               >
                 <div className="flex justify-between items-start gap-4">
@@ -261,7 +261,7 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
                     Q{idx + 1}. {q.questionText}
                   </div>
                   <span className="shrink-0 rounded-lg bg-zinc-200 px-2.5 py-1 text-xs font-semibold text-zinc-700">
-                    {q.points} Points
+                    {q.points} points
                   </span>
                 </div>
 
@@ -297,8 +297,8 @@ export default function AIExamCreator({ classes, savedExams }: Props) {
       )}
 
       {/* Saved Exams List */}
-      <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
-        <h2 className="text-lg font-semibold text-primary">Published Exam Papers</h2>
+      <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+        <h2 className="text-sm font-semibold text-primary">Published exam papers</h2>
         {savedExams.length === 0 ? (
           <p className="text-sm text-muted py-4 text-center">No exams published yet.</p>
         ) : (

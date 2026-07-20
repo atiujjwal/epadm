@@ -49,8 +49,8 @@ export default async function TeacherHomePage({
 
   if (!teacher) {
     return (
-      <div className="rounded-3xl border border-dashed border-zinc-200 bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-zinc-950">No staff profile found</h2>
+      <div className="rounded-md border border-dashed border-[#dfe2e8] bg-white p-6 text-center">
+        <h2 className="text-sm font-semibold text-[#2d3442]">No staff profile found</h2>
         <p className="mt-2 text-sm text-zinc-600">
           Your user account is not linked to a teacher/staff profile. Contact your school administrator.
         </p>
@@ -233,30 +233,32 @@ export default async function TeacherHomePage({
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <section className="rounded-3xl bg-[linear-gradient(135deg,#075985_0%,#0369a1_55%,#38bdf8_100%)] px-6 py-8 text-white shadow-sm">
-        <p className="text-sm font-medium uppercase tracking-[0.16em] text-sky-100">
+      <section className="rounded-md border border-[#e3e5e9] bg-white px-5 py-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]">
+        <p className="text-[11px] font-medium uppercase text-[#626874]">
           Teacher Portal
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">
+        <h1 className="mt-2 text-xl font-semibold text-[#2d3442]">
           Welcome back, {teacher.fullName}!
         </h1>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-sky-50">
+        <p className="mt-1 max-w-xl text-xs leading-5 text-[#626874]">
           Department: {teacher.department || "General"} · Role:{" "}
           {teacher.jobTitle || "Instructor"}
         </p>
       </section>
 
       {/* Tabs */}
-      <div className="tab-nav">
+      <div className="sticky top-14 z-20 flex gap-1 overflow-x-auto border-b border-[#dfe2e8] bg-[#f5f6f8]/95 px-1 py-2 backdrop-blur">
         {[
-          { id: "workspace", label: "Attendance & Assignments" },
-          { id: "ai-exams", label: "AI Exam Creator" },
+          { id: "workspace", label: "Attendance & assignments" },
+          { id: "ai-exams", label: "AI exam creator" },
         ].map((tab) => (
           <a
             key={tab.id}
             href={`?tab=${tab.id}`}
-            className={`tab-nav__button ${
-              currentTab === tab.id ? "tab-nav__button--active" : ""
+            className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              currentTab === tab.id
+                ? "bg-white text-[#2d3442] shadow-[0_1px_2px_rgba(23,30,44,.08)]"
+                : "text-[#626874] hover:bg-white/70 hover:text-[#2d3442]"
             }`}
           >
             {tab.label}
@@ -265,11 +267,11 @@ export default async function TeacherHomePage({
       </div>
 
       {currentTab === "workspace" && (
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
           {/* Classes Sidebar */}
-          <section className="rounded-2xl border p-5 shadow-sm space-y-4 h-fit" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
-            <h2 className="text-lg font-semibold text-primary">
-              Assigned Classes
+          <section className="h-fit space-y-3 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+            <h2 className="text-sm font-semibold text-primary">
+              Assigned classes
             </h2>
             {assigned.length === 0 ? (
               <p className="text-sm text-secondary">
@@ -281,7 +283,7 @@ export default async function TeacherHomePage({
                   <a
                     key={sec.sectionId}
                     href={`?tab=workspace&sectionId=${sec.sectionId}`}
-                    className={`block rounded-xl border p-4 text-left transition ${
+                    className={`block rounded-md border p-3 text-left transition ${
                       activeSectionId === sec.sectionId
                         ? "border-sky-500 bg-sky-50/50"
                         : "hover:bg-zinc-50"
@@ -291,10 +293,10 @@ export default async function TeacherHomePage({
                       backgroundColor: activeSectionId === sec.sectionId ? "var(--color-sky-50)" : "var(--bg-surface)"
                     }}
                   >
-                    <div className="font-semibold text-primary">
+                    <div className="text-sm font-semibold text-primary">
                       {sec.className}
                     </div>
-                    <div className="text-sm text-secondary">
+                    <div className="text-xs text-secondary">
                       Section: {sec.sectionName}
                     </div>
                     <div className="mt-2 text-xs text-muted">
@@ -311,10 +313,10 @@ export default async function TeacherHomePage({
             {activeSection ? (
               <>
                 {/* Attendance Marker */}
-                <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+                <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
                   <div>
-                    <h2 className="text-lg font-semibold text-primary">
-                      Daily Attendance
+                    <h2 className="text-sm font-semibold text-primary">
+                      Daily attendance
                     </h2>
                     <p className="text-sm text-secondary">
                       Mark student attendance for {activeSection.className} -{" "}
@@ -342,14 +344,14 @@ export default async function TeacherHomePage({
                         type="date"
                         name="date"
                         defaultValue={todayStr}
-                        className="rounded-xl border px-3 py-1.5 text-sm"
+                        className="rounded-md border px-3 py-1.5 text-xs"
                         style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         required
                       />
                     </div>
 
                     {enrolledStudents.length === 0 ? (
-                      <p className="text-sm text-secondary py-4 border border-dashed rounded-xl text-center" style={{ borderColor: "var(--border-default)" }}>
+                      <p className="rounded-md border border-dashed py-4 text-center text-sm text-secondary" style={{ borderColor: "var(--border-default)" }}>
                         No students enrolled in this section.
                       </p>
                     ) : (
@@ -395,24 +397,24 @@ export default async function TeacherHomePage({
                     {enrolledStudents.length > 0 && (
                       <button
                         type="submit"
-                        className="w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky-700"
+                        className="w-full rounded-md bg-[#3f5ca8] px-4 py-2 text-xs font-medium text-white transition hover:bg-[#344e91]"
                       >
-                        Save Attendance
+                        Save attendance
                       </button>
                     )}
                   </form>
                 </section>
 
                 {/* Assignment Manager */}
-                <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
-                  <h2 className="text-lg font-semibold text-primary">
+                <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+                  <h2 className="text-sm font-semibold text-primary">
                     Assignments
                   </h2>
 
                   {/* Create form */}
                   <form
                     action={createAssignment}
-                    className="space-y-3 p-4 rounded-xl border"
+                    className="space-y-3 rounded-md border p-3"
                     style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                   >
                     <input
@@ -427,14 +429,14 @@ export default async function TeacherHomePage({
                     />
 
                     <div className="text-sm font-semibold text-primary">
-                      Add New Assignment
+                      Add new assignment
                     </div>
 
                     <div>
                       <input
                         name="title"
-                        placeholder="Assignment Title"
-                        className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                        placeholder="Assignment title"
+                        className="w-full rounded-md border bg-white px-3 py-2 text-xs"
                         style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         required
                       />
@@ -443,8 +445,8 @@ export default async function TeacherHomePage({
                     <div>
                       <textarea
                         name="description"
-                        placeholder="Instructions/Description"
-                        className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                        placeholder="Instructions"
+                        className="w-full rounded-md border bg-white px-3 py-2 text-xs"
                         style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         rows={2}
                       />
@@ -459,7 +461,7 @@ export default async function TeacherHomePage({
                           type="date"
                           name="dueDate"
                           defaultValue={todayStr}
-                          className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                          className="w-full rounded-md border bg-white px-3 py-2 text-xs"
                           style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                           required
                         />
@@ -471,7 +473,7 @@ export default async function TeacherHomePage({
                         <input
                           name="filePath"
                           placeholder="assignment-sheet.pdf"
-                          className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                          className="w-full rounded-md border bg-white px-3 py-2 text-xs"
                           style={{ borderColor: "var(--border-default)", backgroundColor: "var(--bg-surface)" }}
                         />
                       </div>
@@ -479,9 +481,9 @@ export default async function TeacherHomePage({
 
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700 mt-2"
+                      className="mt-2 w-full rounded-md bg-[#3f5ca8] px-4 py-2 text-xs font-medium text-white transition hover:bg-[#344e91]"
                     >
-                      Post Assignment
+                      Post assignment
                     </button>
                   </form>
 
@@ -499,7 +501,7 @@ export default async function TeacherHomePage({
                         {existingAssignments.map((asn) => (
                           <div
                             key={asn.id}
-                            className="rounded-xl border p-3.5 space-y-1"
+                            className="space-y-1 rounded-md border p-3"
                             style={{ borderColor: "var(--border-default)" }}
                           >
                             <div className="flex justify-between items-start gap-2">
@@ -516,7 +518,7 @@ export default async function TeacherHomePage({
                               </p>
                             )}
                             {asn.filePath && (
-                              <div className="mt-1 text-[11px] font-mono text-sky-700">
+                              <div className="mt-1 font-mono text-[11px] text-[#3f5ca8]">
                                 📎 {asn.filePath}
                               </div>
                             )}

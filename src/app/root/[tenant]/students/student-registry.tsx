@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { Eye, Pencil, Plus, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +26,7 @@ type StudentRecord = {
   guardianPhone: string | null;
   status: string;
   notes: string | null;
-  createdAt: string;
+  createdAt: string | Date;
 };
 
 type Props = {
@@ -34,6 +35,8 @@ type Props = {
 
 export function StudentRegistry({ initialStudents }: Props) {
   const [students, setStudents] = useState(initialStudents);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState({
     admissionNumber: "",
     firstName: "",
@@ -50,6 +53,26 @@ export function StudentRegistry({ initialStudents }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const filteredStudents = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return students.filter((student) => {
+      const haystack = [
+        student.admissionNumber,
+        student.firstName,
+        student.lastName ?? "",
+        student.classLabel ?? "",
+        student.sectionLabel ?? "",
+        student.guardianName ?? "",
+        student.guardianPhone ?? "",
+      ].join(" ").toLowerCase();
+
+      const matchesSearch = normalizedQuery.length === 0 || haystack.includes(normalizedQuery);
+      const matchesStatus = statusFilter === "all" || student.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [query, statusFilter, students]);
 
   function updateField(name: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -104,18 +127,18 @@ export function StudentRegistry({ initialStudents }: Props) {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.05fr_1.55fr]">
+    <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
       <section>
-        <Card variant="elevated" padding="lg">
-          <div className="mb-5">
-            <h2 className="text-lg font-semibold text-primary">Add student</h2>
-            <p className="mt-1 text-sm text-secondary">
+        <Card variant="elevated" padding="lg" className="xl:sticky xl:top-20">
+          <div className="mb-4">
+            <h2 className="text-sm font-semibold text-primary">Add student</h2>
+            <p className="mt-1 text-xs text-secondary">
               Capture admission, classroom, and guardian information for the school registry.
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="grid gap-4 sm:grid-cols-2">
+          <form className="space-y-3" onSubmit={handleSubmit}>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
               <div>
                 <Label htmlFor="admissionNumber">Admission number</Label>
                 <Input
@@ -141,7 +164,7 @@ export function StudentRegistry({ initialStudents }: Props) {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
               <div>
                 <Label htmlFor="firstName">First name</Label>
                 <Input
@@ -163,7 +186,7 @@ export function StudentRegistry({ initialStudents }: Props) {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
               <div>
                 <Label htmlFor="classLabel">Class</Label>
                 <Input
@@ -194,7 +217,7 @@ export function StudentRegistry({ initialStudents }: Props) {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
               <div>
                 <Label htmlFor="guardianName">Guardian name</Label>
                 <Input
@@ -234,6 +257,7 @@ export function StudentRegistry({ initialStudents }: Props) {
               variant="primary"
               className="w-full"
               disabled={isPending}
+              icon={<Plus className="h-3.5 w-3.5" />}
             >
               {isPending ? "Adding student..." : "Add student"}
             </Button>
@@ -243,24 +267,51 @@ export function StudentRegistry({ initialStudents }: Props) {
 
       <section>
         <Card variant="elevated" padding="none">
-          <div className="border-b px-6 py-4" style={{ borderColor: "var(--border-default)" }}>
-            <h2 className="text-lg font-semibold text-primary">Student registry</h2>
-            <p className="mt-1 text-sm text-secondary">
-              Admission-focused view of current students across the tenant.
-            </p>
+          <div className="border-b px-4 py-3" style={{ borderColor: "var(--border-default)" }}>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-primary">Student registry</h2>
+                <p className="mt-1 text-xs text-secondary">
+                  {filteredStudents.length} of {students.length} records visible
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Input
+                  aria-label="Search students"
+                  placeholder="Search students"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  leftElement={<Search className="h-3.5 w-3.5" />}
+                  className="sm:w-56"
+                />
+                <Select
+                  aria-label="Filter student status"
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value)}
+                  leftElement={<SlidersHorizontal className="h-3.5 w-3.5" />}
+                  className="sm:w-36"
+                >
+                  <option value="all">All status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="alumni">Alumni</option>
+                </Select>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
-            <Table variant="spacious" striped>
+            <Table variant="default" striped hoverable>
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>
                   <TableHead>Class</TableHead>
                   <TableHead>Guardian</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students.map((student) => (
+                {filteredStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>
                       <div className="font-medium text-primary">
@@ -280,8 +331,28 @@ export function StudentRegistry({ initialStudents }: Props) {
                         {student.status}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button type="button" variant="ghost" size="sm" iconOnly icon={<Eye className="h-3.5 w-3.5" />} title="View student">
+                          View
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" iconOnly icon={<Pencil className="h-3.5 w-3.5" />} title="Edit student">
+                          Edit
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" iconOnly icon={<Trash2 className="h-3.5 w-3.5" />} title="Delete student">
+                          Delete
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
+                {filteredStudents.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-8 text-center text-muted">
+                      No students match the current filters.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

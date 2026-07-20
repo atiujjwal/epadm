@@ -18,6 +18,11 @@ function isAdminPath(pathname: string): boolean {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }
 
+/** Platform-only admin paths; tenant RBAC lives at exactly `/admin` on school hosts. */
+function isPlatformAdminPath(pathname: string): boolean {
+  return isAdminPath(pathname) && pathname !== "/admin";
+}
+
 function finalize(req: NextRequest, response: NextResponse) {
   return attachCsrfCookie(req, response);
 }
@@ -83,7 +88,7 @@ export async function proxy(req: NextRequest) {
     res = NextResponse.next();
   } else if (opsMode) {
     res = await handleOpsRequest(req, pathname);
-  } else if (isAdminPath(pathname)) {
+  } else if (isPlatformAdminPath(pathname)) {
     const hostHeader = req.headers.get("host") ?? "";
     const parts = hostHeader.split(":");
     const port = parts[1] ? `:${parts[1]}` : "";
@@ -101,6 +106,13 @@ export async function proxy(req: NextRequest) {
 }
 
 async function handleOpsRequest(req: NextRequest, pathname: string) {
+  // Design reference uses /cms for the platform console; alias on ops host.
+  if (pathname === "/cms" || pathname.startsWith("/cms/")) {
+    const url = req.nextUrl.clone();
+    url.pathname = pathname.replace(/^\/cms/, "/admin");
+    return NextResponse.rewrite(url);
+  }
+
   const platformToken = req.cookies.get(PLATFORM_COOKIE)?.value;
   let operatorId = "";
   let operatorEmail = "";
@@ -188,6 +200,18 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
   }
 
   const isPublicPage = PUBLIC_PATHS.has(pathname);
+
+  if (pathname === "/finance") {
+    const feesUrl = req.nextUrl.clone();
+    feesUrl.pathname = "/fees";
+    return finalize(req, NextResponse.redirect(feesUrl));
+  }
+
+  if (pathname === "/users" || pathname.startsWith("/users/")) {
+    const adminUrl = req.nextUrl.clone();
+    adminUrl.pathname = pathname.replace(/^\/users/, "/admin");
+    return finalize(req, NextResponse.redirect(adminUrl));
+  }
 
   if (!userId && !isPublicPage && !pathname.startsWith("/api")) {
     const loginUrl = req.nextUrl.clone();

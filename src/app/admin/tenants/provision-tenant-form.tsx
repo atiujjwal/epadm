@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,11 @@ import { FormItem, FormError } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 
-export function ProvisionTenantForm() {
+type Props = {
+  trigger?: ReactNode;
+};
+
+export function ProvisionTenantForm({ trigger }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,15 +54,21 @@ export function ProvisionTenantForm() {
     }
   }
 
+  function openModal() {
+    setOpen(true);
+  }
+
   return (
     <>
-      <Button
-        type="button"
-        onClick={() => setOpen(true)}
-        variant="primary"
-      >
-        Provision tenant
-      </Button>
+      {trigger && isValidElement(trigger) ? (
+        cloneElement(trigger as ReactElement<{ onClick?: () => void }>, {
+          onClick: openModal,
+        })
+      ) : (
+        <Button type="button" onClick={openModal} variant="primary">
+          Provision tenant
+        </Button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { FormError, FormSuccess } from "@/components/ui/form";
 
 type ClassRecord = {
@@ -17,7 +16,7 @@ type ClassRecord = {
   status: string;
   homeroomStaffId: string | null;
   homeroomStaffName: string | null;
-  createdAt: string;
+  createdAt: string | Date;
 };
 
 type SectionRecord = {
@@ -28,7 +27,7 @@ type SectionRecord = {
   name: string;
   capacity: number | null;
   status: string;
-  createdAt: string;
+  createdAt: string | Date;
 };
 
 type EnrollmentRecord = {
@@ -44,7 +43,7 @@ type EnrollmentRecord = {
   rollNumber: string | null;
   status: string;
   enrolledOn: string | null;
-  createdAt: string;
+  createdAt: string | Date;
 };
 
 type StudentOption = { id: string; label: string; admissionNumber: string };
@@ -226,15 +225,15 @@ export function AcademicStructureWorkspace({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {error && <FormError>{error}</FormError>}
       {success && <FormSuccess>{success}</FormSuccess>}
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-4 xl:grid-cols-3">
         <section>
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-primary">Create class</h2>
-            <form className="mt-4 space-y-4" onSubmit={handleCreateClass}>
+            <h2 className="text-sm font-semibold text-primary">Create class</h2>
+            <form className="mt-3 space-y-3" onSubmit={handleCreateClass}>
               <Input
                 value={classForm.code}
                 onChange={(event) => setClassForm((v) => ({ ...v, code: event.target.value }))}
@@ -286,8 +285,8 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-primary">Create section</h2>
-            <form className="mt-4 space-y-4" onSubmit={handleCreateSection}>
+            <h2 className="text-sm font-semibold text-primary">Create section</h2>
+            <form className="mt-3 space-y-3" onSubmit={handleCreateSection}>
               <Select
                 value={sectionForm.classId}
                 onChange={(event) => setSectionForm((v) => ({ ...v, classId: event.target.value }))}
@@ -330,8 +329,8 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="lg">
-            <h2 className="text-lg font-semibold text-primary">Enroll student</h2>
-            <form className="mt-4 space-y-4" onSubmit={handleCreateEnrollment}>
+            <h2 className="text-sm font-semibold text-primary">Enroll student</h2>
+            <form className="mt-3 space-y-3" onSubmit={handleCreateEnrollment}>
               <Select
                 value={enrollmentForm.studentId}
                 onChange={(event) =>
@@ -402,22 +401,22 @@ export function AcademicStructureWorkspace({
         </section>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-4 xl:grid-cols-3">
         <section>
           <Card variant="elevated" padding="none">
-            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border-default)" }}>
-              <h3 className="font-semibold text-primary">Classes</h3>
+            <div className="border-b px-4 py-3" style={{ borderColor: "var(--border-default)" }}>
+              <h3 className="text-sm font-semibold text-primary">Classes</h3>
             </div>
-            <div className="space-y-3 p-5">
+            <div className="space-y-2 p-4">
               {classes.map((item) => (
                 <div 
                   key={item.id} 
-                  className="rounded-xl border px-4 py-3"
+                  className="rounded-md border px-3 py-2.5"
                   style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                 >
-                  <div className="font-medium text-primary">{item.name}</div>
-                  <div className="mt-1 text-sm text-secondary">
-                    {item.code} • {item.academicYear}
+                  <div className="text-sm font-medium text-primary">{item.name}</div>
+                  <div className="mt-1 text-xs text-secondary">
+                    {item.code} / {item.academicYear}
                   </div>
                   {item.homeroomStaffName && (
                     <div className="mt-1 text-xs text-muted">
@@ -432,20 +431,20 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="none">
-            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border-default)" }}>
-              <h3 className="font-semibold text-primary">Sections</h3>
+            <div className="border-b px-4 py-3" style={{ borderColor: "var(--border-default)" }}>
+              <h3 className="text-sm font-semibold text-primary">Sections</h3>
             </div>
-            <div className="space-y-3 p-5">
+            <div className="space-y-2 p-4">
               {sections.map((item) => (
                 <div 
                   key={item.id} 
-                  className="rounded-xl border px-4 py-3"
+                  className="rounded-md border px-3 py-2.5"
                   style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                 >
-                  <div className="font-medium text-primary">
+                  <div className="text-sm font-medium text-primary">
                     {item.classCode} / {item.name}
                   </div>
-                  <div className="mt-1 text-sm text-secondary">{item.className}</div>
+                  <div className="mt-1 text-xs text-secondary">{item.className}</div>
                   {item.capacity && (
                     <div className="mt-1 text-xs text-muted">Capacity: {item.capacity}</div>
                   )}
@@ -457,19 +456,19 @@ export function AcademicStructureWorkspace({
 
         <section>
           <Card variant="elevated" padding="none">
-            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border-default)" }}>
-              <h3 className="font-semibold text-primary">Enrollments</h3>
+            <div className="border-b px-4 py-3" style={{ borderColor: "var(--border-default)" }}>
+              <h3 className="text-sm font-semibold text-primary">Enrollments</h3>
             </div>
-            <div className="space-y-3 p-5">
+            <div className="space-y-2 p-4">
               {enrollments.map((item) => (
                 <div 
                   key={item.id} 
-                  className="rounded-xl border px-4 py-3"
+                  className="rounded-md border px-3 py-2.5"
                   style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                 >
-                  <div className="font-medium text-primary">{item.studentName}</div>
-                  <div className="mt-1 text-sm text-secondary">
-                    {item.className}{item.sectionName ? ` / ${item.sectionName}` : ""} • {item.academicYear}
+                  <div className="text-sm font-medium text-primary">{item.studentName}</div>
+                  <div className="mt-1 text-xs text-secondary">
+                    {item.className}{item.sectionName ? ` / ${item.sectionName}` : ""} / {item.academicYear}
                   </div>
                   <div className="mt-1 text-xs text-muted">{item.admissionNumber}</div>
                 </div>

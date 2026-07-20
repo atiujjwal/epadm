@@ -800,6 +800,297 @@ export const vehicleTelemetry = pgTable(
   },
 );
 
+// --- Wave 1: academics / attendance extensions ---
 
+export const subjects = pgTable(
+  "subjects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 120 }).notNull(),
+    code: varchar("code", { length: 40 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantCodeUnique: uniqueIndex("subjects_tenant_code_unique").on(
+      table.tenantId,
+      table.code,
+    ),
+    tenantStatusIdx: index("subjects_tenant_status_idx").on(
+      table.tenantId,
+      table.status,
+    ),
+  }),
+);
 
+export const leaveApplications = pgTable(
+  "leave_applications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    fromDate: date("from_date").notNull(),
+    toDate: date("to_date").notNull(),
+    reason: text("reason"),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantStudentIdx: index("leave_applications_tenant_student_idx").on(
+      table.tenantId,
+      table.studentId,
+    ),
+    tenantStatusIdx: index("leave_applications_tenant_status_idx").on(
+      table.tenantId,
+      table.status,
+    ),
+  }),
+);
+
+export const holidays = pgTable(
+  "holidays",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    date: date("date").notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantDateIdx: index("holidays_tenant_date_idx").on(table.tenantId, table.date),
+  }),
+);
+
+// --- Wave 2: operational domains ---
+
+export const admissionApplications = pgTable(
+  "admission_applications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    applicantName: varchar("applicant_name", { length: 255 }).notNull(),
+    grade: varchar("grade", { length: 40 }).notNull(),
+    stage: varchar("stage", { length: 60 }).notNull().default("inquiry"),
+    fitScore: integer("fit_score"),
+    owner: varchar("owner", { length: 255 }),
+    status: varchar("status", { length: 20 }).notNull().default("open"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantStageIdx: index("admission_applications_tenant_stage_idx").on(
+      table.tenantId,
+      table.stage,
+    ),
+    tenantStatusIdx: index("admission_applications_tenant_status_idx").on(
+      table.tenantId,
+      table.status,
+    ),
+  }),
+);
+
+export const timetableEntries = pgTable(
+  "timetable_entries",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    dayOfWeek: integer("day_of_week").notNull(),
+    period: integer("period").notNull(),
+    classLabel: varchar("class_label", { length: 80 }).notNull(),
+    subject: varchar("subject", { length: 120 }).notNull(),
+    room: varchar("room", { length: 80 }),
+    teacherName: varchar("teacher_name", { length: 255 }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantDayPeriodIdx: index("timetable_entries_tenant_day_period_idx").on(
+      table.tenantId,
+      table.dayOfWeek,
+      table.period,
+    ),
+  }),
+);
+
+export const vehicles = pgTable(
+  "vehicles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 40 }).notNull(),
+    numberPlate: varchar("number_plate", { length: 40 }).notNull(),
+    driverName: varchar("driver_name", { length: 255 }),
+    routeName: varchar("route_name", { length: 120 }),
+    studentCount: integer("student_count").notNull().default(0),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantCodeUnique: uniqueIndex("vehicles_tenant_code_unique").on(
+      table.tenantId,
+      table.code,
+    ),
+    tenantStatusIdx: index("vehicles_tenant_status_idx").on(
+      table.tenantId,
+      table.status,
+    ),
+  }),
+);
+
+export const messageCampaigns = pgTable(
+  "message_campaigns",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    channel: varchar("channel", { length: 40 }).notNull(),
+    audience: varchar("audience", { length: 120 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("draft"),
+    sentCount: integer("sent_count").notNull().default(0),
+    deliveredCount: integer("delivered_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantStatusIdx: index("message_campaigns_tenant_status_idx").on(
+      table.tenantId,
+      table.status,
+    ),
+  }),
+);
+
+// --- Wave 3: facilities & mobile config ---
+
+export const libraryBooks = pgTable(
+  "library_books",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    accession: varchar("accession", { length: 60 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    author: varchar("author", { length: 255 }),
+    status: varchar("status", { length: 20 }).notNull().default("available"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantAccessionUnique: uniqueIndex("library_books_tenant_accession_unique").on(
+      table.tenantId,
+      table.accession,
+    ),
+    tenantStatusIdx: index("library_books_tenant_status_idx").on(
+      table.tenantId,
+      table.status,
+    ),
+  }),
+);
+
+export const labBookings = pgTable(
+  "lab_bookings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    labName: varchar("lab_name", { length: 120 }).notNull(),
+    session: varchar("session", { length: 80 }).notNull(),
+    classLabel: varchar("class_label", { length: 80 }),
+    inCharge: varchar("in_charge", { length: 255 }),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("scheduled"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantScheduledIdx: index("lab_bookings_tenant_scheduled_idx").on(
+      table.tenantId,
+      table.scheduledAt,
+    ),
+  }),
+);
+
+export const mobileFeatureFlags = pgTable(
+  "mobile_feature_flags",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    key: varchar("key", { length: 80 }).notNull(),
+    label: varchar("label", { length: 255 }).notNull(),
+    enabled: boolean("enabled").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tenantKeyUnique: uniqueIndex("mobile_feature_flags_tenant_key_unique").on(
+      table.tenantId,
+      table.key,
+    ),
+  }),
+);
 

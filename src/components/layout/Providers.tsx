@@ -1,6 +1,7 @@
 'use client';
 
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion';
+import { Toaster } from '@/components/ui/sonner';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ export function Providers({ children }: ProvidersProps) {
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         {children}
+        <Toaster richColors position="top-right" />
       </MotionConfig>
     </LazyMotion>
   );

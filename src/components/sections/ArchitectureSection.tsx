@@ -1,7 +1,7 @@
 'use client';
 
 import { m } from 'framer-motion';
-import { staggerContainer, fadeUp, viewportConfig } from '@/lib/motion';
+import { fadeUp, viewportConfig } from '@/lib/motion';
 
 const steps = [
   { step: '01', title: 'Tenant Provisioning', body: 'Administrators define a tenant template and EPADM provisions the tenant in seconds with isolated config, quotas, and access roles.' },

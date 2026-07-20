@@ -78,6 +78,13 @@
       "when": 1782382000000,
       "tag": "0010_force_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1782383000000,
+      "tag": "0011_design_parity_waves",
+      "breakpoints": true
     }
   ]
 }

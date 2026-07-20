@@ -106,62 +106,57 @@ export default async function StudentHomePage() {
 
   return (
     <div className="space-y-6">
-      {/* Student Banner */}
-      <section className="rounded-3xl bg-[linear-gradient(135deg,#701a75_0%,#86198f_55%,#d946ef_100%)] px-6 py-8 text-white shadow-sm">
-        <p className="text-sm font-medium uppercase tracking-[0.16em] text-fuchsia-100">
+      <section className="rounded-md border border-[#e3e5e9] bg-white px-5 py-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]">
+        <p className="text-[11px] font-medium uppercase text-[#626874]">
           Student Portal
         </p>
         {studentInfo ? (
           <>
-            <h1 className="mt-3 text-3xl font-semibold">
+            <h1 className="mt-2 text-xl font-semibold text-[#2d3442]">
               Hello, {studentInfo.firstName} {studentInfo.lastName}!
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-fuchsia-50">
+            <p className="mt-1 max-w-xl text-xs leading-5 text-[#626874]">
               Class: {studentInfo.className} · Section: {studentInfo.sectionName} · Admission: {studentInfo.admissionNumber}
             </p>
           </>
         ) : (
           <>
-            <h1 className="mt-3 text-3xl font-semibold">Welcome Student!</h1>
-            <p className="mt-2 text-sm text-fuchsia-50">
+            <h1 className="mt-2 text-xl font-semibold text-[#2d3442]">Welcome student</h1>
+            <p className="mt-1 text-xs text-[#626874]">
               No registry profile found. Contact administration to complete your enrollment.
             </p>
           </>
         )}
       </section>
 
-      {/* Portal content */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left column: News & Announcements */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Daily News */}
-          <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
-            <h2 className="text-lg font-semibold text-primary">Campus News & Notices</h2>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-4">
+          <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+            <h2 className="text-sm font-semibold text-primary">Campus news and notices</h2>
             <div className="space-y-3">
               {dailyNews.map((news) => (
                 <div 
                   key={news.id} 
-                  className="rounded-xl border p-4 space-y-2"
+                  className="space-y-2 rounded-md border p-3"
                   style={{ backgroundColor: "var(--bg-surface-2)", borderColor: "var(--border-default)" }}
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <span className="inline-flex rounded-full bg-fuchsia-50 border border-fuchsia-200 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-700">
+                    <span className="inline-flex rounded-sm border border-[#d9e0f6] bg-[#edf1fd] px-1.5 py-0.5 text-[10px] font-semibold text-[#31477f]">
                       {news.tag}
                     </span>
                     <span className="text-xs text-muted">{news.date}</span>
                   </div>
                   <h3 className="font-semibold text-primary">{news.title}</h3>
-                  <p className="text-sm text-secondary leading-relaxed">{news.content}</p>
+                  <p className="text-xs leading-relaxed text-secondary">{news.content}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* Assignments */}
-          <section className="rounded-2xl border p-5 shadow-sm space-y-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
-            <h2 className="text-lg font-semibold text-primary">Upcoming Assignments</h2>
+          <section className="space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+            <h2 className="text-sm font-semibold text-primary">Upcoming assignments</h2>
             {studentAssignments.length === 0 ? (
-              <p className="text-sm text-muted py-4 text-center border border-dashed rounded-xl" style={{ borderColor: "var(--border-default)" }}>
+              <p className="rounded-md border border-dashed py-4 text-center text-sm text-muted" style={{ borderColor: "var(--border-default)" }}>
                 No upcoming assignments posted for your class section.
               </p>
             ) : (
@@ -169,18 +164,18 @@ export default async function StudentHomePage() {
                 {studentAssignments.map((asn) => (
                   <div 
                     key={asn.id} 
-                    className="rounded-xl border p-4 space-y-2 hover:border-fuchsia-300 transition"
+                    className="space-y-2 rounded-md border p-3 transition hover:border-[#b9c5e8]"
                     style={{ borderColor: "var(--border-default)" }}
                   >
                     <div className="flex justify-between items-center gap-2">
                       <h3 className="font-semibold text-primary">{asn.title}</h3>
-                      <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
+                      <span className="rounded-sm border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                         Due: {String(asn.dueDate)}
                       </span>
                     </div>
                     {asn.description && <p className="text-xs text-secondary">{asn.description}</p>}
                     {asn.filePath && (
-                      <div className="flex items-center gap-1.5 text-xs text-fuchsia-700 font-mono">
+                      <div className="flex items-center gap-1.5 font-mono text-xs text-[#3f5ca8]">
                         <span>📎</span>
                         <a href="#" className="hover:underline">{asn.filePath}</a>
                       </div>
@@ -192,20 +187,19 @@ export default async function StudentHomePage() {
           </section>
         </div>
 
-        {/* Right column: Report Card */}
-        <section className="rounded-2xl border p-5 shadow-sm space-y-4 h-fit" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
+        <section className="h-fit space-y-4 rounded-md border p-4 shadow-[0_1px_2px_rgba(23,30,44,.04)]" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-default)" }}>
           <div>
-            <h2 className="text-lg font-semibold text-primary">Academic Progress</h2>
+            <h2 className="text-sm font-semibold text-primary">Academic progress</h2>
             <p className="text-xs text-muted">{reportCard.term}</p>
           </div>
 
-          <div className="rounded-xl bg-fuchsia-50/50 border border-fuchsia-100 p-4 text-center">
-            <div className="text-xs uppercase tracking-[0.14em] text-fuchsia-800 font-semibold">Cumulative GPA</div>
-            <div className="mt-1 text-3xl font-bold text-fuchsia-950">{reportCard.gpa}</div>
+          <div className="rounded-md border border-[#d9e0f6] bg-[#edf1fd] p-4 text-center">
+            <div className="text-xs font-semibold uppercase text-[#31477f]">Cumulative GPA</div>
+            <div className="mt-1 text-2xl font-bold text-[#24355f]">{reportCard.gpa}</div>
           </div>
 
           <div className="space-y-3">
-            <div className="text-sm font-semibold text-primary">Subject Grades</div>
+            <div className="text-sm font-semibold text-primary">Subject grades</div>
             <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
               {reportCard.subjects.map((subj) => (
                 <div key={subj.name} className="flex justify-between items-center py-2.5">
@@ -213,7 +207,7 @@ export default async function StudentHomePage() {
                     <div className="text-sm font-medium text-primary">{subj.name}</div>
                     <div className="text-[10px] text-muted">{subj.marks}</div>
                   </div>
-                  <span className="text-sm font-bold text-fuchsia-800">{subj.grade}</span>
+                  <span className="text-sm font-bold text-[#3f5ca8]">{subj.grade}</span>
                 </div>
               ))}
             </div>

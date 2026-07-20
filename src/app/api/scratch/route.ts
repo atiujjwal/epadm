@@ -7,7 +7,8 @@ export async function GET() {
     const gitDiff = execSync("git diff src/styles/globals.css", { encoding: "utf-8" });
     const gitStatus = execSync("git status", { encoding: "utf-8" });
     return NextResponse.json({ success: true, gitStatus, gitDiff });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message, stderr: error.stderr?.toString() });
+  } catch (error: unknown) {
+    const details = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ success: false, error: details });
   }
 }
