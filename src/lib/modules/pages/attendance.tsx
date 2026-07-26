@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeader } from "@/components/workspace/app-shell";
+import { AppShell, PageHeader } from "@/components/workspace/app-shell";
 import { InnerRail, type InnerRailGroup } from "@/components/workspace/inner-rail";
 import { PageToolbar, Pagination } from "@/components/workspace/page-toolbar";
 import { ExportMenu } from "@/components/workspace/export-menu";

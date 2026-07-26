@@ -64,13 +64,7 @@ const rail: InnerRailGroup[] = [
 ];
 
 function buildFlows(members: TenantMemberRecord[], roleOptions: readonly UserRole[]) {
-  const memberRows = members.map((m) => [
-    m.name,
-    m.email,
-    m.role,
-    m.isActive ? "Active" : "Inactive",
-    (typeof m.joinedAt === "string" ? m.joinedAt : m.joinedAt.toISOString()).slice(0, 10),
-  ]);
+  const memberRows = members.map((m) => [m.name, m.email, m.role, m.isActive ? "Active" : "Inactive", m.joinedAt.slice(0, 10)]);
 
   const mk = (title: string, subtitle: string, extra?: Partial<ModuleFlow>): ModuleFlow => ({
     title,

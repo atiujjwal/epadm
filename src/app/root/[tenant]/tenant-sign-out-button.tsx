@@ -8,7 +8,7 @@ export function TenantSignOutButton() {
 
   async function handleSignOut() {
     await fetchWithCsrf("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/#login");
     router.refresh();
   }
 

@@ -1,1 +1,5 @@
-// Deprecated: using postcss.config.mjs instead
+module.exports = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};

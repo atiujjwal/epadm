@@ -137,7 +137,7 @@ export function ProvisionTenantForm({ trigger }: Props) {
                     minLength={6}
                     required
                   />
-                  <p className="text-xs text-muted mt-1">The tenant admin will use this password to sign in at /login.</p>
+                  <p className="text-xs text-muted mt-1">The tenant admin will use this password to sign in from the homepage.</p>
                 </FormItem>
 
                 <FormItem>

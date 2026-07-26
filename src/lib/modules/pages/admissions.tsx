@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/workspace/app-shell";
+import { AppShell, PageHeader } from "@/components/workspace/app-shell";
 import { Button } from "@/components/ui/button-base";
 import { Badge } from "@/components/ui/badge";
 import { admissions } from "@/data/mock";

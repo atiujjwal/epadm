@@ -1,9 +1,5 @@
-import { listMobileFlags } from "@/lib/admin/mobile";
-import { getCtx } from "@/lib/context";
-import { MobileWorkspace } from "./mobile-workspace";
+import MobileModulePage from "@/lib/modules/pages/mobile";
 
-export default async function MobilePage() {
-  const ctx = await getCtx();
-  const flags = await listMobileFlags(ctx.tenantId);
-  return <MobileWorkspace initialFlags={flags} />;
+export default function Page() {
+  return <MobileModulePage />;
 }

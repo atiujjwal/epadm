@@ -1,4 +1,5 @@
 import { InputHTMLAttributes, forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   variant?: "default" | "flush";
@@ -32,35 +33,43 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
   } = props;
 
   const sizeClasses = {
-    sm: "px-3 py-2 text-sm",
-    md: "px-4 py-2.5 text-sm",
-    lg: "px-4 py-3 text-base",
+    sm: "h-8 px-2.5 text-xs",
+    md: "h-9 px-3 text-[13px]",
+    lg: "h-10 px-3.5 text-sm",
   }[size];
 
   const stateClasses = error
-    ? "border-red-500 ring-1 ring-red-100 focus:border-red-500 focus:ring-red-100"
+    ? "border-destructive focus-visible:ring-destructive/25"
     : success
-    ? "border-emerald-500 ring-1 ring-emerald-100 focus:border-emerald-500 focus:ring-emerald-100"
-    : "border-slate-200 focus:border-indigo-500 focus:ring-indigo-100";
+    ? "border-success focus-visible:ring-success/25"
+    : "border-input focus-visible:ring-ring";
 
   const variantClasses = variant === "flush"
-    ? "bg-transparent border-transparent"
-    : "bg-white border";
+    ? "border-transparent bg-transparent shadow-none"
+    : "border bg-background shadow-sm";
 
   return (
-    <div className={`relative w-full ${leftElement ? 'pl-10' : ''} ${rightElement ? 'pr-10' : ''}`}>
+    <div className="relative w-full">
       {leftElement && (
-        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-slate-500">
+        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-muted-foreground">
           {leftElement}
         </span>
       )}
       <input
         ref={ref}
-        className={`block w-full rounded-xl text-slate-900 outline-none transition duration-200 ${sizeClasses} ${variantClasses} ${stateClasses} ${className}`}
+        className={cn(
+          "block w-full rounded-md text-foreground outline-none transition-colors placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2",
+          sizeClasses,
+          variantClasses,
+          stateClasses,
+          leftElement && "pl-9",
+          rightElement && "pr-9",
+          className,
+        )}
         {...rest}
       />
       {rightElement && (
-        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
           {rightElement}
         </span>
       )}

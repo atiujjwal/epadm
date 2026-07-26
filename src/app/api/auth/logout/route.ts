@@ -17,6 +17,6 @@ export async function GET(req: Request) {
   cookieStore.set("platform_session", "", { maxAge: 0, path: "/" });
   
   const url = new URL(req.url);
-  const loginUrl = new URL("/login", url.origin);
+  const loginUrl = new URL("/#login", url.origin);
   return NextResponse.redirect(loginUrl);
 }

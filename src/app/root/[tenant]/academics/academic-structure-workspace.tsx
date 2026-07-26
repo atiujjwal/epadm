@@ -16,7 +16,7 @@ type ClassRecord = {
   status: string;
   homeroomStaffId: string | null;
   homeroomStaffName: string | null;
-  createdAt: string | Date;
+  createdAt: string;
 };
 
 type SectionRecord = {
@@ -27,7 +27,7 @@ type SectionRecord = {
   name: string;
   capacity: number | null;
   status: string;
-  createdAt: string | Date;
+  createdAt: string;
 };
 
 type EnrollmentRecord = {
@@ -43,7 +43,7 @@ type EnrollmentRecord = {
   rollNumber: string | null;
   status: string;
   enrolledOn: string | null;
-  createdAt: string | Date;
+  createdAt: string;
 };
 
 type StudentOption = { id: string; label: string; admissionNumber: string };

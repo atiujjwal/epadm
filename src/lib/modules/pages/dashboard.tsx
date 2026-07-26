@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/workspace/app-shell";
+import { AppShell, PageHeader } from "@/components/workspace/app-shell";
 import { ExportMenu } from "@/components/workspace/export-menu";
 import { Button } from "@/components/ui/button-base";
 import { Badge } from "@/components/ui/badge";
@@ -156,7 +156,7 @@ export default function Dashboard({ liveStats }: Props) {
             </div>
             <p className="text-[13px] leading-relaxed">
               Attendance held above 94% for the fifth straight day. <span className="font-medium">₹8.42 L</span> collected so far today across{" "}
-              <span className="font-medium">47 receipts</span>. 3 classes still have not submitted attendance for today, and{" "}
+              <span className="font-medium">47 receipts</span>. 3 classes still haven't submitted attendance for today, and{" "}
               <span className="font-medium">7 students</span> celebrate a birthday today — draft messages are ready.
             </p>
           </div>

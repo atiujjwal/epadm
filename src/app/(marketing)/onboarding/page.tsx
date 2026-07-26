@@ -79,11 +79,11 @@ function OnboardingContent() {
 
       <div className="onboarding-page__actions">
         <Button
-          onClick={() => router.push("/login")}
+          onClick={() => router.push("/#login")}
           variant="primary"
           className="w-full justify-center"
         >
-          Proceed to Login
+          Proceed to sign in
         </Button>
       </div>
     </Card>

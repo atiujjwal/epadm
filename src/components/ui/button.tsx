@@ -14,25 +14,13 @@ import {
 } from "./button-base";
 import { cn } from "@/lib/utils";
 
-type LegacyVariant =
-  | "primary"
-  | "secondary"
-  | "ghost"
-  | "danger"
-  | NonNullable<ShadcnButtonProps["variant"]>;
+type LegacyVariant = "primary" | "secondary" | "ghost" | "danger" | NonNullable<ShadcnButtonProps["variant"]>;
 type LegacySize = "sm" | "md" | "lg" | "xl" | NonNullable<ShadcnButtonProps["size"]>;
 
 function mapVariant(variant?: LegacyVariant): NonNullable<ShadcnButtonProps["variant"]> {
   if (variant === "primary") return "default";
   if (variant === "danger") return "destructive";
-  if (
-    variant === "secondary" ||
-    variant === "ghost" ||
-    variant === "outline" ||
-    variant === "link" ||
-    variant === "destructive" ||
-    variant === "default"
-  ) {
+  if (variant === "secondary" || variant === "ghost" || variant === "outline" || variant === "link" || variant === "destructive" || variant === "default") {
     return variant;
   }
   return "default";
@@ -72,6 +60,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
       iconOnly = false,
       className,
       children,
+      ...rest
     } = props;
 
     const mappedVariant = mapVariant(variant);
@@ -84,47 +73,28 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonEl
     );
 
     if ("href" in props && props.href) {
-      const {
-        href,
-        variant: _av,
-        size: _as,
-        icon: _ai,
-        iconOnly: _aio,
-        className: _ac,
-        children: _ach,
-        ...anchorRest
-      } = props as ButtonAnchorProps;
+      const { href, ...anchorRest } = props as ButtonAnchorProps;
       return (
         <Link
           ref={ref as React.Ref<HTMLAnchorElement>}
           href={href}
           className={cn(buttonVariants({ variant: mappedVariant, size: mappedSize }), className)}
-          {...anchorRest}
+          {...(anchorRest as AnchorHTMLAttributes<HTMLAnchorElement>)}
         >
           {content}
         </Link>
       );
     }
 
-    const {
-      variant: _v,
-      size: _s,
-      icon: _i,
-      iconOnly: _io,
-      className: _c,
-      children: _ch,
-      type,
-      ...nativeButtonProps
-    } = props as ButtonProps;
-
+    const buttonProps = rest as ButtonProps;
     return (
       <ShadcnButton
         ref={ref as React.Ref<HTMLButtonElement>}
         variant={mappedVariant}
         size={mappedSize}
         className={className}
-        type={type ?? "button"}
-        {...nativeButtonProps}
+        type={buttonProps.type ?? "button"}
+        {...buttonProps}
       >
         {content}
       </ShadcnButton>

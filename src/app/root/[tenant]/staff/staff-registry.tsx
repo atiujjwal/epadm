@@ -25,7 +25,7 @@ type StaffRecord = {
   joinedOn: string | null;
   status: string;
   notes: string | null;
-  createdAt: string | Date;
+  createdAt: string;
 };
 
 type Props = {

@@ -22,7 +22,7 @@ export function AppTopbar({
 
   async function handleDefaultSignOut() {
     await fetchWithCsrf("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/#login");
     router.refresh();
   }
 

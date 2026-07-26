@@ -16,31 +16,31 @@ todos:
     status: completed
   - id: dashboard-marketing
     content: "Phase 4a: Port dashboard bento + marketing landing from reference"
-    status: completed
+    status: in_progress
   - id: people-modules
     content: "Phase 4b: Port students, staff, admissions, admin/RBAC — wire live CRUD into ModuleShell tabs"
     status: completed
   - id: academics-modules
     content: "Phase 4c: Port academics, attendance (InnerRail), timetable, exams"
-    status: completed
+    status: pending
   - id: operations-modules
     content: "Phase 4d: Port fees (migrate finance backend), payroll, vehicles, communications"
-    status: completed
+    status: pending
   - id: facilities-ai
     content: "Phase 4e: Port library, labs, ai-studio, intelligence, mobile, settings"
-    status: completed
+    status: pending
   - id: ops-cms
     content: "Phase 4f: Restyle ops console to match design /cms platform shell"
     status: completed
   - id: backend-wave-1
     content: "Backend Wave 1: Attendance reports, exams marks, fees tabs, academics subjects, admin audit APIs"
-    status: completed
+    status: pending
   - id: backend-wave-2
     content: "Backend Wave 2: Admissions, timetable, payroll runs, vehicles, communications schema + APIs"
-    status: completed
+    status: pending
   - id: backend-wave-3
     content: "Backend Wave 3: Library, labs, mobile config, settings/tenant profile"
-    status: completed
+    status: pending
   - id: qa
     content: "Phase 7: Visual parity QA, typecheck, lint, test, build, responsive smoke tests"
     status: completed

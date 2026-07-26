@@ -10,13 +10,6 @@ import { useAdminShell } from "@/components/layout/admin-shell-context";
 const SECTION_LABELS: Array<{ match: (path: string) => boolean; label: string }> = [
   { match: (path) => path === "/admin", label: "Overview" },
   { match: (path) => path.startsWith("/admin/tenants"), label: "School Tenants" },
-  { match: (path) => path.startsWith("/admin/plans"), label: "Plans & Modules" },
-  { match: (path) => path.startsWith("/admin/billing"), label: "Billing & Invoices" },
-  { match: (path) => path.startsWith("/admin/sms"), label: "SMS / WhatsApp" },
-  { match: (path) => path.startsWith("/admin/ai"), label: "AI Services" },
-  { match: (path) => path.startsWith("/admin/platform-users"), label: "Platform Users" },
-  { match: (path) => path.startsWith("/admin/audit"), label: "Audit Log" },
-  { match: (path) => path.startsWith("/admin/infra"), label: "Infrastructure" },
   { match: (path) => path.startsWith("/admin/login"), label: "Sign in" },
 ];
 

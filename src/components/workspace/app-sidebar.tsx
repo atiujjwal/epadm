@@ -65,7 +65,7 @@ export function AppSidebar({ ctx }: { ctx: TenantShellCtx }) {
 
   async function signOut() {
     await fetchWithCsrf("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/#login");
     router.refresh();
   }
 

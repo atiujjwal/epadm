@@ -21,7 +21,7 @@ const getBaseUrl = (): string => {
 };
 
 export const appUrls = {
-  tenantLogin: '/login',
+  tenantLogin: '/#login',
   cms: '/admin/login',
   forgotPassword: '/forgot-password',
   support: 'mailto:support@epadm.in',
@@ -83,8 +83,8 @@ export const mainNav: NavGroup[] = [
 
 export const ctaNav = {
   primary: {
-    label: 'Get Started',
-    href: '/register',
+    label: 'Request Demo',
+    href: '/demo',
   },
   tenantLogin: {
     label: 'School Login',

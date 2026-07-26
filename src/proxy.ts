@@ -30,6 +30,7 @@ function finalize(req: NextRequest, response: NextResponse) {
 const PUBLIC_PATHS = new Set<string>([
   "/",
   "/login",
+  "/register",
   "/about",
   "/contact",
   "/demo",
@@ -215,8 +216,9 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
 
   if (!userId && !isPublicPage && !pathname.startsWith("/api")) {
     const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = "/login";
+    loginUrl.pathname = "/";
     loginUrl.search = "";
+    loginUrl.hash = "login";
     return NextResponse.redirect(loginUrl);
   }
 

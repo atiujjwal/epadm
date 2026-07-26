@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import {
   Building2,
   Sparkles,
@@ -46,12 +47,40 @@ const plans = [
 
 export function LandingPage() {
   const router = useRouter();
+  const [tenantSlug, setTenantSlug] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleLoginSubmit(e: React.FormEvent) {
+  async function handleLoginSubmit(e: React.FormEvent) {
     e.preventDefault();
-    router.push("/login");
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetchWithCsrf("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tenantSlug, email, password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "Invalid school slug, email, or password.");
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      console.error("[landing-login] Unexpected error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -75,10 +104,7 @@ export function LandingPage() {
             <a href="#security" className="hover:text-foreground">Security</a>
           </nav>
           <div className="flex items-center gap-2">
-            <Link href="/login" className="text-[12px] text-muted-foreground hover:text-foreground">
-              Sign in
-            </Link>
-            <Button href="/login" size="sm" className="h-8 text-[12px]">
+            <Button href="/#login" size="sm" className="h-8 text-[12px]">
               Sign in <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </div>
@@ -102,7 +128,7 @@ export function LandingPage() {
               monitors watch dues, attendance and results in real time.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Button href="/login" className="h-10 text-[13px]">
+              <Button href="/#login" className="h-10 text-[13px]">
                 Sign in to your school <ArrowRight className="h-4 w-4 ml-1.5" />
               </Button>
               <a href="#platform" className="text-[13px] text-muted-foreground hover:text-foreground">
@@ -128,9 +154,23 @@ export function LandingPage() {
             <div className="rounded-lg border bg-surface shadow-lg p-6">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">School sign in</div>
               <h2 className="text-[18px] font-semibold tracking-tight mt-1">Welcome back</h2>
-              <p className="text-[12px] text-muted-foreground mt-1">Use your school workspace email.</p>
+              <p className="text-[12px] text-muted-foreground mt-1">Use your school slug and workspace email.</p>
 
               <form className="mt-5 space-y-3" onSubmit={handleLoginSubmit}>
+                <div>
+                  <label className="text-[11px] font-medium text-muted-foreground" htmlFor="landing-tenant-slug">
+                    School slug
+                  </label>
+                  <Input
+                    id="landing-tenant-slug"
+                    value={tenantSlug}
+                    onChange={(e) => setTenantSlug(e.target.value.trim().toLowerCase())}
+                    placeholder="e.g. stxaviers"
+                    className="h-9 mt-1 text-[13px]"
+                    autoComplete="organization"
+                    required
+                  />
+                </div>
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground" htmlFor="landing-email">
                     Email
@@ -141,6 +181,8 @@ export function LandingPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@school.edu"
                     className="h-9 mt-1 text-[13px]"
+                    autoComplete="email"
+                    required
                   />
                 </div>
                 <div>
@@ -148,7 +190,7 @@ export function LandingPage() {
                     <label className="text-[11px] font-medium text-muted-foreground" htmlFor="landing-password">
                       Password
                     </label>
-                    <Link href="/login" className="text-[10px] text-muted-foreground hover:text-foreground">
+                    <Link href="/contact" className="text-[10px] text-muted-foreground hover:text-foreground">
                       Forgot?
                     </Link>
                   </div>
@@ -159,10 +201,17 @@ export function LandingPage() {
                     type="password"
                     placeholder="••••••••"
                     className="h-9 mt-1 text-[13px]"
+                    autoComplete="current-password"
+                    required
                   />
                 </div>
-                <Button type="submit" className="w-full h-9 text-[13px] mt-2">
-                  Continue
+                {error && (
+                  <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[11px] leading-relaxed text-destructive" role="alert">
+                    {error}
+                  </p>
+                )}
+                <Button type="submit" className="w-full h-9 text-[13px] mt-2" disabled={loading}>
+                  {loading ? "Signing in..." : "Continue"}
                 </Button>
                 <div className="relative py-1">
                   <div className="absolute inset-x-0 top-1/2 h-px bg-border" />
@@ -170,8 +219,8 @@ export function LandingPage() {
                     or
                   </div>
                 </div>
-                <Button href="/login" variant="outline" className="w-full h-9 text-[13px]">
-                  Sign in with SSO
+                <Button href="/contact" variant="outline" className="w-full h-9 text-[13px]">
+                  Need help signing in?
                 </Button>
               </form>
 
@@ -220,7 +269,7 @@ export function LandingPage() {
               comments and answering parent queries on the mobile app.
             </p>
             <div className="mt-6 flex gap-3">
-              <Button href="/login" className="h-9 text-[13px]">
+              <Button href="/#login" className="h-9 text-[13px]">
                 Explore AI Studio <ArrowRight className="h-4 w-4 ml-1.5" />
               </Button>
             </div>
@@ -301,6 +350,7 @@ export function LandingPage() {
             <Link href="/legal/terms" className="hover:text-foreground">Terms</Link>
             <a href="#" className="hover:text-foreground">Status</a>
             <Link href="/contact" className="hover:text-foreground">Contact</Link>
+            <Link href="/admin/login" className="hover:text-foreground">Admin</Link>
           </div>
         </div>
       </footer>

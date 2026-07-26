@@ -39,18 +39,18 @@ export default function OnboardingPage() {
 
         <div className="onboarding-page__actions">
           <Button
-            href="/login"
+            href="/#login"
             variant="primary"
             className="flex-1 justify-center"
           >
             Go to sign in
           </Button>
           <Button
-            href="/register"
+            href="/contact"
             variant="secondary"
             className="flex-1 justify-center"
           >
-            Register another school
+            Contact EPADM
           </Button>
         </div>
       </Card>

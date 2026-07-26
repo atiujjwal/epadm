@@ -38,13 +38,13 @@ export default async function AdminLayout({ children }: Props) {
   const navItems = [
     { href: "/admin", label: "Overview", icon: <Layers className="h-4 w-4" /> },
     { href: "/admin/tenants", label: "School Tenants", icon: <Building2 className="h-4 w-4" /> },
-    { href: "/admin/plans", label: "Plans & Modules", icon: <Package className="h-4 w-4" /> },
-    { href: "/admin/billing", label: "Billing & Invoices", icon: <Package className="h-4 w-4" /> },
-    { href: "/admin/sms", label: "SMS / WhatsApp", icon: <MessageSquare className="h-4 w-4" /> },
-    { href: "/admin/ai", label: "AI Services", icon: <Sparkles className="h-4 w-4" /> },
-    { href: "/admin/platform-users", label: "Platform Users", icon: <Users className="h-4 w-4" /> },
-    { href: "/admin/audit", label: "Audit Log", icon: <ShieldCheck className="h-4 w-4" /> },
-    { href: "/admin/infra", label: "Infrastructure", icon: <Server className="h-4 w-4" /> },
+    { label: "Plans & Modules", icon: <Package className="h-4 w-4" />, disabled: true },
+    { label: "Billing & Invoices", icon: <Package className="h-4 w-4" />, disabled: true },
+    { label: "SMS / WhatsApp", icon: <MessageSquare className="h-4 w-4" />, disabled: true },
+    { label: "AI Services", icon: <Sparkles className="h-4 w-4" />, disabled: true },
+    { label: "Platform Users", icon: <Users className="h-4 w-4" />, disabled: true },
+    { label: "Audit Log", icon: <ShieldCheck className="h-4 w-4" />, disabled: true },
+    { label: "Infrastructure", icon: <Server className="h-4 w-4" />, disabled: true },
   ];
 
   return (
