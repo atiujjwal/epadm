@@ -1,6 +1,6 @@
-import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { writeAuditLog } from "@/lib/audit";
-import { staffProfiles, students } from "@/lib/db";
+import { staffDepartments, staffProfiles, students } from "@/lib/db";
 import { withTenant } from "@/lib/rls";
 
 export const STUDENT_READ_PERMISSION = "students.read" as const;
@@ -32,10 +32,26 @@ export type StaffRecord = {
   phone: string | null;
   department: string | null;
   jobTitle: string | null;
+  dateOfBirth: string | null;
   employmentType: string;
   joinedOn: string | null;
   status: string;
   notes: string | null;
+  createdAt: Date;
+};
+
+export type StaffDepartmentRecord = {
+  id: string;
+  code: string | null;
+  name: string;
+  description: string | null;
+  headStaffId: string | null;
+  headName: string | null;
+  isSystem: boolean;
+  status: string;
+  vacancies: number;
+  headcount: number;
+  activeCount: number;
   createdAt: Date;
 };
 
@@ -72,12 +88,35 @@ export type CreateStaffInput = {
   phone?: string;
   department?: string;
   jobTitle?: string;
+  dateOfBirth: string;
   employmentType?: string;
   joinedOn?: string;
   status?: string;
   notes?: string;
   ipAddress?: string | null;
   userAgent?: string | null;
+};
+
+export type UpdateStaffInput = Omit<CreateStaffInput, "dateOfBirth"> & {
+  id: string;
+  dateOfBirth?: string;
+};
+
+export type StaffDepartmentInput = {
+  tenantId: string;
+  actorUserId: string;
+  code?: string;
+  name: string;
+  description?: string;
+  headStaffId?: string;
+  status?: string;
+  vacancies?: number;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+};
+
+export type UpdateStaffDepartmentInput = StaffDepartmentInput & {
+  id: string;
 };
 
 function clean(value?: string | null) {
@@ -88,6 +127,44 @@ function clean(value?: string | null) {
 function normalizeCode(value: string) {
   return value.trim().toUpperCase();
 }
+
+const DEFAULT_STAFF_DEPARTMENTS = [
+  {
+    code: "ACAD",
+    name: "Academics / Faculty",
+    description: "Teaching faculty, curriculum planning, and academic delivery",
+  },
+  {
+    code: "ADMIN",
+    name: "Administration & HR",
+    description: "School administration, HR operations, and office coordination",
+  },
+  {
+    code: "FIN",
+    name: "Accounts & Finance",
+    description: "Accounts, fees, payroll, budgeting, and finance operations",
+  },
+  {
+    code: "HEALTH",
+    name: "Student Services & Health",
+    description: "Student wellbeing, counselling, health, and support services",
+  },
+  {
+    code: "LIB",
+    name: "Library & Resources",
+    description: "Library operations, learning resources, and media assets",
+  },
+  {
+    code: "TRANS",
+    name: "Facilities & Transport",
+    description: "Campus facilities, maintenance, security, and transport",
+  },
+  {
+    code: "IT",
+    name: "IT & Support",
+    description: "IT systems, helpdesk support, devices, and infrastructure",
+  },
+] as const;
 
 export async function listStudents(tenantId: string, search?: string) {
   const rows = await withTenant(tenantId, (tx) =>
@@ -142,6 +219,7 @@ export async function listStaff(tenantId: string, search?: string) {
         phone: staffProfiles.phone,
         department: staffProfiles.department,
         jobTitle: staffProfiles.jobTitle,
+        dateOfBirth: staffProfiles.dateOfBirth,
         employmentType: staffProfiles.employmentType,
         joinedOn: staffProfiles.joinedOn,
         status: staffProfiles.status,
@@ -167,8 +245,77 @@ export async function listStaff(tenantId: string, search?: string) {
 
   return rows.map((row) => ({
     ...row,
+    dateOfBirth: row.dateOfBirth ? String(row.dateOfBirth) : null,
     joinedOn: row.joinedOn ? String(row.joinedOn) : null,
   })) satisfies StaffRecord[];
+}
+
+export async function listStaffDepartments(tenantId: string): Promise<StaffDepartmentRecord[]> {
+  await seedDefaultDepartments(tenantId);
+
+  const rows = await withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: staffDepartments.id,
+        code: staffDepartments.code,
+        name: staffDepartments.name,
+        description: staffDepartments.description,
+        headStaffId: staffDepartments.headStaffId,
+        headName: staffProfiles.fullName,
+        isSystem: staffDepartments.isSystem,
+        status: staffDepartments.status,
+        vacancies: staffDepartments.vacancies,
+        createdAt: staffDepartments.createdAt,
+      })
+      .from(staffDepartments)
+      .leftJoin(staffProfiles, eq(staffDepartments.headStaffId, staffProfiles.id))
+      .where(eq(staffDepartments.tenantId, tenantId))
+      .orderBy(asc(staffDepartments.name)),
+  );
+
+  const staff = await listStaff(tenantId);
+
+  return rows.map((row) => {
+    const members = staff.filter((member) => member.department === row.name);
+    return {
+      ...row,
+      headcount: members.length,
+      activeCount: members.filter((member) => member.status === "active").length,
+    };
+  });
+}
+
+export async function seedDefaultDepartments(tenantId: string) {
+  return withTenant(tenantId, async (tx) => {
+    for (const item of DEFAULT_STAFF_DEPARTMENTS) {
+      const existing = await tx.query.staffDepartments.findFirst({
+        where: and(eq(staffDepartments.tenantId, tenantId), eq(staffDepartments.code, item.code)),
+      });
+
+      if (existing) {
+        await tx
+          .update(staffDepartments)
+          .set({
+            name: item.name,
+            description: item.description,
+            isSystem: true,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(staffDepartments.tenantId, tenantId), eq(staffDepartments.id, existing.id)));
+        continue;
+      }
+
+      await tx.insert(staffDepartments).values({
+        tenantId,
+        code: item.code,
+        name: item.name,
+        description: item.description,
+        isSystem: true,
+        status: "active",
+        vacancies: 0,
+      });
+    }
+  });
 }
 
 export async function getStudentSummary(tenantId: string): Promise<RegistrySummary> {
@@ -286,6 +433,7 @@ export async function createStaffProfile(input: CreateStaffInput) {
         phone: clean(input.phone),
         department: clean(input.department),
         jobTitle: clean(input.jobTitle),
+        dateOfBirth: input.dateOfBirth,
         employmentType: clean(input.employmentType) ?? "full_time",
         joinedOn: clean(input.joinedOn),
         status: clean(input.status) ?? "active",
@@ -309,5 +457,202 @@ export async function createStaffProfile(input: CreateStaffInput) {
     });
 
     return staff;
+  });
+}
+
+export async function updateStaffProfile(input: UpdateStaffInput) {
+  const employeeCode = normalizeCode(input.employeeCode);
+
+  return withTenant(input.tenantId, async (tx) => {
+    const existing = await tx.query.staffProfiles.findFirst({
+      where: and(
+        eq(staffProfiles.tenantId, input.tenantId),
+        eq(staffProfiles.id, input.id),
+      ),
+    });
+
+    if (!existing) {
+      throw new Error("Staff record not found.");
+    }
+
+    const duplicate = await tx.query.staffProfiles.findFirst({
+      where: and(
+        eq(staffProfiles.tenantId, input.tenantId),
+        eq(staffProfiles.employeeCode, employeeCode),
+        ne(staffProfiles.id, input.id),
+      ),
+    });
+
+    if (duplicate) {
+      throw new Error("A staff member with this employee code already exists.");
+    }
+
+    const [staff] = await tx
+      .update(staffProfiles)
+      .set({
+        employeeCode,
+        fullName: input.fullName.trim(),
+        email: clean(input.email),
+        phone: clean(input.phone),
+        department: clean(input.department),
+        jobTitle: clean(input.jobTitle),
+        dateOfBirth: clean(input.dateOfBirth) ?? existing.dateOfBirth,
+        employmentType: clean(input.employmentType) ?? "full_time",
+        joinedOn: clean(input.joinedOn),
+        status: clean(input.status) ?? "active",
+        notes: clean(input.notes),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(staffProfiles.tenantId, input.tenantId), eq(staffProfiles.id, input.id)))
+      .returning();
+
+    await writeAuditLog(tx, {
+      tenantId: input.tenantId,
+      actorUserId: input.actorUserId,
+      action: "staff_profile.updated",
+      entityType: "staff_profile",
+      entityId: staff.id,
+      metadata: { employeeCode, department: staff.department, jobTitle: staff.jobTitle },
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+    });
+
+    return staff;
+  });
+}
+
+export async function deleteStaffProfile(input: {
+  tenantId: string;
+  actorUserId: string;
+  id: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+}) {
+  return withTenant(input.tenantId, async (tx) => {
+    const [deleted] = await tx
+      .delete(staffProfiles)
+      .where(and(eq(staffProfiles.tenantId, input.tenantId), eq(staffProfiles.id, input.id)))
+      .returning();
+
+    if (!deleted) {
+      throw new Error("Staff record not found.");
+    }
+
+    await writeAuditLog(tx, {
+      tenantId: input.tenantId,
+      actorUserId: input.actorUserId,
+      action: "staff_profile.deleted",
+      entityType: "staff_profile",
+      entityId: deleted.id,
+      metadata: { employeeCode: deleted.employeeCode },
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+    });
+
+    return deleted;
+  });
+}
+
+export async function createStaffDepartment(input: StaffDepartmentInput) {
+  const code = clean(input.code) ? normalizeCode(input.code!) : null;
+
+  return withTenant(input.tenantId, async (tx) => {
+    if (code) {
+      const existing = await tx.query.staffDepartments.findFirst({
+        where: and(eq(staffDepartments.tenantId, input.tenantId), eq(staffDepartments.code, code)),
+      });
+      if (existing) throw new Error("A department with this code already exists.");
+    }
+
+    const [department] = await tx
+      .insert(staffDepartments)
+      .values({
+        tenantId: input.tenantId,
+        code,
+        name: input.name.trim(),
+        description: clean(input.description),
+        headStaffId: clean(input.headStaffId),
+        status: clean(input.status) ?? "active",
+        vacancies: input.vacancies ?? 0,
+      })
+      .returning();
+
+    await writeAuditLog(tx, {
+      tenantId: input.tenantId,
+      actorUserId: input.actorUserId,
+      action: "staff_department.created",
+      entityType: "staff_department",
+      entityId: department.id,
+      metadata: { code, name: department.name },
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+    });
+
+    return department;
+  });
+}
+
+export async function updateStaffDepartment(input: UpdateStaffDepartmentInput) {
+  const code = clean(input.code) ? normalizeCode(input.code!) : null;
+
+  return withTenant(input.tenantId, async (tx) => {
+    if (code) {
+      const duplicate = await tx.query.staffDepartments.findFirst({
+        where: and(
+          eq(staffDepartments.tenantId, input.tenantId),
+          eq(staffDepartments.code, code),
+          ne(staffDepartments.id, input.id),
+        ),
+      });
+      if (duplicate) throw new Error("A department with this code already exists.");
+    }
+
+    const [department] = await tx
+      .update(staffDepartments)
+      .set({
+        code,
+        name: input.name.trim(),
+        description: clean(input.description),
+        headStaffId: clean(input.headStaffId),
+        status: clean(input.status) ?? "active",
+        vacancies: input.vacancies ?? 0,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(staffDepartments.tenantId, input.tenantId), eq(staffDepartments.id, input.id)))
+      .returning();
+
+    if (!department) throw new Error("Department not found.");
+    return department;
+  });
+}
+
+export async function deleteStaffDepartment(input: { tenantId: string; id: string }) {
+  return withTenant(input.tenantId, async (tx) => {
+    const department = await tx.query.staffDepartments.findFirst({
+      where: and(eq(staffDepartments.tenantId, input.tenantId), eq(staffDepartments.id, input.id)),
+    });
+    if (!department) throw new Error("Department not found.");
+    if (department.isSystem) throw new Error("System default departments cannot be deleted");
+
+    const [member] = await tx
+      .select({ id: staffProfiles.id })
+      .from(staffProfiles)
+      .where(
+        and(
+          eq(staffProfiles.tenantId, input.tenantId),
+          eq(staffProfiles.department, department.name),
+          eq(staffProfiles.status, "active"),
+        ),
+      )
+      .limit(1);
+
+    if (member) throw new Error("Cannot delete a department with assigned staff.");
+
+    const [deleted] = await tx
+      .delete(staffDepartments)
+      .where(and(eq(staffDepartments.tenantId, input.tenantId), eq(staffDepartments.id, input.id)))
+      .returning();
+
+    return deleted;
   });
 }

@@ -7,6 +7,10 @@ import {
 } from "./lib/platform/auth/token";
 import { attachCsrfCookie, validateCsrf } from "./lib/security/csrf";
 import { checkAuthRateLimit } from "./lib/security/rate-limit";
+import {
+  canManageOnboarding,
+  getOnboardingStatusForGate,
+} from "./lib/onboarding/gate";
 
 /**
  * True only for control-plane (ops) routes under `/admin`. Must match `/admin`
@@ -250,6 +254,34 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
+  }
+
+  if (userId) {
+    const onboardingStatus = await getOnboardingStatusForGate(tenantId);
+    const isOnboardingPath = pathname === "/onboarding" || pathname.startsWith("/onboarding/");
+    const isSetupPendingPath = pathname === "/setup-pending" || pathname.startsWith("/setup-pending/");
+    const incomplete = onboardingStatus !== "COMPLETED";
+
+    if (incomplete && canManageOnboarding(userRole) && !isOnboardingPath) {
+      const onboardingUrl = req.nextUrl.clone();
+      onboardingUrl.pathname = "/onboarding";
+      onboardingUrl.search = "";
+      return NextResponse.redirect(onboardingUrl);
+    }
+
+    if (incomplete && !canManageOnboarding(userRole) && !isSetupPendingPath) {
+      const pendingUrl = req.nextUrl.clone();
+      pendingUrl.pathname = "/setup-pending";
+      pendingUrl.search = "";
+      return NextResponse.redirect(pendingUrl);
+    }
+
+    if (!incomplete && (isOnboardingPath || isSetupPendingPath)) {
+      const appUrl = req.nextUrl.clone();
+      appUrl.pathname = "/";
+      appUrl.search = "";
+      return NextResponse.redirect(appUrl);
+    }
   }
 
   const url = req.nextUrl.clone();

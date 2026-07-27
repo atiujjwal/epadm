@@ -92,6 +92,34 @@
       "when": 1784655649127,
       "tag": "0012_typical_mach_iv",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1785033000000,
+      "tag": "0013_academic_years_class_teacher_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1785119400000,
+      "tag": "0014_staff_dob_departments",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1785205800000,
+      "tag": "0015_staff_system_departments",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1785292200000,
+      "tag": "0016_tenant_onboarding_wizard",
+      "breakpoints": true
     }
   ]
 }

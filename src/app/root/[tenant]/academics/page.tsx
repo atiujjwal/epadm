@@ -1,8 +1,10 @@
 import {
   getAcademicStructureSummary,
+  listAcademicYears,
   listClasses,
   listEnrollments,
   listSections,
+  listTeacherStaff,
 } from "@/lib/admin/academic-structure";
 import { listStaff, listStudents } from "@/lib/admin/registries";
 import { listSubjects } from "@/lib/admin/subjects";
@@ -11,13 +13,25 @@ import { AcademicsWorkspace } from "./academics-workspace";
 
 export default async function AcademicsPage() {
   const ctx = await getCtx();
-  const [classes, sections, enrollments, staff, students, subjects, summary] = await Promise.all([
+  const [
+    classes,
+    sections,
+    enrollments,
+    staff,
+    teacherOptions,
+    students,
+    subjects,
+    academicYears,
+    summary,
+  ] = await Promise.all([
     listClasses(ctx.tenantId),
     listSections(ctx.tenantId),
     listEnrollments(ctx.tenantId),
     listStaff(ctx.tenantId),
+    listTeacherStaff(ctx.tenantId),
     listStudents(ctx.tenantId),
     listSubjects(ctx.tenantId),
+    listAcademicYears(ctx.tenantId),
     getAcademicStructureSummary(ctx.tenantId),
   ]);
 
@@ -38,8 +52,10 @@ export default async function AcademicsPage() {
       sections={sections}
       enrollments={enrollments}
       staffOptions={staffOptions}
+      teacherOptions={teacherOptions}
       studentOptions={studentOptions}
       subjects={subjects}
+      academicYears={academicYears}
       summary={{
         classCount: summary.classCount,
         sectionCount: summary.sectionCount,

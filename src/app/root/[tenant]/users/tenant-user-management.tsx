@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { FormError, FormSuccess } from "@/components/ui/form";
 
 type UserRole =
+  | "superadmin"
   | "admin"
   | "teacher"
   | "student"
@@ -39,6 +40,7 @@ type Props = {
 };
 
 const roleLabels: Record<UserRole, string> = {
+  superadmin: "Superadmin",
   admin: "Admin",
   teacher: "Teacher",
   student: "Student",

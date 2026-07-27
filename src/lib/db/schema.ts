@@ -1,4 +1,7 @@
 import {
+  sql,
+} from "drizzle-orm";
+import {
   date,
   integer,
   index,
@@ -66,6 +69,18 @@ export const tenants = pgTable(
     phone: varchar("phone", { length: 20 }),
     email: varchar("email", { length: 255 }),
     affiliationBoard: varchar("affiliation_board", { length: 50 }),
+    onboardingStatus: varchar("onboarding_status", { length: 20 })
+      .$type<OnboardingStatus>()
+      .notNull()
+      .default("PENDING"),
+    onboardingStep: integer("onboarding_step").notNull().default(1),
+    foundationYear: integer("foundation_year"),
+    shortName: varchar("short_name", { length: 80 }),
+    academicYearStart: date("academic_year_start"),
+    onboardingDraft: jsonb("onboarding_draft")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
     subscriptionTier: varchar("subscription_tier", { length: 20 }).notNull().default("basic"),
     subscriptionExpiresAt: timestamp("subscription_expires_at", {
       withTimezone: true,
@@ -83,7 +98,10 @@ export const tenants = pgTable(
   },
 );
 
+export type OnboardingStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
+
 export type UserRole =
+  | "superadmin"
   | "admin"
   | "teacher"
   | "student"
@@ -93,6 +111,7 @@ export type UserRole =
   | "librarian";
 
 export const USER_ROLES = [
+  "superadmin",
   "admin",
   "teacher",
   "student",
@@ -151,7 +170,7 @@ export const tenantUsers = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    role: varchar("role", { length: 30 }).notNull(),
+    role: varchar("role", { length: 30 }).$type<UserRole>().notNull(),
     isActive: boolean("is_active").notNull().default(true),
     joinedAt: timestamp("joined_at", { withTimezone: true })
       .notNull()
@@ -299,6 +318,7 @@ export const staffProfiles = pgTable(
     phone: varchar("phone", { length: 20 }),
     department: varchar("department", { length: 120 }),
     jobTitle: varchar("job_title", { length: 120 }),
+    dateOfBirth: date("date_of_birth"),
     employmentType: varchar("employment_type", { length: 40 })
       .notNull()
       .default("full_time"),
@@ -326,6 +346,74 @@ export const staffProfiles = pgTable(
   },
 );
 
+export const staffDepartments = pgTable(
+  "staff_departments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 40 }),
+    name: varchar("name", { length: 120 }).notNull(),
+    description: text("description"),
+    headStaffId: uuid("head_staff_id").references(() => staffProfiles.id, {
+      onDelete: "set null",
+    }),
+    isSystem: boolean("is_system").notNull().default(false),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    vacancies: integer("vacancies").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      tenantDeptCodeUnique: uniqueIndex("staff_departments_tenant_code_unique").on(
+        table.tenantId,
+        table.code,
+      ),
+      tenantDeptStatusIdx: index("staff_departments_tenant_status_idx").on(
+        table.tenantId,
+        table.status,
+      ),
+    };
+  },
+);
+
+export const academicYears = pgTable(
+  "academic_years",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 20 }).notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    isCurrent: boolean("is_current").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      tenantYearNameUnique: uniqueIndex("academic_years_tenant_name_unique").on(
+        table.tenantId,
+        table.name,
+      ),
+      tenantCurrentYearUnique: uniqueIndex("academic_years_tenant_current_unique")
+        .on(table.tenantId)
+        .where(sql`${table.isCurrent} = true`),
+    };
+  },
+);
+
 export const academicClasses = pgTable(
   "academic_classes",
   {
@@ -336,10 +424,20 @@ export const academicClasses = pgTable(
     code: varchar("code", { length: 40 }).notNull(),
     name: varchar("name", { length: 120 }).notNull(),
     academicYear: varchar("academic_year", { length: 20 }).notNull(),
+    academicYearId: uuid("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, {
+        onDelete: "restrict",
+      }),
     status: varchar("status", { length: 20 }).notNull().default("active"),
     homeroomStaffId: uuid("homeroom_staff_id").references(() => staffProfiles.id, {
       onDelete: "set null",
     }),
+    classTeacherId: uuid("class_teacher_id")
+      .notNull()
+      .references(() => staffProfiles.id, {
+        onDelete: "restrict",
+      }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -354,10 +452,50 @@ export const academicClasses = pgTable(
         table.code,
         table.academicYear,
       ),
+      tenantClassYearIdUnique: uniqueIndex("academic_classes_tenant_code_year_id_unique").on(
+        table.tenantId,
+        table.code,
+        table.academicYearId,
+      ),
       tenantClassStatusIdx: index("academic_classes_tenant_status_idx").on(
         table.tenantId,
         table.status,
       ),
+    };
+  },
+);
+
+export const classTeacherHistory = pgTable(
+  "class_teacher_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    classId: uuid("class_id")
+      .notNull()
+      .references(() => academicClasses.id, { onDelete: "cascade" }),
+    teacherId: uuid("teacher_id")
+      .notNull()
+      .references(() => staffProfiles.id, { onDelete: "restrict" }),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date"),
+    changedByUserId: uuid("changed_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      tenantClassTeacherIdx: index("class_teacher_history_tenant_class_idx").on(
+        table.tenantId,
+        table.classId,
+      ),
+      activeClassTeacherUnique: uniqueIndex("class_teacher_history_active_unique")
+        .on(table.tenantId, table.classId)
+        .where(sql`${table.endDate} is null`),
     };
   },
 );

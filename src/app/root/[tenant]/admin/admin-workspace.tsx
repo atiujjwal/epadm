@@ -6,6 +6,7 @@ import { TenantUserManagement } from "../users/tenant-user-management";
 import { Home, Users, ShieldCheck, KeyRound, UserCog, Repeat2, LogIn, AlertTriangle, ListChecks, Scale, ScrollText } from "lucide-react";
 
 type UserRole =
+  | "superadmin"
   | "admin"
   | "teacher"
   | "student"

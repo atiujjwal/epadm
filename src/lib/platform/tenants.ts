@@ -20,6 +20,7 @@ import {
   setActiveModulesCache,
   invalidateTenantModulesCache,
 } from "@/lib/platform/tenant-cache";
+import { seedDefaultDepartments } from "@/lib/admin/registries";
 
 const TENANT_DOMAIN_SUFFIX =
   process.env.TENANT_DOMAIN_SUFFIX ?? "schoolapp.com";
@@ -86,7 +87,7 @@ export async function provisionTenant(input: ProvisionTenantInput) {
   await opsDb.insert(tenantUsers).values({
     tenantId: tenant.id,
     userId: user.id,
-    role: "admin",
+    role: "superadmin",
     isActive: true,
   });
 
@@ -112,6 +113,8 @@ export async function provisionTenant(input: ProvisionTenantInput) {
       billingCycleEnd: nextYear,
     });
   }
+
+  await seedDefaultDepartments(tenant.id);
 
   await setTenantActiveCache(tenant.id, true);
   await invalidateTenantModulesCache(tenant.id);

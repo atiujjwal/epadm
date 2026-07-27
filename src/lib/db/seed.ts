@@ -13,6 +13,7 @@ import {
   tenantSubscriptions,
   staffProfiles,
   students,
+  academicYears,
   academicClasses,
   classSections,
   studentEnrollments,
@@ -257,7 +258,26 @@ async function seedDemoTenantAdmin() {
       .returning();
   }
 
-  // Seed academic class homeroomed to our teacher
+  let demoAcademicYear = await db.query.academicYears.findFirst({
+    where: and(
+      eq(academicYears.tenantId, tenant.id),
+      eq(academicYears.name, "2026-2027"),
+    ),
+  });
+  if (!demoAcademicYear) {
+    [demoAcademicYear] = await db
+      .insert(academicYears)
+      .values({
+        tenantId: tenant.id,
+        name: "2026-2027",
+        startDate: "2026-04-01",
+        endDate: "2027-03-31",
+        isCurrent: true,
+      })
+      .returning();
+  }
+
+  // Seed academic class assigned to our class teacher
   let demoClass = await db.query.academicClasses.findFirst({
     where: and(
       eq(academicClasses.tenantId, tenant.id),
@@ -271,8 +291,10 @@ async function seedDemoTenantAdmin() {
         tenantId: tenant.id,
         code: "CLASS-10",
         name: "Class 10",
-        academicYear: "2026-2027",
+        academicYear: demoAcademicYear.name,
+        academicYearId: demoAcademicYear.id,
         homeroomStaffId: teacherProfile.id,
+        classTeacherId: teacherProfile.id,
         status: "active",
       })
       .returning();

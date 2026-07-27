@@ -1,11 +1,14 @@
-import { and, asc, count, desc, eq, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { writeAuditLog } from "@/lib/audit";
 import {
   academicClasses,
+  academicYears,
+  classTeacherHistory,
   classSections,
   staffProfiles,
   studentEnrollments,
   students,
+  tenantUsers,
 } from "@/lib/db";
 import { withTenant } from "@/lib/rls";
 
@@ -17,9 +20,22 @@ export type ClassRecord = {
   code: string;
   name: string;
   academicYear: string;
+  academicYearId: string | null;
+  academicYearName: string | null;
   status: string;
   homeroomStaffId: string | null;
   homeroomStaffName: string | null;
+  classTeacherId: string | null;
+  classTeacherName: string | null;
+  createdAt: Date;
+};
+
+export type AcademicYearRecord = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
   createdAt: Date;
 };
 
@@ -66,9 +82,25 @@ type AuditMeta = {
 export type CreateClassInput = AuditMeta & {
   code: string;
   name: string;
-  academicYear: string;
+  academicYearId: string;
   status?: string;
-  homeroomStaffId?: string;
+  classTeacherId: string;
+};
+
+export type UpdateClassInput = AuditMeta & {
+  id: string;
+  code: string;
+  name: string;
+  academicYearId: string;
+  status?: string;
+  classTeacherId: string;
+};
+
+export type CreateAcademicYearInput = AuditMeta & {
+  name: string;
+  startDate: string;
+  endDate: string;
+  isCurrent?: boolean;
 };
 
 export type CreateSectionInput = AuditMeta & {
@@ -105,15 +137,72 @@ export async function listClasses(tenantId: string): Promise<ClassRecord[]> {
         code: academicClasses.code,
         name: academicClasses.name,
         academicYear: academicClasses.academicYear,
+        academicYearId: academicClasses.academicYearId,
+        academicYearName: academicYears.name,
         status: academicClasses.status,
         homeroomStaffId: academicClasses.homeroomStaffId,
         homeroomStaffName: staffProfiles.fullName,
+        classTeacherId: academicClasses.classTeacherId,
+        classTeacherName: staffProfiles.fullName,
         createdAt: academicClasses.createdAt,
       })
       .from(academicClasses)
-      .leftJoin(staffProfiles, eq(academicClasses.homeroomStaffId, staffProfiles.id))
+      .leftJoin(academicYears, eq(academicClasses.academicYearId, academicYears.id))
+      .leftJoin(staffProfiles, eq(academicClasses.classTeacherId, staffProfiles.id))
       .where(eq(academicClasses.tenantId, tenantId))
       .orderBy(desc(academicClasses.createdAt), asc(academicClasses.name)),
+  );
+}
+
+export async function listAcademicYears(tenantId: string): Promise<AcademicYearRecord[]> {
+  return withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: academicYears.id,
+        name: academicYears.name,
+        startDate: academicYears.startDate,
+        endDate: academicYears.endDate,
+        isCurrent: academicYears.isCurrent,
+        createdAt: academicYears.createdAt,
+      })
+      .from(academicYears)
+      .where(eq(academicYears.tenantId, tenantId))
+      .orderBy(desc(academicYears.isCurrent), desc(academicYears.startDate)),
+  );
+}
+
+export async function listTeacherStaff(tenantId: string): Promise<Array<{ id: string; label: string }>> {
+  return withTenant(tenantId, (tx) =>
+    tx
+      .select({
+        id: staffProfiles.id,
+        fullName: staffProfiles.fullName,
+        employeeCode: staffProfiles.employeeCode,
+      })
+      .from(staffProfiles)
+      .leftJoin(tenantUsers, eq(staffProfiles.tenantUserId, tenantUsers.id))
+      .where(
+        and(
+          eq(staffProfiles.tenantId, tenantId),
+          eq(staffProfiles.status, "active"),
+          or(
+            and(
+              eq(tenantUsers.tenantId, tenantId),
+              eq(tenantUsers.role, "teacher"),
+              eq(tenantUsers.isActive, true),
+            ),
+            ilike(staffProfiles.jobTitle, "%teacher%"),
+            ilike(staffProfiles.jobTitle, "%academic%"),
+            ilike(staffProfiles.department, "%academic%"),
+          ),
+        ),
+      )
+      .orderBy(asc(staffProfiles.fullName)),
+  ).then((rows) =>
+    rows.map((row) => ({
+      id: row.id,
+      label: `${row.fullName} (${row.employeeCode})`,
+    })),
   );
 }
 
@@ -203,11 +292,50 @@ export async function createClass(input: CreateClassInput) {
   const code = normalizeCode(input.code);
 
   return withTenant(input.tenantId, async (tx) => {
+    const [targetYear, teacher] = await Promise.all([
+      tx.query.academicYears.findFirst({
+        where: and(
+          eq(academicYears.id, input.academicYearId),
+          eq(academicYears.tenantId, input.tenantId),
+        ),
+      }),
+      tx
+        .select({ id: staffProfiles.id })
+        .from(staffProfiles)
+        .leftJoin(tenantUsers, eq(staffProfiles.tenantUserId, tenantUsers.id))
+        .where(
+          and(
+            eq(staffProfiles.id, input.classTeacherId),
+            eq(staffProfiles.tenantId, input.tenantId),
+            eq(staffProfiles.status, "active"),
+            or(
+              and(
+                eq(tenantUsers.tenantId, input.tenantId),
+                eq(tenantUsers.role, "teacher"),
+                eq(tenantUsers.isActive, true),
+              ),
+              ilike(staffProfiles.jobTitle, "%teacher%"),
+              ilike(staffProfiles.jobTitle, "%academic%"),
+              ilike(staffProfiles.department, "%academic%"),
+            ),
+          ),
+        )
+        .limit(1),
+    ]);
+
+    if (!targetYear) {
+      throw new Error("A valid academic year is required.");
+    }
+
+    if (!teacher[0]) {
+      throw new Error("A valid active teacher is required as class teacher.");
+    }
+
     const existing = await tx.query.academicClasses.findFirst({
       where: and(
         eq(academicClasses.tenantId, input.tenantId),
         eq(academicClasses.code, code),
-        eq(academicClasses.academicYear, input.academicYear.trim()),
+        eq(academicClasses.academicYearId, input.academicYearId),
       ),
     });
 
@@ -221,11 +349,21 @@ export async function createClass(input: CreateClassInput) {
         tenantId: input.tenantId,
         code,
         name: input.name.trim(),
-        academicYear: input.academicYear.trim(),
+        academicYear: targetYear.name,
+        academicYearId: targetYear.id,
         status: clean(input.status) ?? "active",
-        homeroomStaffId: clean(input.homeroomStaffId),
+        homeroomStaffId: input.classTeacherId,
+        classTeacherId: input.classTeacherId,
       })
       .returning();
+
+    await tx.insert(classTeacherHistory).values({
+      tenantId: input.tenantId,
+      classId: created.id,
+      teacherId: input.classTeacherId,
+      startDate: targetYear.startDate,
+      changedByUserId: input.actorUserId,
+    });
 
     await writeAuditLog(tx, {
       tenantId: input.tenantId,
@@ -237,7 +375,178 @@ export async function createClass(input: CreateClassInput) {
         code: created.code,
         name: created.name,
         academicYear: created.academicYear,
+        academicYearId: created.academicYearId,
+        classTeacherId: created.classTeacherId,
       },
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+    });
+
+    return created;
+  });
+}
+
+export async function updateClass(input: UpdateClassInput) {
+  const code = normalizeCode(input.code);
+
+  return withTenant(input.tenantId, async (tx) => {
+    const existingClass = await tx.query.academicClasses.findFirst({
+      where: and(
+        eq(academicClasses.id, input.id),
+        eq(academicClasses.tenantId, input.tenantId),
+      ),
+    });
+
+    if (!existingClass) {
+      throw new Error("Class not found for this tenant.");
+    }
+
+    const [targetYear, teacher] = await Promise.all([
+      tx.query.academicYears.findFirst({
+        where: and(
+          eq(academicYears.id, input.academicYearId),
+          eq(academicYears.tenantId, input.tenantId),
+        ),
+      }),
+      tx
+        .select({ id: staffProfiles.id })
+        .from(staffProfiles)
+        .leftJoin(tenantUsers, eq(staffProfiles.tenantUserId, tenantUsers.id))
+        .where(
+          and(
+            eq(staffProfiles.id, input.classTeacherId),
+            eq(staffProfiles.tenantId, input.tenantId),
+            eq(staffProfiles.status, "active"),
+            or(
+              and(
+                eq(tenantUsers.tenantId, input.tenantId),
+                eq(tenantUsers.role, "teacher"),
+                eq(tenantUsers.isActive, true),
+              ),
+              ilike(staffProfiles.jobTitle, "%teacher%"),
+              ilike(staffProfiles.jobTitle, "%academic%"),
+              ilike(staffProfiles.department, "%academic%"),
+            ),
+          ),
+        )
+        .limit(1),
+    ]);
+
+    if (!targetYear) {
+      throw new Error("A valid academic year is required.");
+    }
+
+    if (!teacher[0]) {
+      throw new Error("A valid active teacher is required as class teacher.");
+    }
+
+    const duplicate = await tx.query.academicClasses.findFirst({
+      where: and(
+        eq(academicClasses.tenantId, input.tenantId),
+        eq(academicClasses.code, code),
+        eq(academicClasses.academicYearId, input.academicYearId),
+      ),
+    });
+
+    if (duplicate && duplicate.id !== input.id) {
+      throw new Error("A class with this code already exists for the academic year.");
+    }
+
+    const teacherChanged = existingClass.classTeacherId !== input.classTeacherId;
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (teacherChanged) {
+      await tx
+        .update(classTeacherHistory)
+        .set({ endDate: today })
+        .where(
+          and(
+            eq(classTeacherHistory.tenantId, input.tenantId),
+            eq(classTeacherHistory.classId, input.id),
+            isNull(classTeacherHistory.endDate),
+          ),
+        );
+
+      await tx.insert(classTeacherHistory).values({
+        tenantId: input.tenantId,
+        classId: input.id,
+        teacherId: input.classTeacherId,
+        startDate: today,
+        changedByUserId: input.actorUserId,
+      });
+    }
+
+    const [updated] = await tx
+      .update(academicClasses)
+      .set({
+        code,
+        name: input.name.trim(),
+        academicYear: targetYear.name,
+        academicYearId: targetYear.id,
+        status: clean(input.status) ?? "active",
+        homeroomStaffId: input.classTeacherId,
+        classTeacherId: input.classTeacherId,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(academicClasses.id, input.id),
+          eq(academicClasses.tenantId, input.tenantId),
+        ),
+      )
+      .returning();
+
+    await writeAuditLog(tx, {
+      tenantId: input.tenantId,
+      actorUserId: input.actorUserId,
+      action: teacherChanged ? "academic_class.teacher_changed" : "academic_class.updated",
+      entityType: "academic_class",
+      entityId: updated.id,
+      metadata: {
+        previousClassTeacherId: existingClass.classTeacherId,
+        classTeacherId: updated.classTeacherId,
+        academicYearId: updated.academicYearId,
+      },
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+    });
+
+    return updated;
+  });
+}
+
+export async function createAcademicYear(input: CreateAcademicYearInput) {
+  return withTenant(input.tenantId, async (tx) => {
+    const name = input.name.trim();
+    if (new Date(input.startDate) > new Date(input.endDate)) {
+      throw new Error("Academic year start date must be before end date.");
+    }
+
+    if (input.isCurrent) {
+      await tx
+        .update(academicYears)
+        .set({ isCurrent: false, updatedAt: new Date() })
+        .where(eq(academicYears.tenantId, input.tenantId));
+    }
+
+    const [created] = await tx
+      .insert(academicYears)
+      .values({
+        tenantId: input.tenantId,
+        name,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        isCurrent: input.isCurrent ?? false,
+      })
+      .returning();
+
+    await writeAuditLog(tx, {
+      tenantId: input.tenantId,
+      actorUserId: input.actorUserId,
+      action: "academic_year.created",
+      entityType: "academic_year",
+      entityId: created.id,
+      metadata: { name: created.name, isCurrent: created.isCurrent },
       ipAddress: input.ipAddress ?? null,
       userAgent: input.userAgent ?? null,
     });

@@ -20,6 +20,7 @@ export const PERMISSION_DESCRIPTIONS: Record<Permission, string> = {
 };
 
 export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
+  superadmin: [...PERMISSIONS],
   admin: [...PERMISSIONS],
   teacher: [
     "academics.read",
