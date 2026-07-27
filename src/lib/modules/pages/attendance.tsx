@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AppShell, PageHeader } from "@/components/workspace/app-shell";
-import { InnerRail, type InnerRailGroup } from "@/components/workspace/inner-rail";
+import { PageHeader } from "@/components/workspace/app-shell";
+import type { InnerRailGroup } from "@/components/workspace/inner-rail";
 import { PageToolbar, Pagination } from "@/components/workspace/page-toolbar";
 import { ExportMenu } from "@/components/workspace/export-menu";
 import { Button } from "@/components/ui/button-base";
@@ -50,6 +50,15 @@ const rail: InnerRailGroup[] = [
   },
 ];
 
+const tabs = rail.flatMap((group) =>
+  group.items.map((item) => ({
+    id: item.id as ViewId,
+    label: item.label,
+    group: group.label,
+    count: item.count,
+  })),
+);
+
 type ViewId =
   | "feed" | "feed-monthly" | "sms" | "delete" | "leave"
   | "monthly-class" | "monthly-all" | "annual-class" | "annual-student" | "annual-pct" | "monthly-absent" | "absent-date" | "perfect" | "class-pct" | "class-absent"
@@ -57,17 +66,43 @@ type ViewId =
 
 export default function AttendancePage() {
   const [view, setView] = useState<ViewId>("feed");
+  const active = tabs.find((tab) => tab.id === view) ?? tabs[0];
 
   return (
-    <><div className="flex min-h-[calc(100vh-3.5rem)]">
-        <InnerRail
-          groups={rail}
-          active={view}
-          onSelect={(id) => setView(id as ViewId)}
-        />
-        <div className="flex-1 min-w-0 flex flex-col">
-          {renderView(view)}
+    <>
+      <div className="sticky top-14 z-20 border-b bg-surface/95 backdrop-blur">
+        <div className="px-4 py-1.5 text-[11px] text-muted-foreground md:px-6">
+          Attendance <span className="px-1">/</span>
+          <span className="font-medium text-foreground">{active.label}</span>
         </div>
+        <div className="overflow-x-auto px-3">
+          <div className="flex min-w-max items-stretch gap-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setView(tab.id)}
+                className={`relative flex h-10 items-center gap-1.5 px-3 text-[12px] transition-colors ${
+                  view === tab.id ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="hidden text-[10px] uppercase tracking-wider text-muted-foreground/70 xl:inline">
+                  {tab.group}
+                </span>
+                <span>{tab.label}</span>
+                {tab.count ? (
+                  <span className="rounded-full bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] text-primary">
+                    {tab.count}
+                  </span>
+                ) : null}
+                {view === tab.id ? <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" /> : null}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="min-h-[calc(100vh-3.5rem)]">
+        {renderView(view)}
       </div>
     </>
   );
