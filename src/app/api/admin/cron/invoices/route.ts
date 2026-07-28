@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { and, eq, inArray } from "drizzle-orm";
@@ -87,7 +88,7 @@ async function authorize(
   return ctx.tenantId;
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     // Body is optional (interactive calls send none); tolerate an empty body.
     let parsedBody: z.infer<typeof bodySchema> = {};
@@ -220,3 +221,5 @@ export async function POST(req: Request) {
     return serverError();
   }
 }
+
+export const POST = withApiObservability(POSTHandler);

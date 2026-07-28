@@ -27,8 +27,34 @@ function isPlatformAdminPath(pathname: string): boolean {
   return isAdminPath(pathname) && pathname !== "/admin";
 }
 
-function finalize(req: NextRequest, response: NextResponse) {
+function finalize(
+  req: NextRequest,
+  response: NextResponse,
+  requestId: string,
+) {
+  response.headers.set("x-request-id", requestId);
   return attachCsrfCookie(req, response);
+}
+
+const TRUSTED_CONTEXT_HEADERS = [
+  "x-tenant-id",
+  "x-user-id",
+  "x-user-role",
+  "x-plan-tier",
+  "x-app-plane",
+  "x-platform-operator-id",
+  "x-platform-operator-email",
+  "x-platform-session-id",
+] as const;
+
+/** Remove identity headers supplied by the caller before injecting session data. */
+function sanitizedRequestHeaders(req: NextRequest, requestId: string): Headers {
+  const requestHeaders = new Headers(req.headers);
+  for (const header of TRUSTED_CONTEXT_HEADERS) {
+    requestHeaders.delete(header);
+  }
+  requestHeaders.set("x-request-id", requestId);
+  return requestHeaders;
 }
 
 const PUBLIC_PATHS = new Set<string>([
@@ -59,6 +85,7 @@ export function isOpsHost(hostname: string): boolean {
 }
 
 export async function proxy(req: NextRequest) {
+  const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
   const hostname = req.headers.get("host") ?? "";
   const { pathname } = req.nextUrl;
   const opsMode = isOpsHost(hostname);
@@ -70,14 +97,14 @@ export async function proxy(req: NextRequest) {
   ) {
     const rateLimited = checkAuthRateLimit(req);
     if (rateLimited) {
-      return rateLimited;
+      return finalize(req, rateLimited, requestId);
     }
   }
 
   // 2. CSRF token validation on mutation requests
   const csrfViolation = validateCsrf(req);
   if (csrfViolation) {
-    return csrfViolation;
+    return finalize(req, csrfViolation, requestId);
   }
 
   let res: NextResponse;
@@ -92,7 +119,7 @@ export async function proxy(req: NextRequest) {
   ) {
     res = NextResponse.next();
   } else if (opsMode) {
-    res = await handleOpsRequest(req, pathname);
+    res = await handleOpsRequest(req, pathname, requestId);
   } else if (isPlatformAdminPath(pathname)) {
     const hostHeader = req.headers.get("host") ?? "";
     const parts = hostHeader.split(":");
@@ -100,24 +127,17 @@ export async function proxy(req: NextRequest) {
     const opsHost = process.env.OPS_HOST || "ops.localhost";
     const redirectUrl = new URL(req.nextUrl.toString());
     redirectUrl.host = `${opsHost}${port}`;
-    return finalize(req, NextResponse.redirect(redirectUrl));
+    return finalize(req, NextResponse.redirect(redirectUrl), requestId);
   } else if (pathname.startsWith("/api/platform")) {
     res = NextResponse.json({ error: "Not found" }, { status: 404 });
   } else {
-    res = await handleTenantRequest(req, pathname);
+    res = await handleTenantRequest(req, pathname, requestId);
   }
 
-  return finalize(req, res);
+  return finalize(req, res, requestId);
 }
 
-async function handleOpsRequest(req: NextRequest, pathname: string) {
-  // Design reference uses /cms for the platform console; alias on ops host.
-  if (pathname === "/cms" || pathname.startsWith("/cms/")) {
-    const url = req.nextUrl.clone();
-    url.pathname = pathname.replace(/^\/cms/, "/admin");
-    return NextResponse.rewrite(url);
-  }
-
+async function handleOpsRequest(req: NextRequest, pathname: string, requestId: string) {
   const platformToken = req.cookies.get(PLATFORM_COOKIE)?.value;
   let operatorId = "";
   let operatorEmail = "";
@@ -132,7 +152,7 @@ async function handleOpsRequest(req: NextRequest, pathname: string) {
     }
   }
 
-  const requestHeaders = new Headers(req.headers);
+  const requestHeaders = sanitizedRequestHeaders(req, requestId);
   if (operatorId) {
     requestHeaders.set("x-platform-operator-id", operatorId);
     requestHeaders.set("x-platform-operator-email", operatorEmail);
@@ -167,12 +187,22 @@ async function handleOpsRequest(req: NextRequest, pathname: string) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Design reference uses /cms for the platform console; alias on ops host.
+  // This runs after authentication so the alias cannot bypass the ops gate.
+  if (pathname === "/cms" || pathname.startsWith("/cms/")) {
+    const url = req.nextUrl.clone();
+    url.pathname = pathname.replace(/^\/cms/, "/admin");
+    return NextResponse.rewrite(url, {
+      request: { headers: requestHeaders },
+    });
+  }
+
   return NextResponse.next({
     request: { headers: requestHeaders },
   });
 }
 
-async function handleTenantRequest(req: NextRequest, pathname: string) {
+async function handleTenantRequest(req: NextRequest, pathname: string, requestId: string) {
   const token = req.cookies.get("auth_token")?.value;
   let userId = "";
   let userRole = "";
@@ -195,7 +225,7 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
     }
   }
 
-  const requestHeaders = new Headers(req.headers);
+  const requestHeaders = sanitizedRequestHeaders(req, requestId);
   if (userId) {
     requestHeaders.set("x-tenant-id", tenantId);
     requestHeaders.set("x-user-id", userId);
@@ -206,16 +236,33 @@ async function handleTenantRequest(req: NextRequest, pathname: string) {
 
   const isPublicPage = PUBLIC_PATHS.has(pathname);
 
-  if (pathname === "/finance") {
-    const feesUrl = req.nextUrl.clone();
-    feesUrl.pathname = "/fees";
-    return finalize(req, NextResponse.redirect(feesUrl));
+  const legacyRouteRedirects: Record<string, string> = {
+    "/admin": "/administration/users",
+    "/admin-dashboard": "/dashboard",
+    "/teacher/home": "/teacher",
+    "/student/home": "/student",
+    "/finance": "/finance/fees",
+    "/fees": "/finance/fees",
+    "/staff": "/hr/staff",
+    "/timetable": "/timetables",
+    "/exams": "/assessments",
+    "/vehicles": "/transport",
+    "/labs": "/laboratories",
+    "/intelligence": "/analytics",
+    "/mobile": "/digital-experience",
+    "/settings": "/administration/school",
+  };
+  const canonicalPath = legacyRouteRedirects[pathname];
+  if (canonicalPath) {
+    const canonicalUrl = req.nextUrl.clone();
+    canonicalUrl.pathname = canonicalPath;
+    return NextResponse.redirect(canonicalUrl, 301);
   }
 
   if (pathname === "/users" || pathname.startsWith("/users/")) {
     const adminUrl = req.nextUrl.clone();
-    adminUrl.pathname = pathname.replace(/^\/users/, "/admin");
-    return finalize(req, NextResponse.redirect(adminUrl));
+    adminUrl.pathname = pathname.replace(/^\/users/, "/administration/users");
+    return NextResponse.redirect(adminUrl, 301);
   }
 
   if (!userId && !isPublicPage && !pathname.startsWith("/api")) {

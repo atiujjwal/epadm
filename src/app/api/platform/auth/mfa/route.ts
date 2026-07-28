@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { verifyPlatformMfa } from "@/lib/platform/auth/login";
@@ -12,7 +13,7 @@ const mfaSchema = z.object({
   code: z.string().regex(/^\d{6}$/),
 });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const body = mfaSchema.parse(await req.json());
     const result = await verifyPlatformMfa(body.mfaToken, body.code);
@@ -41,3 +42,5 @@ export async function POST(req: Request) {
     return unauthorized("MFA verification failed");
   }
 }
+
+export const POST = withApiObservability(POSTHandler);

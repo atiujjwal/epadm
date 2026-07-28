@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FormErrorSummary } from '@/components/ui/form-error-summary';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -22,6 +23,11 @@ export default function ContactPage() {
   const [formState, setFormState] = useState<FormState>('idle');
   const [submitError, setSubmitError] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const formErrors = Array.from(
+    new Set(
+      [...Object.values(errors), submitError].filter(Boolean),
+    ),
+  );
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -121,6 +127,7 @@ export default function ContactPage() {
             </m.div>
           ) : (
             <form onSubmit={handleSubmit} noValidate aria-label="Contact form">
+              <FormErrorSummary errors={formErrors} />
               <div className="space-y-6">
                 <div className="grid gap-3">
                   <Label htmlFor="contact-name">Name *</Label>

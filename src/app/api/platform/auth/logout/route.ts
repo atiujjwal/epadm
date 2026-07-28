@@ -1,10 +1,11 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { cookies } from "next/headers";
 import { PLATFORM_COOKIE } from "@/lib/platform/auth/token";
 import { revokePlatformSession } from "@/lib/platform/auth/session";
 import { verifyPlatformToken } from "@/lib/platform/auth/token";
 import { ok } from "@/lib/http/responses";
 
-export async function POST() {
+async function POSTHandler() {
   const cookieStore = await cookies();
   const token = cookieStore.get(PLATFORM_COOKIE)?.value;
 
@@ -25,3 +26,5 @@ export async function POST() {
 
   return ok({ success: true });
 }
+
+export const POST = withApiObservability(POSTHandler);

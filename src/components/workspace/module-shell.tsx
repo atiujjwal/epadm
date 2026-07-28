@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/workspace/app-shell";
 import type { InnerRailGroup } from "@/components/workspace/inner-rail";
 import { ExportMenu } from "@/components/workspace/export-menu";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Plus, Search, Filter, ChevronRight } from "lucide-react";
@@ -190,7 +190,7 @@ export function FlowView({ flow, extra }: { flow: ModuleFlow; extra?: ReactNode 
           <Input placeholder="Search…" className="h-8 pl-8 text-[12px]" />
         </div>
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           className="h-8 gap-1.5 text-[12px] font-normal text-muted-foreground"
         >

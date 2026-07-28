@@ -1,8 +1,9 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { requirePlatformOperator } from "@/lib/platform/context";
 import { getPlatformOverview } from "@/lib/platform/tenants";
 import { ok, serverError } from "@/lib/http/responses";
 
-export async function GET() {
+async function GETHandler() {
   try {
     await requirePlatformOperator();
     const overview = await getPlatformOverview();
@@ -12,3 +13,5 @@ export async function GET() {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);

@@ -44,7 +44,7 @@ export function AdminTopbar() {
         />
       </div>
       <Button
-        variant="outline"
+        variant="secondary"
         size="sm"
         className="h-8 text-[12px] font-normal text-muted-foreground gap-1.5 hidden md:inline-flex"
         type="button"

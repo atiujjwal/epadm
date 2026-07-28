@@ -36,7 +36,7 @@ const REPLACEMENTS: [RegExp, string][] = [
   [/export default function (\w+)\(\)/g, 'export default function $1()'],
 ];
 
-function convert(content: string, moduleName: string): string {
+function convert(content: string): string {
   let out = content;
   for (const [re, rep] of REPLACEMENTS) {
     out = out.replace(re, rep as string);
@@ -69,7 +69,7 @@ for (const file of sources) {
   if (moduleName === "index" || moduleName === "cms") continue;
 
   const raw = fs.readFileSync(path.join(SRC_DIR, file), "utf8");
-  const converted = convert(raw, moduleName);
+  const converted = convert(raw);
   const componentName = `${pascalCase(moduleName)}ModulePage`;
   const outFile = path.join(OUT_DIR, `${moduleName}.tsx`);
 

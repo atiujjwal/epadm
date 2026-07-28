@@ -11,7 +11,8 @@ import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 
 type StudentRecord = {
   id: string;
@@ -249,7 +250,7 @@ export function StudentRegistry({ initialStudents }: Props) {
               />
             </div>
 
-            {error && <FormError>{error}</FormError>}
+            <FormErrorSummary errors={error ? [error] : []} />
             {success && <FormSuccess>{success}</FormSuccess>}
 
             <Button

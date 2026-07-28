@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/guards";
 import {
@@ -27,7 +28,7 @@ const deleteDepartmentSchema = z.object({
   id: z.string().uuid(),
 });
 
-export async function GET() {
+async function GETHandler() {
   try {
     const ctx = await requirePermission(STAFF_READ_PERMISSION);
     const departments = await listStaffDepartments(ctx.tenantId);
@@ -38,7 +39,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const ctx = await requirePermission(STAFF_WRITE_PERMISSION);
     const input = departmentSchema.parse(await req.json());
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
+async function PATCHHandler(req: Request) {
   try {
     const ctx = await requirePermission(STAFF_WRITE_PERMISSION);
     const input = updateDepartmentSchema.parse(await req.json());
@@ -74,7 +75,7 @@ export async function PATCH(req: Request) {
   }
 }
 
-export async function DELETE(req: Request) {
+async function DELETEHandler(req: Request) {
   try {
     const ctx = await requirePermission(STAFF_WRITE_PERMISSION);
     const input = deleteDepartmentSchema.parse(await req.json());
@@ -87,3 +88,8 @@ export async function DELETE(req: Request) {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);
+export const POST = withApiObservability(POSTHandler);
+export const PATCH = withApiObservability(PATCHHandler);
+export const DELETE = withApiObservability(DELETEHandler);

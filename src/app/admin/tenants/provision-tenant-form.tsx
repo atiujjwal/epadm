@@ -6,7 +6,8 @@ import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { FormItem, FormError } from "@/components/ui/form";
+import { FormItem } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 
@@ -153,7 +154,7 @@ export function ProvisionTenantForm({ trigger }: Props) {
                   </Select>
                 </FormItem>
 
-                {error && <FormError>{error}</FormError>}
+                <FormErrorSummary errors={error ? [error] : []} />
               </CardBody>
               <CardFooter className="px-6 py-4 bg-surface-2 border-t border-subtle flex justify-end gap-3" style={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
                 <Button

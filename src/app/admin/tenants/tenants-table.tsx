@@ -28,10 +28,6 @@ export function TenantsTable({ initialRows }: { initialRows: TenantRow[] }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setRows(initialRows);
-  }, [initialRows]);
-
-  useEffect(() => {
     const handle = window.setTimeout(async () => {
       setLoading(true);
       try {

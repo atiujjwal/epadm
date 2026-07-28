@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { PageHeader } from "@/components/workspace/app-shell";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { TimetableEntryRecord } from "@/lib/admin/timetable";
 import { timetable as mockTimetable, periods, days } from "@/data/mock";
@@ -90,7 +90,7 @@ export function TimetableWorkspace({ initialEntries }: Props) {
         }
         actions={
           <>
-            <Button variant="outline" size="sm" className="h-8 text-[12px]">
+            <Button variant="secondary" size="sm" className="h-8 text-[12px]">
               Print
             </Button>
             <Button size="sm" className="h-8 text-[12px]">

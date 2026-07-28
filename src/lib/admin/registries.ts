@@ -21,7 +21,7 @@ export type StudentRecord = {
   guardianPhone: string | null;
   status: string;
   notes: string | null;
-  createdAt: Date;
+  createdAt: string;
 };
 
 export type StaffRecord = {
@@ -205,6 +205,7 @@ export async function listStudents(tenantId: string, search?: string) {
   return rows.map((row) => ({
     ...row,
     dateOfBirth: row.dateOfBirth ? String(row.dateOfBirth) : null,
+    createdAt: row.createdAt.toISOString(),
   })) satisfies StudentRecord[];
 }
 
@@ -404,7 +405,11 @@ export async function createStudent(input: CreateStudentInput) {
       userAgent: input.userAgent ?? null,
     });
 
-    return student;
+    return {
+      ...student,
+      dateOfBirth: student.dateOfBirth ? String(student.dateOfBirth) : null,
+      createdAt: student.createdAt.toISOString(),
+    };
   });
 }
 

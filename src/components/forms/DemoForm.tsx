@@ -5,6 +5,7 @@ import { m, AnimatePresence } from 'framer-motion';
 import { scaleIn } from '@/lib/motion';
 import { siteConfig } from '@/config/site';
 import { Button } from '@/components/ui/button';
+import { FormErrorSummary } from '@/components/ui/form-error-summary';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -156,6 +157,13 @@ export function DemoForm() {
   }
 
   const inputBase = 'w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:ring-2';
+  const formErrors = Array.from(
+    new Set(
+      [...Object.values(errors), submitError].filter(
+        (error): error is string => Boolean(error),
+      ),
+    ),
+  );
 
   return (
     <form
@@ -170,6 +178,8 @@ export function DemoForm() {
           Our team will help you get started with a live demo tailored to your school.
         </p>
       </div>
+
+      <FormErrorSummary errors={formErrors} />
 
       <div className="grid gap-4 md:grid-cols-2">
         {[

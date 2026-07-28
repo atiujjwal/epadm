@@ -1,78 +1,112 @@
-import { HTMLAttributes, forwardRef, ReactNode } from "react";
+import type { ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
-export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
-  title: ReactNode;
-  description?: ReactNode;
-  breadcrumb?: { label: string; href?: string }[];
-  action?: ReactNode;
-  badge?: ReactNode;
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
 }
 
-/**
- * EPADM PageHeader Component
- *
- * Consistent page header with breadcrumbs, title, description, and optional actions.
- *
- * @example
- * <PageHeader
- *   title="Dashboard"
- *   description="Welcome back, here's what's happening today"
- *   breadcrumb={[{ label: "Home", href: "/" }, { label: "Dashboard" }]}
- *   action={<Button>New Item</Button>}
- * />
- */
-export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(function PageHeader(props, ref) {
-  const {
-    title,
-    description,
-    breadcrumb,
-    action,
-    badge,
-    className = "",
-    ...rest
-  } = props;
+export interface StatusBadge {
+  label: string;
+  variant: "default" | "success" | "warning" | "danger" | "info";
+}
+
+export interface PageHeaderProps {
+  title: string;
+  description?: string;
+  badge?: StatusBadge | ReactNode;
+  breadcrumbs?: BreadcrumbItem[];
+  actions?: ReactNode;
+  toolbar?: ReactNode;
+  className?: string;
+  /** @deprecated Use description. */
+  subtitle?: string;
+  /** @deprecated Use breadcrumbs. */
+  breadcrumb?: BreadcrumbItem[];
+  /** @deprecated Use actions. */
+  action?: ReactNode;
+}
+
+function isStatusBadge(value: StatusBadge | ReactNode): value is StatusBadge {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "label" in value &&
+      "variant" in value,
+  );
+}
+
+export function PageHeader({
+  title,
+  description,
+  badge,
+  breadcrumbs,
+  actions,
+  toolbar,
+  className,
+  subtitle,
+  breadcrumb,
+  action,
+}: PageHeaderProps) {
+  const resolvedDescription = description ?? subtitle;
+  const resolvedBreadcrumbs = breadcrumbs ?? breadcrumb;
+  const resolvedActions = actions ?? action;
 
   return (
-    <div ref={ref} className={`border-b border-[#e8e9ed] bg-white px-4 py-4 md:px-6 ${className}`} {...rest}>
-      {breadcrumb && breadcrumb.length > 0 && (
-        <nav className="mb-2 text-[11px] text-slate-500" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2">
-            {breadcrumb.map((item, index) => (
-              <li key={index} className="flex items-center gap-2">
-                {item.href ? (
-                  <Link href={item.href} className="text-slate-600 transition hover:text-slate-900">
-                    {item.label}
+    <div className={cn("space-y-3 pb-4", className)}>
+      {resolvedBreadcrumbs && resolvedBreadcrumbs.length > 0 ? (
+        <nav aria-label="Breadcrumb">
+          <ol className="flex items-center gap-1 text-xs text-muted-foreground">
+            {resolvedBreadcrumbs.map((crumb, index) => (
+              <li key={`${crumb.label}-${index}`} className="flex items-center gap-1">
+                {index > 0 ? (
+                  <ChevronRight className="h-3 w-3 shrink-0" aria-hidden="true" />
+                ) : null}
+                {crumb.href ? (
+                  <Link
+                    href={crumb.href}
+                    className="transition-colors hover:text-foreground"
+                  >
+                    {crumb.label}
                   </Link>
                 ) : (
-                  <span className="text-slate-500">{item.label}</span>
-                )}
-                {index < breadcrumb.length - 1 && (
-                  <span aria-hidden="true" className="text-slate-400">/</span>
+                  <span aria-current="page" className="font-medium text-foreground">
+                    {crumb.label}
+                  </span>
                 )}
               </li>
             ))}
           </ol>
         </nav>
-      )}
+      ) : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[18px] font-semibold leading-tight tracking-tight text-[#252936]">{title}</h1>
-            {badge && <span className="inline-flex items-center">{badge}</span>}
+            <h1 className="truncate text-2xl font-semibold tracking-tight">{title}</h1>
+            {badge
+              ? isStatusBadge(badge)
+                ? <Badge variant={badge.variant}>{badge.label}</Badge>
+                : badge
+              : null}
           </div>
-          {description && <p className="mt-0.5 max-w-3xl text-[12px] leading-relaxed text-[#747a86]">{description}</p>}
+          {resolvedDescription ? (
+            <p className="text-sm text-muted-foreground">{resolvedDescription}</p>
+          ) : null}
         </div>
 
-        {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
+        {resolvedActions ? (
+          <div className="flex shrink-0 items-center gap-2">{resolvedActions}</div>
+        ) : null}
       </div>
+
+      {toolbar ? <div>{toolbar}</div> : null}
     </div>
   );
-});
+}
 
-// Styles are now consolidated into global CSS
-const PageHeaderStyles = () => null;
-
-export { PageHeaderStyles };
+export const PageHeaderStyles = () => null;
 export default PageHeader;

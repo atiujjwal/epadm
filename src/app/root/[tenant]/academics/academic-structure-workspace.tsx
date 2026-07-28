@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 
 type ClassRecord = {
   id: string;
@@ -226,7 +227,7 @@ export function AcademicStructureWorkspace({
 
   return (
     <div className="space-y-4">
-      {error && <FormError>{error}</FormError>}
+      <FormErrorSummary errors={error ? [error] : []} />
       {success && <FormSuccess>{success}</FormSuccess>}
 
       <div className="grid gap-4 xl:grid-cols-3">

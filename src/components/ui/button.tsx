@@ -1,107 +1,132 @@
 "use client";
 
-import {
-  forwardRef,
-  type AnchorHTMLAttributes,
-  type ButtonHTMLAttributes,
-  type ReactNode,
-} from "react";
+import * as React from "react";
 import Link from "next/link";
-import {
-  Button as ShadcnButton,
-  buttonVariants,
-  type ButtonProps as ShadcnButtonProps,
-} from "./button-base";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type LegacyVariant = "primary" | "secondary" | "ghost" | "danger" | NonNullable<ShadcnButtonProps["variant"]>;
-type LegacySize = "sm" | "md" | "lg" | "xl" | NonNullable<ShadcnButtonProps["size"]>;
+const buttonVariants = cva(
+  [
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
+    "rounded-md font-medium text-sm",
+    "transition-colors duration-fast",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "disabled:pointer-events-none disabled:opacity-50",
+    "select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        primary:
+          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
+        secondary:
+          "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        danger:
+          "bg-danger text-danger-foreground hover:bg-danger/90 active:bg-danger/80",
+      },
+      size: {
+        sm: "h-8 px-3 text-xs",
+        md: "h-9 px-4 text-sm",
+        lg: "h-10 px-6 text-base",
+        icon: "h-9 w-9 p-0",
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "md",
+    },
+  },
+);
 
-function mapVariant(variant?: LegacyVariant): NonNullable<ShadcnButtonProps["variant"]> {
-  if (variant === "primary") return "default";
-  if (variant === "danger") return "destructive";
-  if (variant === "secondary" || variant === "ghost" || variant === "outline" || variant === "link" || variant === "destructive" || variant === "default") {
-    return variant;
-  }
-  return "default";
-}
+type ButtonVariantProps = VariantProps<typeof buttonVariants>;
 
-function mapSize(size?: LegacySize): NonNullable<ShadcnButtonProps["size"]> {
-  if (size === "md") return "default";
-  if (size === "xl") return "lg";
-  if (size === "sm" || size === "lg" || size === "icon" || size === "default") return size;
-  return "default";
-}
-
-export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
-  variant?: LegacyVariant;
-  size?: LegacySize;
-  icon?: ReactNode;
+interface ButtonExtras extends ButtonVariantProps {
+  asChild?: boolean;
+  loading?: boolean;
+  /** @deprecated Place the icon in children for new call sites. */
+  icon?: React.ReactNode;
+  /** @deprecated Use size="icon" and an accessible label for new call sites. */
   iconOnly?: boolean;
-  type?: "button" | "submit" | "reset";
 }
 
-export interface ButtonAnchorProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-  variant?: LegacyVariant;
-  size?: LegacySize;
-  icon?: ReactNode;
-  iconOnly?: boolean;
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    ButtonExtras {}
+
+export interface ButtonAnchorProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
+    Omit<ButtonExtras, "asChild"> {
   href: string;
 }
 
 type ButtonElementProps = ButtonProps | ButtonAnchorProps;
 
-export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonElementProps>(
-  function Button(props, ref) {
-    const {
-      variant = "primary",
-      size = "md",
-      icon,
-      iconOnly = false,
-      className,
-      children,
-      ...rest
-    } = props;
+const Button = React.forwardRef<
+  HTMLButtonElement | HTMLAnchorElement,
+  ButtonElementProps
+>(function Button(
+  {
+    className,
+    variant,
+    size,
+    loading = false,
+    icon,
+    iconOnly = false,
+    children,
+    ...props
+  },
+  ref,
+) {
+  const content = (
+    <>
+      {loading ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading…</span>
+        </>
+      ) : (
+        icon
+      )}
+      {!iconOnly ? children : null}
+    </>
+  );
 
-    const mappedVariant = mapVariant(variant);
-    const mappedSize = mapSize(size);
-    const content = (
-      <>
-        {icon ? <span className="shrink-0">{icon}</span> : null}
-        {!iconOnly && children}
-      </>
-    );
-
-    if ("href" in props && props.href) {
-      const { href, ...anchorRest } = props as ButtonAnchorProps;
-      return (
-        <Link
-          ref={ref as React.Ref<HTMLAnchorElement>}
-          href={href}
-          className={cn(buttonVariants({ variant: mappedVariant, size: mappedSize }), className)}
-          {...(anchorRest as AnchorHTMLAttributes<HTMLAnchorElement>)}
-        >
-          {content}
-        </Link>
-      );
-    }
-
-    const buttonProps = rest as ButtonProps;
+  if ("href" in props) {
+    const { href, ...anchorProps } = props;
     return (
-      <ShadcnButton
-        ref={ref as React.Ref<HTMLButtonElement>}
-        variant={mappedVariant}
-        size={mappedSize}
-        className={className}
-        type={buttonProps.type ?? "button"}
-        {...buttonProps}
+      <Link
+        ref={ref as React.Ref<HTMLAnchorElement>}
+        href={href}
+        className={cn(buttonVariants({ variant, size }), className)}
+        aria-disabled={loading || undefined}
+        {...anchorProps}
       >
         {content}
-      </ShadcnButton>
+      </Link>
     );
-  },
-);
+  }
 
-export { buttonVariants };
+  const { asChild = false, disabled, ...buttonProps } = props;
+  const Component = asChild ? Slot : "button";
+  const isDisabled = disabled || loading;
+
+  return (
+    <Component
+      ref={ref as React.Ref<HTMLButtonElement>}
+      className={cn(buttonVariants({ variant, size }), className)}
+      disabled={asChild ? undefined : isDisabled}
+      aria-disabled={isDisabled || undefined}
+      {...buttonProps}
+    >
+      {content}
+    </Component>
+  );
+});
+Button.displayName = "Button";
+
 export const ButtonStyles = () => null;
+export { Button, buttonVariants };
 export default Button;

@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { cookies } from "next/headers";
@@ -11,7 +12,7 @@ import {
 import { badRequest, ok, unauthorized } from "@/lib/http/responses";
 
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const json = await req.json();
     const { email, password } = json;
@@ -52,3 +53,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const POST = withApiObservability(POSTHandler);

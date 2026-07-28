@@ -1,10 +1,11 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { requirePlatformOperator } from "@/lib/platform/context";
 import { getTenantDetail } from "@/lib/platform/tenants";
 import { notFound, ok, serverError } from "@/lib/http/responses";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+async function GETHandler(_req: Request, { params }: Params) {
   try {
     await requirePlatformOperator();
     const { id } = await params;
@@ -20,3 +21,5 @@ export async function GET(_req: Request, { params }: Params) {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);

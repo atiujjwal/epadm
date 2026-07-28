@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/guards";
 import {
@@ -17,7 +18,7 @@ const admissionSchema = z.object({
   status: z.string().trim().max(20).optional().or(z.literal("")),
 });
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   try {
     const ctx = await requirePermission(ADMISSION_READ_PERMISSION);
     const url = new URL(req.url);
@@ -30,7 +31,7 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const ctx = await requirePermission(ADMISSION_WRITE_PERMISSION);
     const input = admissionSchema.parse(await req.json());
@@ -50,3 +51,6 @@ export async function POST(req: Request) {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);
+export const POST = withApiObservability(POSTHandler);

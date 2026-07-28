@@ -26,7 +26,7 @@ export type TenantMemberRecord = {
   phone: string | null;
   role: UserRole;
   isActive: boolean;
-  joinedAt: Date;
+  joinedAt: string;
   isVerified: boolean;
 };
 
@@ -132,7 +132,7 @@ export async function listTenantMembers(
     phone: row.phone,
     role: row.role as UserRole,
     isActive: row.isActive,
-    joinedAt: row.joinedAt,
+    joinedAt: row.joinedAt.toISOString(),
     isVerified: row.isVerified,
   }));
 }

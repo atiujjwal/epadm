@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/workspace/app-shell";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { timetable, periods, days } from "@/data/mock";
 import { AlertTriangle } from "lucide-react";
@@ -26,7 +26,7 @@ export default function TimetablePage() {
         subtitle="Term 2 · Week of 13 Jul 2026"
         actions={
           <>
-            <Button variant="outline" size="sm" className="h-8 text-[12px]">Print</Button>
+            <Button variant="secondary" size="sm" className="h-8 text-[12px]">Print</Button>
             <Button size="sm" className="h-8 text-[12px]">Edit schedule</Button>
           </>
         }

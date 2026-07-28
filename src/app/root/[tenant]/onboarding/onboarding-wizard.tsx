@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import type { OnboardingDraft } from "@/lib/onboarding/defaults";
 import { OnboardingProvider, useOnboarding } from "./onboarding-provider";
@@ -80,7 +81,7 @@ function Wizard() {
       continueLabel={step === 4 ? "Complete Onboarding" : "Save & Continue"}
     >
       <div className="space-y-4">
-        {message?.type === "error" ? <FormError>{message.text}</FormError> : null}
+        <FormErrorSummary errors={message?.type === "error" ? [message.text] : []} />
         {message?.type === "success" ? <FormSuccess>{message.text}</FormSuccess> : null}
         {body}
       </div>

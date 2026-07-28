@@ -139,7 +139,32 @@ export type Permission =
   | "fees.write"
   | "announcements.read"
   | "announcements.write"
-  | "reports.read";
+  | "reports.read"
+  | "admissions.read"
+  | "admissions.write"
+  | "curriculum.read"
+  | "timetables.read"
+  | "learning.read"
+  | "assessments.read"
+  | "hr.read"
+  | "payroll.read"
+  | "finance.fees.read"
+  | "finance.accounting.read"
+  | "transport.read"
+  | "library.read"
+  | "laboratories.read"
+  | "hostel.read"
+  | "inventory.read"
+  | "facilities.read"
+  | "activities.read"
+  | "communications.read"
+  | "documents.read"
+  | "digital-experience.configure"
+  | "analytics.read"
+  | "ai-studio.read"
+  | "administration.read"
+  | "administration.users.read"
+  | "administration.audit.read";
 
 export const PERMISSIONS = [
   "tenant.manage",
@@ -158,6 +183,31 @@ export const PERMISSIONS = [
   "announcements.read",
   "announcements.write",
   "reports.read",
+  "admissions.read",
+  "admissions.write",
+  "curriculum.read",
+  "timetables.read",
+  "learning.read",
+  "assessments.read",
+  "hr.read",
+  "payroll.read",
+  "finance.fees.read",
+  "finance.accounting.read",
+  "transport.read",
+  "library.read",
+  "laboratories.read",
+  "hostel.read",
+  "inventory.read",
+  "facilities.read",
+  "activities.read",
+  "communications.read",
+  "documents.read",
+  "digital-experience.configure",
+  "analytics.read",
+  "ai-studio.read",
+  "administration.read",
+  "administration.users.read",
+  "administration.audit.read",
 ] as const satisfies readonly Permission[];
 
 export const tenantUsers = pgTable(

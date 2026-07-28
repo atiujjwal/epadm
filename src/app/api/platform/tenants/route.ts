@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { requirePlatformOperator } from "@/lib/platform/context";
@@ -18,7 +19,7 @@ const provisionSchema = z.object({
   subscriptionTier: z.enum(["basic", "pro", "enterprise"]),
 });
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   try {
     await requirePlatformOperator();
     const url = new URL(req.url);
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const ctx = await requirePlatformOperator();
     const requestHeaders = await headers();
@@ -63,3 +64,6 @@ export async function POST(req: Request) {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);
+export const POST = withApiObservability(POSTHandler);

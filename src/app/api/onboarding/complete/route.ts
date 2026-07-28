@@ -1,8 +1,9 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { requireRole } from "@/lib/auth/guards";
 import { completeOnboarding } from "@/lib/onboarding/service";
 import { badRequest, ok, serverError } from "@/lib/http/responses";
 
-export async function POST() {
+async function POSTHandler() {
   try {
     const ctx = await requireRole(["superadmin", "admin"]);
     const result = await completeOnboarding({
@@ -17,3 +18,5 @@ export async function POST() {
     return serverError();
   }
 }
+
+export const POST = withApiObservability(POSTHandler);

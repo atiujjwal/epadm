@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
@@ -12,7 +13,7 @@ const querySchema = z.object({
     .transform((value) => value.toLowerCase()),
 });
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   try {
     const url = new URL(req.url);
     const params = Object.fromEntries(url.searchParams);
@@ -45,3 +46,4 @@ export async function GET(req: Request) {
   }
 }
 
+export const GET = withApiObservability(GETHandler);

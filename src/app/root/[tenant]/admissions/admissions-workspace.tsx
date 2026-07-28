@@ -2,11 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { PageHeader } from "@/components/workspace/app-shell";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import type { AdmissionRecord } from "@/lib/admin/admissions";
 import { Plus } from "lucide-react";
@@ -193,7 +194,7 @@ export function AdmissionsWorkspace({ initialAdmissions }: Props) {
                   />
                 </div>
               </div>
-              {error ? <FormError>{error}</FormError> : null}
+              <FormErrorSummary errors={error ? [error] : []} />
               {success ? <FormSuccess>{success}</FormSuccess> : null}
               <div className="flex gap-2">
                 <Button type="submit" size="sm" disabled={isPending}>

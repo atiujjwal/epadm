@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/guards";
@@ -22,7 +23,7 @@ const updateClassSchema = createClassSchema.extend({
   id: z.string().uuid(),
 });
 
-export async function GET() {
+async function GETHandler() {
   try {
     const ctx = await requirePermission(ACADEMICS_READ_PERMISSION);
     const classes = await listClasses(ctx.tenantId);
@@ -33,7 +34,7 @@ export async function GET() {
   }
 }
 
-export async function PATCH(req: Request) {
+async function PATCHHandler(req: Request) {
   try {
     const ctx = await requirePermission(ACADEMICS_WRITE_PERMISSION);
     const requestHeaders = await headers();
@@ -63,7 +64,7 @@ export async function PATCH(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const ctx = await requirePermission(ACADEMICS_WRITE_PERMISSION);
     const requestHeaders = await headers();
@@ -92,3 +93,7 @@ export async function POST(req: Request) {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);
+export const PATCH = withApiObservability(PATCHHandler);
+export const POST = withApiObservability(POSTHandler);

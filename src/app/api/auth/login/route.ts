@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import argon2 from "argon2";
@@ -19,7 +20,7 @@ const loginSchema = z.object({
     .transform((value) => value.toLowerCase()),
 });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const json = await req.json();
     const { email, password, tenantSlug } = loginSchema.parse(json);
@@ -92,3 +93,4 @@ export async function POST(req: Request) {
   }
 }
 
+export const POST = withApiObservability(POSTHandler);

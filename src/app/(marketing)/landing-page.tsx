@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 
 const modules = [
   { icon: Users, title: "Students & Staff", body: "Rich records, bulk imports, promotions, siblings, ID cards and registers." },
@@ -157,6 +158,7 @@ export function LandingPage() {
               <p className="text-[12px] text-muted-foreground mt-1">Use your school slug and workspace email.</p>
 
               <form className="mt-5 space-y-3" onSubmit={handleLoginSubmit}>
+                <FormErrorSummary errors={error ? [error] : []} />
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground" htmlFor="landing-tenant-slug">
                     School slug
@@ -205,11 +207,6 @@ export function LandingPage() {
                     required
                   />
                 </div>
-                {error && (
-                  <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[11px] leading-relaxed text-destructive" role="alert">
-                    {error}
-                  </p>
-                )}
                 <Button type="submit" className="w-full h-9 text-[13px] mt-2" disabled={loading}>
                   {loading ? "Signing in..." : "Continue"}
                 </Button>
@@ -219,7 +216,7 @@ export function LandingPage() {
                     or
                   </div>
                 </div>
-                <Button href="/contact" variant="outline" className="w-full h-9 text-[13px]">
+                <Button href="/contact" variant="secondary" className="w-full h-9 text-[13px]">
                   Need help signing in?
                 </Button>
               </form>
@@ -315,7 +312,7 @@ export function LandingPage() {
                 <Button
                   href="/contact"
                   className="w-full mt-6 h-9 text-[13px]"
-                  variant={p.featured ? "primary" : "outline"}
+                  variant={p.featured ? "primary" : "secondary"}
                 >
                   Talk to us
                 </Button>

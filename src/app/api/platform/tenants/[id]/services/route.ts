@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { SERVICE_KEYS } from "@/lib/db/schema";
@@ -12,7 +13,7 @@ const serviceSchema = z.object({
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function PUT(req: Request, { params }: Params) {
+async function PUTHandler(req: Request, { params }: Params) {
   try {
     const ctx = await requirePlatformOperator();
     const requestHeaders = await headers();
@@ -40,3 +41,5 @@ export async function PUT(req: Request, { params }: Params) {
     return serverError();
   }
 }
+
+export const PUT = withApiObservability(PUTHandler);

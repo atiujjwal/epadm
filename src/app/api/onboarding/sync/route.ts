@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/guards";
 import { saveOnboardingStep, type OnboardingStep } from "@/lib/onboarding/service";
@@ -9,7 +10,7 @@ const syncSchema = z.object({
   exit: z.boolean().optional(),
 });
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const ctx = await requireRole(["superadmin", "admin"]);
     const input = syncSchema.parse(await req.json());
@@ -29,3 +30,5 @@ export async function POST(req: Request) {
     return serverError();
   }
 }
+
+export const POST = withApiObservability(POSTHandler);

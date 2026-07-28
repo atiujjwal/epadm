@@ -5,14 +5,14 @@ import { PageHeader } from "@/components/workspace/app-shell";
 import type { InnerRailGroup } from "@/components/workspace/inner-rail";
 import { PageToolbar, Pagination } from "@/components/workspace/page-toolbar";
 import { ExportMenu } from "@/components/workspace/export-menu";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { students, holidays, holidayReasons, sessionConfig, leaveApplications, gradesList, sectionsList, todaysAttendanceByGrade } from "@/data/mock";
 import { Check, X, Clock, Sparkles, MessageSquare, Trash2, FileBarChart2, CalendarRange, Send, Settings2, ClipboardList, CalendarDays, PieChart, UserCheck, UserX, Users2, Percent, Award, TrendingDown, MailCheck, CalendarClock } from "lucide-react";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 
 const rail: InnerRailGroup[] = [
   {
@@ -138,7 +138,7 @@ function FeedAttendance() {
         subtitle="Wednesday, 15 July 2026 · Session 2026 – 2027"
         actions={
           <>
-            <Button variant="outline" size="sm" className="h-8 text-[12px]">Mark all present</Button>
+            <Button variant="secondary" size="sm" className="h-8 text-[12px]">Mark all present</Button>
             <Button size="sm" className="h-8 text-[12px]">Save</Button>
           </>
         }
@@ -150,7 +150,7 @@ function FeedAttendance() {
           <div className="text-[12px] leading-relaxed flex-1">
             Copilot flagged <span className="font-medium">3 chronic absentees</span> in Grade 10-B — Kabir Sharma, Ira Rao, and Sara Menon have missed 4+ days this month.
           </div>
-          <Button variant="outline" size="sm" className="h-7 text-[11px] shrink-0">Notify guardians</Button>
+          <Button variant="secondary" size="sm" className="h-7 text-[11px] shrink-0">Notify guardians</Button>
         </div>
 
         <div className="rounded-md border bg-surface overflow-hidden">
@@ -263,7 +263,7 @@ function SmsAbsentees() {
     <>
       <PageHeader title="Send SMS to Absentees" subtitle="15 July 2026 · 14 students marked absent today" actions={
         <>
-          <Button variant="outline" size="sm" className="h-8 text-[12px]">Preview</Button>
+          <Button variant="secondary" size="sm" className="h-8 text-[12px]">Preview</Button>
           <Button size="sm" className="h-8 gap-1.5 text-[12px]"><Send className="h-3.5 w-3.5" /> Send to selected</Button>
         </>
       } />
@@ -315,6 +315,8 @@ function SmsAbsentees() {
 
 /* ---------- Delete Attendance ---------- */
 function DeleteAttendance() {
+  const [confirmationErrors, setConfirmationErrors] = useState<string[]>([]);
+
   return (
     <>
       <PageHeader title="Delete Attendance" subtitle="Remove attendance entries for a specific class and date range" />
@@ -323,6 +325,7 @@ function DeleteAttendance() {
           <div className="rounded-md border border-danger/30 bg-danger/5 p-3 text-[12px]">
             <span className="font-medium text-danger">Warning:</span> Deleting attendance is permanent and audited. Only Admin and Principal roles can perform this action.
           </div>
+          <FormErrorSummary errors={confirmationErrors} />
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[11px]">Grade</Label>
@@ -346,8 +349,8 @@ function DeleteAttendance() {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" size="sm" className="h-8 text-[12px]">Cancel</Button>
-            <Button variant="destructive" size="sm" className="h-8 gap-1.5 text-[12px]" onClick={() => toast.error("Confirmation required", { description: "Enter DELETE to proceed" })}>
+            <Button variant="secondary" size="sm" className="h-8 text-[12px]">Cancel</Button>
+            <Button variant="danger" size="sm" className="h-8 gap-1.5 text-[12px]" onClick={() => setConfirmationErrors(["Enter DELETE to confirm this destructive action."])}>
               <Trash2 className="h-3.5 w-3.5" /> Delete attendance
             </Button>
           </div>

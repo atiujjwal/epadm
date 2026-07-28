@@ -82,7 +82,7 @@ export default async function AdminOverviewPage() {
             provision schools or review inactive accounts.
           </p>
           <Link href="/admin/tenants">
-            <Button size="sm" variant="outline" className="h-7 text-[11px]">
+            <Button size="sm" variant="secondary" className="h-7 text-[11px]">
               Open school tenants
             </Button>
           </Link>

@@ -1,7 +1,7 @@
 "use client";
 
-import { AppShell, PageHeader } from "@/components/workspace/app-shell";
-import { Button } from "@/components/ui/button-base";
+import { PageHeader } from "@/components/workspace/app-shell";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { admissions } from "@/data/mock";
 import { Plus } from "lucide-react";

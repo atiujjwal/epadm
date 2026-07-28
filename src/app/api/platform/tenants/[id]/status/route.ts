@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { requirePlatformOperator } from "@/lib/platform/context";
@@ -11,7 +12,7 @@ const statusSchema = z.object({
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function PATCH(req: Request, { params }: Params) {
+async function PATCHHandler(req: Request, { params }: Params) {
   try {
     const ctx = await requirePlatformOperator();
     const requestHeaders = await headers();
@@ -43,3 +44,5 @@ export async function PATCH(req: Request, { params }: Params) {
     return serverError();
   }
 }
+
+export const PATCH = withApiObservability(PATCHHandler);

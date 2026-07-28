@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/guards";
 import {
@@ -8,7 +9,7 @@ import { badRequest, ok, serverError } from "@/lib/http/responses";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function DELETE(_req: Request, { params }: Params) {
+async function DELETEHandler(_req: Request, { params }: Params) {
   try {
     const ctx = await requirePermission(STAFF_WRITE_PERMISSION);
     const { id } = await params;
@@ -23,3 +24,5 @@ export async function DELETE(_req: Request, { params }: Params) {
     return serverError();
   }
 }
+
+export const DELETE = withApiObservability(DELETEHandler);

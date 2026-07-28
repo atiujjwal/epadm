@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 
 type Props = {
   initialBooks: LibraryBookRecord[];
@@ -122,7 +123,7 @@ function LibraryCatalog({ initialBooks }: Props) {
                 <option value="lost">Lost</option>
               </Select>
             </div>
-            {error ? <FormError>{error}</FormError> : null}
+            <FormErrorSummary errors={error ? [error] : []} />
             {success ? <FormSuccess>{success}</FormSuccess> : null}
             <Button type="submit" disabled={isPending} className="w-full">
               {isPending ? "Saving…" : "Add title"}

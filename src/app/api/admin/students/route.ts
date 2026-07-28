@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/guards";
@@ -23,7 +24,7 @@ const studentSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   try {
     const ctx = await requirePermission(STUDENT_READ_PERMISSION);
     const url = new URL(req.url);
@@ -36,7 +37,7 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   try {
     const ctx = await requirePermission(STUDENT_WRITE_PERMISSION);
     const requestHeaders = await headers();
@@ -67,3 +68,6 @@ export async function POST(req: Request) {
     return serverError();
   }
 }
+
+export const GET = withApiObservability(GETHandler);
+export const POST = withApiObservability(POSTHandler);

@@ -23,7 +23,7 @@ type TenantMemberRecord = {
   phone: string | null;
   role: UserRole;
   isActive: boolean;
-  joinedAt: string | Date;
+  joinedAt: string;
   isVerified: boolean;
 };
 

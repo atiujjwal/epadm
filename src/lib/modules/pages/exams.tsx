@@ -4,7 +4,7 @@ import { ModuleShell } from "@/components/workspace/module-shell";
 import type { InnerRailGroup } from "@/components/workspace/inner-rail";
 import type { ModuleFlow } from "@/components/workspace/module-shell";
 import { students } from "@/data/mock";
-import { Home, ClipboardList, PenSquare, MessageSquare, FileText, Award, Trophy, Table2, Download, AlertTriangle, Ticket, CalendarClock, Settings2, Layers, Percent, BookOpen, Gauge } from "lucide-react";
+import { Home, ClipboardList, PenSquare, MessageSquare, FileText, Award, Trophy, Table2, Download, AlertTriangle, Ticket, CalendarClock, Settings2, Layers, Percent, Gauge } from "lucide-react";
 
 const rail: InnerRailGroup[] = [
   { label: "Operate", items: [

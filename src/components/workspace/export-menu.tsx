@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ export function ExportMenu({
   size = "sm",
 }: {
   label?: string;
-  size?: "sm" | "default";
+  size?: "sm" | "md";
 }) {
   const fire = (kind: string) =>
     toast.success(`${kind} export queued`, {
@@ -27,7 +27,7 @@ export function ExportMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size={size} className="h-8 gap-1.5 text-[12px]">
+        <Button variant="secondary" size={size} className="h-8 gap-1.5 text-[12px]">
           <Download className="h-3.5 w-3.5" /> {label}
         </Button>
       </DropdownMenuTrigger>

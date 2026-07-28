@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextRequest, NextResponse } from 'next/server';
 
 const requestMap = new Map<string, { count: number; resetAt: number }>();
@@ -21,7 +22,7 @@ function sanitize(v: unknown): string {
   return v.trim().slice(0, 2000).replace(/<[^>]*>/g, '');
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     request.headers.get('x-real-ip') ??
@@ -54,6 +55,9 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ message: 'Message received.' }, { status: 200 });
 }
 
-export async function GET() {
+async function GETHandler() {
   return NextResponse.json({ message: 'Method not allowed.' }, { status: 405 });
 }
+
+export const POST = withApiObservability(POSTHandler);
+export const GET = withApiObservability(GETHandler);

@@ -17,14 +17,14 @@ const controlPlane = { x: 50, y: 40 };
 const edges = tenants.map((t) => ({ from: t, to: controlPlane }));
 
 const statusColors: Record<string, string> = {
-  active:   '#4f6ef7',
-  inactive: '#475569',
+  active:   'var(--primary)',
+  inactive: 'var(--muted-foreground)',
 };
 
 const roleColors: Record<string, string> = {
-  Enterprise: '#4f6ef7',
-  Business:   '#6b87fa',
-  Starter:    '#8fa4fc',
+  Enterprise: 'var(--primary)',
+  Business:   'color-mix(in oklch, var(--primary) 82%, var(--background))',
+  Starter:    'color-mix(in oklch, var(--primary) 62%, var(--background))',
 };
 
 /* ── Animated connection line ─────────────────────────────── */

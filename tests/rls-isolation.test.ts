@@ -1,165 +1,227 @@
+import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { and, eq, like, sql } from "drizzle-orm";
 import { Pool } from "pg";
+import {
+  academicClasses,
+  academicYears,
+  staffProfiles,
+  studentEnrollments,
+  studentInvoices,
+  students,
+} from "@/lib/db";
+import { withTenant } from "@/lib/db/with-tenant";
 
-/**
- * Cross-tenant Row-Level-Security probe.
- *
- * Proves the isolation guarantee end-to-end at the database layer:
- *   1. Two tenants are provisioned (setup runs on a BYPASSRLS connection,
- *      exactly as tenant provisioning does in production — see opsDb).
- *   2. A student row is inserted for each tenant.
- *   3. A probe connection sets `app.current_tenant` to tenant A and asserts it
- *      can read A's student but CANNOT read B's — the tenant_isolation_policy.
- *
- * The isolation assertion is only meaningful when the probe role does NOT
- * bypass RLS (i.e. it is the non-superuser epadm_app role). When the probe role
- * bypasses RLS (e.g. the default local `postgres` superuser), the DB cannot
- * enforce the policy and the isolation assertion is skipped with a warning.
- * CI points APP_TEST_DATABASE_URL at epadm_app so the guarantee is enforced.
- */
-
-const SETUP_URL = process.env.OPS_DATABASE_URL ?? process.env.DATABASE_URL;
-const PROBE_URL =
-  process.env.APP_TEST_DATABASE_URL ?? process.env.DATABASE_URL;
-
-const stamp = `${Date.now()}`;
-const slugA = `rls-probe-a-${stamp}`;
-const slugB = `rls-probe-b-${stamp}`;
+const setupUrl = process.env.OPS_DATABASE_URL;
+const stamp = `${Date.now()}-${randomUUID().slice(0, 8)}`;
+const admissionPrefix = `RLS-${stamp}`;
 
 let setupPool: Pool;
-let probePool: Pool;
-let tenantAId: string;
-let tenantBId: string;
-let probeRoleBypassesRls = true;
-let probeRoleName = "unknown";
+const tenantAId = randomUUID();
+const tenantBId = randomUUID();
+let tenantAStudentId = "";
+let tenantAStaffId = "";
+let tenantAInvoiceId = "";
 
 describe("cross-tenant RLS isolation", () => {
   beforeAll(async () => {
-    if (!SETUP_URL || !PROBE_URL) {
-      throw new Error(
-        "DATABASE_URL (and optionally OPS_DATABASE_URL / APP_TEST_DATABASE_URL) must be set to run the RLS probe.",
-      );
+    if (!setupUrl) {
+      throw new Error("OPS_DATABASE_URL must be set for isolation-test setup");
     }
 
-    setupPool = new Pool({ connectionString: SETUP_URL, max: 2 });
-    probePool = new Pool({ connectionString: PROBE_URL, max: 2 });
+    setupPool = new Pool({
+      connectionString: setupUrl,
+      max: 1,
+      connectionTimeoutMillis: 5_000,
+    });
 
-    // Inspect the probe role: RLS (even FORCE) is bypassed by superusers and
-    // BYPASSRLS roles, so the isolation assertion only holds for a plain role.
-    const roleInfo = await probePool.query<{
-      current_user: string;
-      rolsuper: boolean;
-      rolbypassrls: boolean;
-    }>(
-      `SELECT current_user,
-              (SELECT rolsuper FROM pg_roles WHERE rolname = current_user) AS rolsuper,
-              (SELECT rolbypassrls FROM pg_roles WHERE rolname = current_user) AS rolbypassrls`,
+    const runtimeRole = await withTenant(tenantAId, (tx) =>
+      tx.execute<{
+        current_user: string;
+        rolsuper: boolean;
+        rolbypassrls: boolean;
+      }>(sql`select current_user,
+                    (select rolsuper from pg_roles where rolname = current_user) as rolsuper,
+                    (select rolbypassrls from pg_roles where rolname = current_user) as rolbypassrls`),
     );
-    probeRoleName = roleInfo.rows[0]?.current_user ?? "unknown";
-    probeRoleBypassesRls = Boolean(
-      roleInfo.rows[0]?.rolsuper || roleInfo.rows[0]?.rolbypassrls,
-    );
-
-    // Provision two tenants + one student each on the BYPASSRLS setup connection
-    // (matches production provisioning, which is inherently cross-tenant).
-    const tenantA = await setupPool.query<{ id: string }>(
-      `INSERT INTO tenants (name, slug, subscription_tier, is_active)
-       VALUES ($1, $2, 'basic', true) RETURNING id`,
-      ["RLS Probe Tenant A", slugA],
-    );
-    const tenantB = await setupPool.query<{ id: string }>(
-      `INSERT INTO tenants (name, slug, subscription_tier, is_active)
-       VALUES ($1, $2, 'basic', true) RETURNING id`,
-      ["RLS Probe Tenant B", slugB],
-    );
-    tenantAId = tenantA.rows[0].id;
-    tenantBId = tenantB.rows[0].id;
+    expect(runtimeRole.rows[0]?.rolsuper).toBe(false);
+    expect(runtimeRole.rows[0]?.rolbypassrls).toBe(false);
 
     await setupPool.query(
-      `INSERT INTO students (tenant_id, admission_number, first_name, status)
-       VALUES ($1, $2, $3, 'active')`,
-      [tenantAId, `ADM-A-${stamp}`, "Alice A"],
+      `insert into tenants (id, name, slug, subscription_tier, is_active)
+       values ($1, $2, $3, 'basic', true), ($4, $5, $6, 'basic', true)`,
+      [
+        tenantAId,
+        "RLS Test Tenant A",
+        `rls-a-${stamp}`,
+        tenantBId,
+        "RLS Test Tenant B",
+        `rls-b-${stamp}`,
+      ],
     );
-    await setupPool.query(
-      `INSERT INTO students (tenant_id, admission_number, first_name, status)
-       VALUES ($1, $2, $3, 'active')`,
-      [tenantBId, `ADM-B-${stamp}`, "Bob B"],
+
+    await withTenant(tenantAId, async (tx) => {
+      const [staff] = await tx
+        .insert(staffProfiles)
+        .values({
+          tenantId: tenantAId,
+          employeeCode: `EMP-A-${stamp}`,
+          fullName: "Tenant A Staff",
+        })
+        .returning({ id: staffProfiles.id });
+      tenantAStaffId = staff.id;
+
+      const insertedStudents = await tx
+        .insert(students)
+        .values(
+          [1, 2, 3].map((number) => ({
+            tenantId: tenantAId,
+            admissionNumber: `${admissionPrefix}-A${number}`,
+            firstName: number === 1 ? "Original" : `Tenant A ${number}`,
+          })),
+        )
+        .returning({ id: students.id, admissionNumber: students.admissionNumber });
+      tenantAStudentId = insertedStudents[0].id;
+
+      const [year] = await tx
+        .insert(academicYears)
+        .values({
+          tenantId: tenantAId,
+          name: `AY-${stamp}`.slice(0, 20),
+          startDate: "2026-04-01",
+          endDate: "2027-03-31",
+        })
+        .returning({ id: academicYears.id });
+
+      const [academicClass] = await tx
+        .insert(academicClasses)
+        .values({
+          tenantId: tenantAId,
+          code: `C-${stamp}`.slice(0, 40),
+          name: "Isolation Class",
+          academicYear: "2026-27",
+          academicYearId: year.id,
+          classTeacherId: staff.id,
+        })
+        .returning({ id: academicClasses.id });
+
+      const [enrollment] = await tx
+        .insert(studentEnrollments)
+        .values({
+          tenantId: tenantAId,
+          studentId: tenantAStudentId,
+          classId: academicClass.id,
+          academicYear: "2026-27",
+        })
+        .returning({ id: studentEnrollments.id });
+
+      const [invoice] = await tx
+        .insert(studentInvoices)
+        .values({
+          tenantId: tenantAId,
+          studentId: tenantAStudentId,
+          enrollmentId: enrollment.id,
+          title: "Isolation Invoice",
+          amount: 1000,
+          dueDate: "2026-08-31",
+        })
+        .returning({ id: studentInvoices.id });
+      tenantAInvoiceId = invoice.id;
+    });
+
+    await withTenant(tenantBId, (tx) =>
+      tx.insert(students).values(
+        [1, 2].map((number) => ({
+          tenantId: tenantBId,
+          admissionNumber: `${admissionPrefix}-B${number}`,
+          firstName: `Tenant B ${number}`,
+        })),
+      ),
     );
   });
 
   afterAll(async () => {
-    // Cascade-deletes the seeded students via FK ON DELETE CASCADE.
     if (setupPool) {
-      if (tenantAId) {
-        await setupPool.query(`DELETE FROM tenants WHERE id = $1`, [tenantAId]);
-      }
-      if (tenantBId) {
-        await setupPool.query(`DELETE FROM tenants WHERE id = $1`, [tenantBId]);
-      }
+      await setupPool.query("delete from tenants where id = any($1::uuid[])", [
+        [tenantAId, tenantBId],
+      ]);
       await setupPool.end();
     }
-    if (probePool) {
-      await probePool.end();
-    }
   });
 
-  it("sees its own tenant's rows when app.current_tenant is set", async () => {
-    const client = await probePool.connect();
-    try {
-      await client.query("BEGIN");
-      await client.query(
-        `SELECT set_config('app.current_tenant', $1, true)`,
-        [tenantAId],
-      );
-      const own = await client.query(
-        `SELECT id FROM students WHERE tenant_id = $1`,
-        [tenantAId],
-      );
-      expect(own.rowCount).toBe(1);
-      await client.query("COMMIT");
-    } finally {
-      client.release();
-    }
+  it("cannot read a student belonging to another tenant", async () => {
+    const [result] = await withTenant(tenantBId, (tx) =>
+      tx.select().from(students).where(eq(students.id, tenantAStudentId)).limit(1),
+    );
+    expect(result).toBeUndefined();
   });
 
-  it("cannot read another tenant's rows (RLS enforced at the DB)", async (ctx) => {
-    if (probeRoleBypassesRls) {
-      console.warn(
-        `[rls-probe] SKIPPED isolation assertion: probe role "${probeRoleName}" ` +
-          `is a superuser or has BYPASSRLS, so the tenant_isolation_policy cannot ` +
-          `be enforced. Point APP_TEST_DATABASE_URL at the non-superuser epadm_app ` +
-          `role to enforce this guarantee (this is what CI does).`,
-      );
-      ctx.skip();
-      return;
-    }
+  it("cannot read staff belonging to another tenant", async () => {
+    const [result] = await withTenant(tenantBId, (tx) =>
+      tx
+        .select()
+        .from(staffProfiles)
+        .where(eq(staffProfiles.id, tenantAStaffId))
+        .limit(1),
+    );
+    expect(result).toBeUndefined();
+  });
 
-    const client = await probePool.connect();
-    try {
-      await client.query("BEGIN");
-      // Scope the session to tenant A...
-      await client.query(
-        `SELECT set_config('app.current_tenant', $1, true)`,
-        [tenantAId],
-      );
+  it("cannot read an invoice belonging to another tenant", async () => {
+    const [result] = await withTenant(tenantBId, (tx) =>
+      tx
+        .select()
+        .from(studentInvoices)
+        .where(eq(studentInvoices.id, tenantAInvoiceId))
+        .limit(1),
+    );
+    expect(result).toBeUndefined();
+  });
 
-      // ...then attempt to read tenant B's rows explicitly. The policy must
-      // filter them out regardless of the WHERE clause.
-      const cross = await client.query(
-        `SELECT id FROM students WHERE tenant_id = $1`,
-        [tenantBId],
-      );
-      expect(cross.rowCount).toBe(0);
+  it("list queries return only the current tenant's records", async () => {
+    const [tenantAStudents, tenantBStudents] = await Promise.all([
+      withTenant(tenantAId, (tx) =>
+        tx
+          .select({ tenantId: students.tenantId })
+          .from(students)
+          .where(like(students.admissionNumber, `${admissionPrefix}-%`)),
+      ),
+      withTenant(tenantBId, (tx) =>
+        tx
+          .select({ tenantId: students.tenantId })
+          .from(students)
+          .where(like(students.admissionNumber, `${admissionPrefix}-%`)),
+      ),
+    ]);
 
-      // And an unfiltered read must only ever return tenant A's row.
-      const all = await client.query(`SELECT tenant_id FROM students`);
-      for (const row of all.rows as Array<{ tenant_id: string }>) {
-        expect(row.tenant_id).toBe(tenantAId);
-      }
+    expect(tenantAStudents).toHaveLength(3);
+    expect(tenantAStudents.every((row) => row.tenantId === tenantAId)).toBe(true);
+    expect(tenantBStudents).toHaveLength(2);
+    expect(tenantBStudents.every((row) => row.tenantId === tenantBId)).toBe(true);
+  });
 
-      await client.query("COMMIT");
-    } finally {
-      client.release();
-    }
+  it("cannot update a record belonging to another tenant", async () => {
+    const changed = await withTenant(tenantBId, (tx) =>
+      tx
+        .update(students)
+        .set({ firstName: "Hacked" })
+        .where(
+          and(
+            eq(students.id, tenantAStudentId),
+            eq(students.tenantId, tenantAId),
+          ),
+        )
+        .returning({ id: students.id }),
+    );
+    expect(changed).toHaveLength(0);
+
+    const [unchanged] = await withTenant(tenantAId, (tx) =>
+      tx
+        .select({ firstName: students.firstName })
+        .from(students)
+        .where(eq(students.id, tenantAStudentId))
+        .limit(1),
+    );
+    expect(unchanged?.firstName).toBe("Original");
   });
 });

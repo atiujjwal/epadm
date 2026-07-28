@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { fetchWithCsrf } from "@/lib/http/fetch-with-csrf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormItem, FormError } from "@/components/ui/form";
+import { FormItem } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 import { Label } from "@/components/ui/label";
 
 export function PlatformLoginForm() {
@@ -92,7 +93,7 @@ export function PlatformLoginForm() {
           className="text-center text-lg font-mono tracking-widest"
           placeholder="000000"
         />
-        {error && <FormError>{error}</FormError>}
+        <FormErrorSummary errors={error ? [error] : []} />
         <Button
           type="submit"
           disabled={loading}
@@ -129,7 +130,7 @@ export function PlatformLoginForm() {
         />
       </FormItem>
 
-      {error && <FormError>{error}</FormError>}
+      <FormErrorSummary errors={error ? [error] : []} />
 
       <Button
         type="submit"

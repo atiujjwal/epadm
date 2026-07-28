@@ -37,7 +37,7 @@ type StudentRecord = {
   guardianPhone: string | null;
   status: string;
   notes: string | null;
-  createdAt: Date | string;
+  createdAt: string;
 };
 
 type Props = {

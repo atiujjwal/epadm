@@ -1,7 +1,7 @@
 "use client";
 
-import { AppShell, PageHeader } from "@/components/workspace/app-shell";
-import { Button } from "@/components/ui/button-base";
+import { PageHeader } from "@/components/workspace/app-shell";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { insights } from "@/data/mock";
 import { Sparkles, ArrowRight, TrendingUp, AlertTriangle, Users, Wallet } from "lucide-react";

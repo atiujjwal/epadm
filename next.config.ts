@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
   experimental: {
     // Optimize package imports for tree-shaking
     optimizePackageImports: ['framer-motion'],
+    authInterrupts: true,
   },
 
   // Security & caching headers

@@ -1,8 +1,8 @@
 "use client";
 
-import { AppShell, PageHeader } from "@/components/workspace/app-shell";
+import { PageHeader } from "@/components/workspace/app-shell";
 import { ExportMenu } from "@/components/workspace/export-menu";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   kpis,
@@ -156,7 +156,7 @@ export default function Dashboard({ liveStats }: Props) {
             </div>
             <p className="text-[13px] leading-relaxed">
               Attendance held above 94% for the fifth straight day. <span className="font-medium">₹8.42 L</span> collected so far today across{" "}
-              <span className="font-medium">47 receipts</span>. 3 classes still haven't submitted attendance for today, and{" "}
+              <span className="font-medium">47 receipts</span>. 3 classes still haven&apos;t submitted attendance for today, and{" "}
               <span className="font-medium">7 students</span> celebrate a birthday today — draft messages are ready.
             </p>
           </div>
@@ -351,7 +351,7 @@ export default function Dashboard({ liveStats }: Props) {
           action={
             <div className="flex items-center gap-2">
               <ExportMenu />
-              <Button variant="outline" size="sm" className="h-7 text-[11px]">Bulk message</Button>
+              <Button variant="secondary" size="sm" className="h-7 text-[11px]">Bulk message</Button>
             </div>
           }
         >
@@ -493,7 +493,7 @@ export default function Dashboard({ liveStats }: Props) {
                   </div>
                   <div className="text-[13px] font-medium leading-snug">{ins.title}</div>
                   <div className="text-[11px] text-muted-foreground">{ins.meta}</div>
-                  <Button variant="outline" size="sm" className="h-7 text-[11px] w-full">
+                  <Button variant="secondary" size="sm" className="h-7 text-[11px] w-full">
                     {ins.action}
                   </Button>
                 </div>

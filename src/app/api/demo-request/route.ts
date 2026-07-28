@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextRequest, NextResponse } from 'next/server';
 
 /* ── Types ────────────────────────────────────────────────── */
@@ -48,7 +49,7 @@ function isValidEmail(email: string): boolean {
 }
 
 /* ── POST handler ─────────────────────────────────────────── */
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   // Get client IP for rate limiting
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
@@ -132,6 +133,9 @@ export async function POST(request: NextRequest) {
 }
 
 // Disable GET on this route
-export async function GET() {
+async function GETHandler() {
   return NextResponse.json({ message: 'Method not allowed.' }, { status: 405 });
 }
+
+export const POST = withApiObservability(POSTHandler);
+export const GET = withApiObservability(GETHandler);

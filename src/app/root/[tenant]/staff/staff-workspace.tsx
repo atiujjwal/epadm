@@ -18,7 +18,8 @@ import { ExportMenu } from "@/components/workspace/export-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -170,7 +171,7 @@ export function StaffWorkspace({ initialStaff, initialDepartments, total, active
       </div>
 
       <main className="space-y-4 p-6">
-        {message?.type === "error" ? <FormError>{message.text}</FormError> : null}
+        <FormErrorSummary errors={message?.type === "error" ? [message.text] : []} />
         {message?.type === "success" ? <FormSuccess>{message.text}</FormSuccess> : null}
         {tab === "dashboard" ? <DashboardTab staff={staff} departments={departments} activeCount={activeCount} setTab={setTab} setMessage={setMessage} setDepartments={setDepartments} setDepartmentToEdit={setDepartmentToEdit} /> : null}
         {tab === "staffs" ? <StaffsTab staff={staff} setStaff={setStaff} departments={departments} setMessage={setMessage} /> : null}

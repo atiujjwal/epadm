@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button-base";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -86,7 +86,7 @@ export function PageToolbar({
       )}
       {extra}
       <div className="flex-1" />
-      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]">
+      <Button variant="secondary" size="sm" className="h-8 gap-1.5 text-[12px]">
         <SlidersHorizontal className="h-3.5 w-3.5" /> Columns
       </Button>
       {exportBtn && <ExportMenu />}

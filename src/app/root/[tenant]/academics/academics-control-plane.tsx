@@ -9,7 +9,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { FormError, FormSuccess } from "@/components/ui/form";
+import { FormSuccess } from "@/components/ui/form";
+import { FormErrorSummary } from "@/components/ui/form-error-summary";
 import {
   createLocalId,
   displaySection,
@@ -473,7 +474,7 @@ function ClassesTab() {
           </Button>
         </div>
       </div>
-      {message?.type === "error" ? <FormError>{message.text}</FormError> : null}
+      <FormErrorSummary errors={message?.type === "error" ? [message.text] : []} />
       {message?.type === "success" ? <FormSuccess>{message.text}</FormSuccess> : null}
       {view ? <FormSuccess>Viewing: {view}</FormSuccess> : null}
       {openForm === "class" ? (
@@ -701,7 +702,7 @@ function SubjectsTab() {
         </div>
         <Button type="button" onClick={() => { setForm({ id: "", code: "", name: "", status: "active" }); setOpen(true); }} icon={<Plus className="h-3.5 w-3.5" />}>Add Subject</Button>
       </div>
-      {message?.type === "error" ? <FormError>{message.text}</FormError> : null}
+      <FormErrorSummary errors={message?.type === "error" ? [message.text] : []} />
       {message?.type === "success" ? <FormSuccess>{message.text}</FormSuccess> : null}
       {open ? (
         <Card padding="lg" className="rounded-lg">

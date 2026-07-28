@@ -1,3 +1,4 @@
+import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextResponse } from "next/server";
 import { opsDb } from "@/lib/db/ops";
 import {
@@ -12,7 +13,7 @@ import { and, eq } from "drizzle-orm";
 import { writePlatformAuditLog } from "@/lib/platform/audit";
 import { logger } from "@/lib/logger";
 
-export async function POST(req: Request) {
+async function POSTHandler(req: Request) {
   const tenantId = req.headers.get("x-tenant-id") || "";
   const integrationKey = req.headers.get("x-integration-key") || "";
 
@@ -176,3 +177,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export const POST = withApiObservability(POSTHandler);
