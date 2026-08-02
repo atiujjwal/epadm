@@ -1,19 +1,9 @@
-import { getStudentSummary, listStudents } from "@/lib/admin/registries";
-import { getCtx } from "@/lib/context";
-import { StudentsWorkspace } from "./students-workspace";
-
-export default async function StudentsPage() {
-  const ctx = await getCtx();
-  const [initialStudents, summary] = await Promise.all([
-    listStudents(ctx.tenantId),
-    getStudentSummary(ctx.tenantId),
-  ]);
-
-  return (
-    <StudentsWorkspace
-      initialStudents={initialStudents}
-      total={summary.total}
-      active={summary.active}
-    />
-  );
-}
+import Link from "next/link";
+import { PageHeader } from "@/components/layout/page-header";
+import { Badge } from "@/components/ui/badge";
+import { requirePermission } from "@/lib/auth/guards";
+import { listStudentDirectory } from "@/lib/phase3/students";
+export default async function StudentsPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) { const ctx=await requirePermission("students.read"); const p=await searchParams; const result=await listStudentDirectory(ctx.tenantId,{q:p.q,classId:p.classId,sectionId:p.sectionId,status:p.status,gender:p.gender,page:Number(p.page||1),limit:25}); return <div className="space-y-6"><PageHeader title="Student Directory" description={`${result.total} canonical student records`} actions={<div className="flex gap-2"><Link href="/students/imports" className="rounded-md border px-3 py-2 text-sm">Import</Link><Link href="/students/new" className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground">Add student</Link></div>}/>
+  <form className="flex flex-wrap gap-2"><input className="rounded-md border px-3 py-2 text-sm" name="q" defaultValue={p.q} placeholder="Name, admission or roll no."/><select className="rounded-md border px-3 py-2 text-sm" name="status" defaultValue={p.status??""}><option value="">All status</option>{["active","inactive","transferred","alumni"].map(v=><option key={v}>{v}</option>)}</select><select className="rounded-md border px-3 py-2 text-sm" name="gender" defaultValue={p.gender??""}><option value="">All genders</option>{["male","female","other","prefer_not_to_say"].map(v=><option key={v}>{v}</option>)}</select><button className="rounded-md border px-3 py-2 text-sm">Apply filters</button></form>
+  <div className="overflow-x-auto rounded-lg border"><table className="w-full text-sm"><thead className="bg-muted/50 text-left"><tr>{["Student","Admission no.","Class & section","Status","Primary guardian","Actions"].map(h=><th className="px-4 py-3" key={h}>{h}</th>)}</tr></thead><tbody>{result.students.map(s=><tr className="border-t" key={s.id}><td className="px-4 py-3"><Link className="font-medium text-primary" href={`/students/${s.id}`}>{s.firstName} {s.lastName}</Link></td><td className="px-4 py-3 font-mono text-xs">{s.admissionNumber}</td><td className="px-4 py-3">{s.className??"Unassigned"}{s.sectionName?` · ${s.sectionName}`:""}</td><td className="px-4 py-3"><Badge variant={s.status==="active"?"success":"default"}>{s.status}</Badge></td><td className="px-4 py-3">{s.guardianName??"—"}</td><td className="px-4 py-3"><Link href={`/students/${s.id}/overview`} className="text-primary">View</Link></td></tr>)}</tbody></table>{!result.students.length?<p className="p-10 text-center text-sm text-muted-foreground">No students match the current filters.</p>:null}</div>
+  </div>; }

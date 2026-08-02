@@ -64,6 +64,11 @@ async function POSTHandler(req: Request) {
       return unauthorized("Invalid email or password");
     }
 
+    await opsDb
+      .update(users)
+      .set({ lastLoginAt: new Date(), updatedAt: new Date() })
+      .where(eq(users.id, row.userId));
+
     const token = await createSessionToken({
       tenantId: tenant.id,
       userId: row.userId,

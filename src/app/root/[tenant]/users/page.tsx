@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function UsersRedirectPage() {
-  redirect("/administration/users");
-}
+import { permanentRedirect } from "next/navigation"; export default function Page(){permanentRedirect("/administration/users")}

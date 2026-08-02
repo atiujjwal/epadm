@@ -637,8 +637,6 @@ export async function deleteStaffDepartment(input: { tenantId: string; id: strin
       where: and(eq(staffDepartments.tenantId, input.tenantId), eq(staffDepartments.id, input.id)),
     });
     if (!department) throw new Error("Department not found.");
-    if (department.isSystem) throw new Error("System default departments cannot be deleted");
-
     const [member] = await tx
       .select({ id: staffProfiles.id })
       .from(staffProfiles)
@@ -654,7 +652,8 @@ export async function deleteStaffDepartment(input: { tenantId: string; id: strin
     if (member) throw new Error("Cannot delete a department with assigned staff.");
 
     const [deleted] = await tx
-      .delete(staffDepartments)
+      .update(staffDepartments)
+      .set({ status: "inactive", updatedAt: new Date() })
       .where(and(eq(staffDepartments.tenantId, input.tenantId), eq(staffDepartments.id, input.id)))
       .returning();
 
