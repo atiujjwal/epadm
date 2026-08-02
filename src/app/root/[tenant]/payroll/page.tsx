@@ -1,10 +1,5 @@
-import { listPayroll } from "@/lib/admin/payroll";
-import { getCtx } from "@/lib/context";
-import { PayrollWorkspace } from "./payroll-workspace";
+import { redirect } from "next/navigation";
 
-export default async function PayrollPage() {
-  const ctx = await getCtx();
-  const payroll = await listPayroll(ctx.tenantId);
-
-  return <PayrollWorkspace initialPayroll={payroll} />;
+export default function PayrollPage() {
+  redirect("/payroll/runs");
 }

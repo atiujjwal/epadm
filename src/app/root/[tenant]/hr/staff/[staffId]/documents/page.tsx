@@ -1,0 +1,1 @@
+import { PrototypeBanner } from "@/components/ui/prototype-banner"; export default function Page(){return <PrototypeBanner feature="Staff documents" phase={4} message="The canonical document shell is ready; managed storage arrives in the document phase."/>}

@@ -1,21 +1,2 @@
-import { getStaffSummary, listStaff, listStaffDepartments } from "@/lib/admin/registries";
-import { requirePermission } from "@/lib/auth/guards";
-import { StaffWorkspace } from "../../staff/staff-workspace";
-
-export default async function StaffPage() {
-  const ctx = await requirePermission("hr.read");
-  const [initialStaff, departments, summary] = await Promise.all([
-    listStaff(ctx.tenantId),
-    listStaffDepartments(ctx.tenantId),
-    getStaffSummary(ctx.tenantId),
-  ]);
-
-  return (
-    <StaffWorkspace
-      initialStaff={initialStaff}
-      initialDepartments={departments}
-      total={summary.total}
-      active={summary.active}
-    />
-  );
-}
+import Link from "next/link"; import { PageHeader } from "@/components/layout/page-header"; import { Badge } from "@/components/ui/badge"; import { requirePermission } from "@/lib/auth/guards"; import { listHrStaff } from "@/lib/phase3/hr";
+export default async function StaffPage({searchParams}:{searchParams:Promise<{q?:string}>}){const ctx=await requirePermission("hr.read");const{q}=await searchParams;const staff=await listHrStaff(ctx.tenantId,q);return <div className="space-y-6"><PageHeader title="Staff Directory" description={`${staff.length} canonical staff records`} actions={<div className="flex gap-2"><Link href="/hr/staff/imports" className="rounded-md border px-3 py-2 text-sm">Import</Link><Link href="/hr/staff/new" className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground">Add staff</Link></div>}/><form><input name="q" defaultValue={q} placeholder="Name, employee number or email" className="w-full max-w-md rounded-md border px-3 py-2 text-sm"/></form><div className="overflow-x-auto rounded-lg border"><table className="w-full text-sm"><thead className="bg-muted/50 text-left"><tr>{["Staff member","Employee no.","Department","Staff type","Employment","Status","Joining date","Actions"].map(h=><th key={h} className="px-4 py-3">{h}</th>)}</tr></thead><tbody>{staff.map(s=><tr key={s.id} className="border-t"><td className="px-4 py-3"><Link className="font-medium text-primary" href={`/hr/staff/${s.id}/overview`}>{s.fullName}</Link><p className="text-xs text-muted-foreground">{s.email}</p></td><td className="px-4 py-3 font-mono text-xs">{s.employeeCode}</td><td className="px-4 py-3">{s.department??"—"}</td><td className="px-4 py-3"><Badge>{s.staffType}</Badge></td><td className="px-4 py-3"><Badge>{s.employmentType}</Badge></td><td className="px-4 py-3"><Badge variant={s.status==="active"?"success":"default"}>{s.status}</Badge></td><td className="px-4 py-3">{s.joinedOn??"—"}</td><td className="px-4 py-3"><Link href={`/hr/staff/${s.id}/overview`} className="text-primary">View</Link></td></tr>)}</tbody></table></div></div>}

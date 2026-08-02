@@ -1,0 +1,10 @@
+import { z } from "zod";
+import { requirePermission } from "@/lib/auth/guards";
+import { archiveHrStaff, getHrStaff, updateHrStaff } from "@/lib/phase3/hr";
+import { phase3ApiError } from "@/lib/phase3/api";
+const updateSchema = z.object({ fullName: z.string().min(2).max(255).optional(), email: z.string().email().nullable().optional(), phonePrimary: z.string().max(20).nullable().optional(), phoneSecondary: z.string().max(20).nullable().optional(), dateOfBirth: z.string().date().nullable().optional(), gender: z.string().max(20).nullable().optional(), department: z.string().max(120).nullable().optional(), jobTitle: z.string().max(120).nullable().optional(), staffType: z.enum(["teaching","non_teaching","administrative"]).optional(), employmentType: z.enum(["full_time","part_time","contract","probation"]).optional(), joinedOn: z.string().date().nullable().optional(), leavingDate: z.string().date().nullable().optional(), status: z.string().max(20).optional() });
+const archiveSchema = z.object({ reason: z.string().trim().min(3), effectiveDate: z.string().date() });
+type Context = { params: Promise<{ id: string }> };
+export async function GET(_request: Request, { params }: Context) { const ctx = await requirePermission("hr.read"); const { id } = await params; const result = await getHrStaff(ctx.tenantId, id); return result ? Response.json(result) : Response.json({ error: "Staff record not found" }, { status: 404 }); }
+export async function PATCH(request: Request, { params }: Context) { const ctx = await requirePermission("hr.staff.update"); const { id } = await params; try { return Response.json({ staff: await updateHrStaff(ctx.tenantId, ctx.userId, id, updateSchema.parse(await request.json())) }); } catch (error) { return phase3ApiError(error); } }
+export async function DELETE(request: Request, { params }: Context) { const ctx = await requirePermission("hr.staff.archive"); const { id } = await params; try { return Response.json({ staff: await archiveHrStaff(ctx.tenantId, ctx.userId, id, archiveSchema.parse(await request.json())) }); } catch (error) { return phase3ApiError(error); } }
