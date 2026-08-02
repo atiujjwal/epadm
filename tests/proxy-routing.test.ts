@@ -86,20 +86,32 @@ describe("src/proxy.ts routing behavior", () => {
 
   it("redirects legacy tenant module aliases to canonical paths", async () => {
     const users = await proxy(request("/users", { authenticated: true }));
+    const fees = await proxy(request("/fees", { authenticated: true }));
     const finance = await proxy(request("/finance", { authenticated: true }));
+    const vehicles = await proxy(request("/vehicles", { authenticated: true }));
+    const labs = await proxy(request("/labs", { authenticated: true }));
     const teacher = await proxy(request("/teacher/home", { authenticated: true }));
     const student = await proxy(request("/student/home", { authenticated: true }));
     const adminDashboard = await proxy(request("/admin-dashboard", { authenticated: true }));
     expect(users.status).toBe(301);
-    expect(finance.status).toBe(301);
+    expect(fees.status).toBe(301);
+    expect(finance.status).toBe(200);
+    expect(vehicles.status).toBe(301);
+    expect(labs.status).toBe(301);
     expect(teacher.status).toBe(301);
     expect(student.status).toBe(301);
     expect(adminDashboard.status).toBe(301);
     expect(users.headers.get("location")).toBe(
       "http://school.localhost/administration/users",
     );
-    expect(finance.headers.get("location")).toBe(
+    expect(fees.headers.get("location")).toBe(
       "http://school.localhost/finance/fees",
+    );
+    expect(vehicles.headers.get("location")).toBe(
+      "http://school.localhost/transport",
+    );
+    expect(labs.headers.get("location")).toBe(
+      "http://school.localhost/laboratories",
     );
     expect(teacher.headers.get("location")).toBe(
       "http://school.localhost/teacher",

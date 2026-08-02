@@ -66,6 +66,10 @@ Migrations still run against the superuser. `db:boot` derives an admin
 connection automatically; if you run `db:migrate` directly, point `DATABASE_URL`
 at `postgres` for that command, or keep a separate admin URL.
 
+The Drizzle config also accepts `MIGRATION_DATABASE_URL`. Prefer it for local
+and hosted migration jobs so `DATABASE_URL` can remain permanently bound to the
+restricted application role.
+
 If your volume already exists (roles not created), apply the script manually:
 
 ```bash

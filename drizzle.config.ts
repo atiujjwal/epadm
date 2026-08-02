@@ -11,10 +11,13 @@ dotenv.config({
   path: path.resolve(process.cwd(), ".env")
 });
 
-const connectionString = process.env.DATABASE_URL;
+// Runtime DATABASE_URL must stay on the restricted RLS role. DDL can use an
+// explicitly configured owner connection without changing runtime credentials.
+const connectionString =
+  process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("Missing DATABASE_URL environment variable");
+  throw new Error("Missing MIGRATION_DATABASE_URL or DATABASE_URL environment variable");
 }
 
 console.log("Using database connection:", connectionString.replace(/:[^:@]+@/, ':****@'));

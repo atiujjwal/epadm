@@ -241,7 +241,6 @@ async function handleTenantRequest(req: NextRequest, pathname: string, requestId
     "/admin-dashboard": "/dashboard",
     "/teacher/home": "/teacher",
     "/student/home": "/student",
-    "/finance": "/finance/fees",
     "/fees": "/finance/fees",
     "/staff": "/hr/staff",
     "/timetable": "/timetables",
@@ -251,6 +250,8 @@ async function handleTenantRequest(req: NextRequest, pathname: string, requestId
     "/intelligence": "/analytics",
     "/mobile": "/digital-experience",
     "/settings": "/administration/school",
+    "/onboarding": "/setup",
+    "/setup-pending": "/setup/pending",
   };
   const canonicalPath = legacyRouteRedirects[pathname];
   if (canonicalPath) {
