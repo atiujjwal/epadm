@@ -7,9 +7,36 @@ const TENANT_ACTIVE_TTL_SECONDS = 60 * 60 * 24;
 const memoryTenantStatus = new Map<string, boolean>();
 
 let redisClient: Redis | null = null;
+let redisUnavailableUntil = 0;
+let redisFallbackNoticeShown = false;
+
+const REDIS_RETRY_DELAY_MS = 30_000;
+
+function markRedisAvailable() {
+  redisUnavailableUntil = 0;
+  redisFallbackNoticeShown = false;
+}
+
+function markRedisUnavailable(operation: string, error: unknown) {
+  redisUnavailableUntil = Date.now() + REDIS_RETRY_DELAY_MS;
+
+  if (redisFallbackNoticeShown) {
+    return;
+  }
+
+  redisFallbackNoticeShown = true;
+  const detail = error instanceof Error ? error.message : String(error);
+  console.warn(
+    `[tenant-cache] Redis ${operation} failed; using memory fallback and retrying Redis in ${REDIS_RETRY_DELAY_MS / 1000}s: ${detail}`,
+  );
+}
 
 function getRedis(): Redis | null {
   if (!process.env.REDIS_URL) {
+    return null;
+  }
+
+  if (Date.now() < redisUnavailableUntil) {
     return null;
   }
 
@@ -39,9 +66,10 @@ export async function setTenantActiveCache(
         TENANT_ACTIVE_TTL_SECONDS,
         isActive ? "1" : "0",
       );
+      markRedisAvailable();
       return;
     } catch (error) {
-      console.warn("[tenant-cache] Redis setex failed, falling back to memory:", error);
+      markRedisUnavailable("setex", error);
     }
   }
 
@@ -56,11 +84,12 @@ export async function isTenantActiveCached(
   if (redis) {
     try {
       const value = await redis.get(`${TENANT_ACTIVE_PREFIX}${tenantId}`);
+      markRedisAvailable();
       if (value !== null) {
         return value === "1";
       }
     } catch (error) {
-      console.warn("[tenant-cache] Redis get failed, checking memory fallback:", error);
+      markRedisUnavailable("get", error);
     }
   }
 
@@ -82,9 +111,10 @@ export async function invalidateTenantActiveCache(
   if (redis) {
     try {
       await redis.del(`${TENANT_ACTIVE_PREFIX}${tenantId}`);
+      markRedisAvailable();
       return;
     } catch (error) {
-      console.warn("[tenant-cache] Redis del failed, fallback to memory:", error);
+      markRedisUnavailable("del", error);
     }
   }
 
@@ -104,9 +134,10 @@ export async function setActiveModulesCache(
         TENANT_ACTIVE_TTL_SECONDS,
         modules.join(","),
       );
+      markRedisAvailable();
       return;
     } catch (error) {
-      console.warn("[tenant-cache] Redis setex modules failed, falling back to memory:", error);
+      markRedisUnavailable("setex modules", error);
     }
   }
 
@@ -121,11 +152,12 @@ export async function getActiveModulesCached(
   if (redis) {
     try {
       const value = await redis.get(`${TENANT_MODULES_PREFIX}${tenantId}`);
+      markRedisAvailable();
       if (value !== null) {
         return value.split(",").filter(Boolean);
       }
     } catch (error) {
-      console.warn("[tenant-cache] Redis get modules failed, checking memory fallback:", error);
+      markRedisUnavailable("get modules", error);
     }
   }
 
@@ -144,9 +176,10 @@ export async function invalidateTenantModulesCache(
   if (redis) {
     try {
       await redis.del(`${TENANT_MODULES_PREFIX}${tenantId}`);
+      markRedisAvailable();
       return;
     } catch (error) {
-      console.warn("[tenant-cache] Redis del modules failed, fallback to memory:", error);
+      markRedisUnavailable("del modules", error);
     }
   }
 

@@ -6,7 +6,7 @@ import { NavSidebar } from "@/components/shell/nav-sidebar";
 import { Topbar, type ShellSession } from "@/components/shell/topbar";
 import { CommandPalette } from "@/components/shell/command-palette";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import type { RouteDefinition } from "@/lib/navigation/route-registry";
+import type { ClientRouteDefinition } from "@/lib/navigation/route-registry";
 
 function Brand({ tenantName }: { tenantName: string }) {
   return (
@@ -31,7 +31,7 @@ export function ShellClient({
 }: {
   children: ReactNode;
   session: ShellSession;
-  authorizedRoutes: RouteDefinition[];
+  authorizedRoutes: ClientRouteDefinition[];
   activeAcademicYear: string;
   academicYears: string[];
 }) {

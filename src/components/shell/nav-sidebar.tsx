@@ -5,19 +5,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getRouteIcon } from "@/components/shell/route-icons";
 import type {
+  ClientRouteDefinition,
   NavGroup,
-  RouteDefinition,
 } from "@/lib/navigation/route-registry";
 
 interface NavSidebarProps {
-  authorizedRoutes: RouteDefinition[];
+  authorizedRoutes: ClientRouteDefinition[];
   tenantId: string;
   isAdmin?: boolean;
   onNavigate?: () => void;
 }
 
-function routeIsActive(route: RouteDefinition, pathname: string): boolean {
+function routeIsActive(route: ClientRouteDefinition, pathname: string): boolean {
   return [route.path, ...(route.legacyPaths ?? [])].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
@@ -33,7 +34,7 @@ export function NavSidebar({
   const groups = useMemo(
     () =>
       authorizedRoutes.reduce<
-        Map<NavGroup, { label: string; routes: RouteDefinition[] }>
+        Map<NavGroup, { label: string; routes: ClientRouteDefinition[] }>
       >((map, route) => {
         if (!map.has(route.group)) {
           map.set(route.group, { label: route.groupLabel, routes: [] });
@@ -107,7 +108,7 @@ export function NavSidebar({
             {!collapsed ? (
               <ul className="space-y-0.5 px-2">
                 {visibleRoutes.map((route) => {
-                  const Icon = route.icon;
+                  const Icon = getRouteIcon(route.iconKey);
                   const active = routeIsActive(route, pathname);
                   const locked = route.comingSoon && isAdmin;
 

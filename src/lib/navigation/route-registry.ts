@@ -68,6 +68,83 @@ export interface RouteDefinition {
   legacyPaths?: string[];
 }
 
+export type RouteIconKey =
+  | "BarChart3"
+  | "Bell"
+  | "BookOpen"
+  | "Building2"
+  | "Bus"
+  | "Calculator"
+  | "CalendarDays"
+  | "CheckSquare"
+  | "ClipboardList"
+  | "Clock"
+  | "CreditCard"
+  | "FileText"
+  | "FlaskConical"
+  | "FolderOpen"
+  | "GraduationCap"
+  | "LayoutDashboard"
+  | "Library"
+  | "ListTodo"
+  | "MessageSquare"
+  | "Package"
+  | "Settings"
+  | "Smartphone"
+  | "Sparkles"
+  | "TrendingUp"
+  | "Trophy"
+  | "UserCog"
+  | "Users"
+  | "Wrench";
+
+export interface ClientRouteDefinition
+  extends Omit<RouteDefinition, "children" | "icon"> {
+  iconKey?: RouteIconKey;
+  children?: ClientRouteDefinition[];
+}
+
+const routeIconKeys = new Map<LucideIcon, RouteIconKey>([
+  [BarChart3, "BarChart3"],
+  [Bell, "Bell"],
+  [BookOpen, "BookOpen"],
+  [Building2, "Building2"],
+  [Bus, "Bus"],
+  [Calculator, "Calculator"],
+  [CalendarDays, "CalendarDays"],
+  [CheckSquare, "CheckSquare"],
+  [ClipboardList, "ClipboardList"],
+  [Clock, "Clock"],
+  [CreditCard, "CreditCard"],
+  [FileText, "FileText"],
+  [FlaskConical, "FlaskConical"],
+  [FolderOpen, "FolderOpen"],
+  [GraduationCap, "GraduationCap"],
+  [LayoutDashboard, "LayoutDashboard"],
+  [Library, "Library"],
+  [ListTodo, "ListTodo"],
+  [MessageSquare, "MessageSquare"],
+  [Package, "Package"],
+  [Settings, "Settings"],
+  [Smartphone, "Smartphone"],
+  [Sparkles, "Sparkles"],
+  [TrendingUp, "TrendingUp"],
+  [Trophy, "Trophy"],
+  [UserCog, "UserCog"],
+  [Users, "Users"],
+  [Wrench, "Wrench"],
+]);
+
+export function toClientRoute(route: RouteDefinition): ClientRouteDefinition {
+  const { icon, children, ...serializableRoute } = route;
+
+  return {
+    ...serializableRoute,
+    iconKey: icon ? routeIconKeys.get(icon) : undefined,
+    children: children?.map(toClientRoute),
+  };
+}
+
 type ChildRoute = Pick<
   RouteDefinition,
   "key" | "path" | "label" | "breadcrumb" | "status"

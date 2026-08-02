@@ -4,7 +4,7 @@ import { ShellClient } from "@/components/shell/shell-client";
 import { DEFAULT_ROLE_PERMISSIONS } from "@/lib/auth/catalog";
 import { getCtx } from "@/lib/context";
 import { academicYears, tenantUsers, tenants, users } from "@/lib/db";
-import { getAuthorizedNavigation, getRoleHomePath } from "@/lib/navigation/route-registry";
+import { getAuthorizedNavigation, getRoleHomePath, toClientRoute } from "@/lib/navigation/route-registry";
 import { withTenant } from "@/lib/rls";
 
 const CORE_ENTITLEMENTS = ["module.students"];
@@ -53,7 +53,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
     route.key === "workspace.home"
       ? { ...route, path: getRoleHomePath(ctx.role) }
       : route,
-  );
+  ).map(toClientRoute);
   const activeAcademicYear =
     shellData.years.find((year) => year.isCurrent)?.name ??
     shellData.years[0]?.name ??

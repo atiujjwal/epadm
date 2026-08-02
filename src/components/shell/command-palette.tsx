@@ -12,7 +12,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import type { RouteDefinition } from "@/lib/navigation/route-registry";
+import { getRouteIcon } from "@/components/shell/route-icons";
+import type { ClientRouteDefinition } from "@/lib/navigation/route-registry";
 
 const quickActions = [
   { label: "Add new student", icon: Plus, href: "/students?tab=add" },
@@ -27,7 +28,7 @@ export function CommandPalette({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  authorizedRoutes: RouteDefinition[];
+  authorizedRoutes: ClientRouteDefinition[];
 }) {
   const router = useRouter();
 
@@ -59,7 +60,7 @@ export function CommandPalette({
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Navigate">
           {navigationRoutes.map((route) => {
-            const Icon = route.icon;
+            const Icon = getRouteIcon(route.iconKey);
             return (
               <CommandItem key={route.key} onSelect={() => navigate(route.path)}>
                 {Icon ? <Icon className="mr-2 h-3.5 w-3.5" /> : null}

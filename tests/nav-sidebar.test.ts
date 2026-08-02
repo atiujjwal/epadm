@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
 
 import { NavSidebar } from "@/components/shell/nav-sidebar";
 import { DEFAULT_ROLE_PERMISSIONS } from "@/lib/auth/catalog";
-import { getAuthorizedNavigation } from "@/lib/navigation/route-registry";
+import { getAuthorizedNavigation, toClientRoute } from "@/lib/navigation/route-registry";
 
 const allEntitlements = ["module.students"];
 
@@ -21,7 +21,7 @@ function renderFor(role: keyof typeof DEFAULT_ROLE_PERMISSIONS, pathname: string
       authorizedRoutes: getAuthorizedNavigation(
         DEFAULT_ROLE_PERMISSIONS[role],
         allEntitlements,
-      ),
+      ).map(toClientRoute),
       tenantId: "tenant-1",
       isAdmin: role === "admin",
     }),
