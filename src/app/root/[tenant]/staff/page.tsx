@@ -1,1 +1,5 @@
-import { permanentRedirect } from "next/navigation"; export default function Page(){permanentRedirect("/hr/staff")}
+import { redirect } from "next/navigation";
+
+export default function StaffLegacy() {
+  redirect("/hr/staff");
+}

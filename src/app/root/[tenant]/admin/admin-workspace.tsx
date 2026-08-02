@@ -11,7 +11,6 @@ type UserRole =
   | "teacher"
   | "student"
   | "parent"
-  | "hr"
   | "staff"
   | "accountant"
   | "librarian";

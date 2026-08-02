@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import { listVehicles } from "@/lib/admin/vehicles";
+import { getCtx } from "@/lib/context";
+import { VehiclesWorkspace } from "./vehicles-workspace";
 
 export default async function VehiclesPage() {
-  redirect("/transport");
+  const ctx = await getCtx();
+  const vehicles = await listVehicles(ctx.tenantId);
+
+  return <VehiclesWorkspace initialVehicles={vehicles} />;
 }

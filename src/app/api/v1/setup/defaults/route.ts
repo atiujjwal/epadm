@@ -1,1 +1,0 @@
-import { requireRole } from "@/lib/auth/guards"; import { getTenantOnboarding } from "@/lib/onboarding/service"; export async function GET(){const ctx=await requireRole(["superadmin","admin"]);return Response.json(await getTenantOnboarding(ctx.tenantId))}

@@ -24,7 +24,7 @@ async function GETHandler(req: Request) {
     const url = new URL(req.url);
     const search = url.searchParams.get("search")?.trim() || undefined;
     const vehicles = await listVehicles(ctx.tenantId, search);
-    return ok({ vehicles }, { headers: { Deprecation: "true", Link: '</api/v1/transport/fleet>; rel="successor-version"' } });
+    return ok({ vehicles });
   } catch (error) {
     console.error("[admin/vehicles][GET] Unexpected error:", error);
     return serverError();
@@ -41,7 +41,7 @@ async function POSTHandler(req: Request) {
       ...input,
     });
 
-    return ok({ success: true, vehicle }, { status: 201, headers: { Deprecation: "true", Link: '</api/v1/transport/fleet>; rel="successor-version"' } });
+    return ok({ success: true, vehicle }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return badRequest("Invalid payload", error.flatten());

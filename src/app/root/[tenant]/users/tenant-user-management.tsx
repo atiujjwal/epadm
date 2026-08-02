@@ -19,7 +19,6 @@ type UserRole =
   | "teacher"
   | "student"
   | "parent"
-  | "hr"
   | "staff"
   | "accountant"
   | "librarian";
@@ -47,7 +46,6 @@ const roleLabels: Record<UserRole, string> = {
   teacher: "Teacher",
   student: "Student",
   parent: "Parent",
-  hr: "HR",
   staff: "Staff",
   accountant: "Accountant",
   librarian: "Librarian",

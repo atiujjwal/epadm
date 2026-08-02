@@ -1,9 +1,0 @@
-import Link from "next/link";
-import { PageHeader } from "@/components/layout/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { requirePermission } from "@/lib/auth/guards";
-import { listRoles } from "@/lib/phase3/administration";
-export default async function RolesPage() { const ctx = await requirePermission("administration.roles.read"); const roles = await listRoles(ctx.tenantId); return <div className="space-y-6"><PageHeader title="Roles & Permissions" description="Built-in access defaults and tenant-defined role overlays." actions={<Link href="/administration/roles/new" className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">Create custom role</Link>} />
-  <section><h2 className="mb-3 font-semibold">Built-in roles</h2><div className="grid gap-3 md:grid-cols-3">{roles.builtIn.map((role)=><Card key={role.role} padding="md"><div className="flex justify-between"><strong className="capitalize">{role.role}</strong><Badge>{role.memberCount} members</Badge></div><p className="mt-2 text-xs text-muted-foreground">{role.permissions.length} effective permissions</p></Card>)}</div></section>
-  <section><h2 className="mb-3 font-semibold">Custom roles</h2><div className="rounded-lg border">{roles.custom.length ? roles.custom.map((role)=><Link key={role.id} href={`/administration/roles/${role.id}`} className="flex items-center justify-between border-b p-4 last:border-0"><div><p className="font-medium">{role.name}</p><p className="text-sm text-muted-foreground">Inherits {role.baseRole}</p></div><div className="flex gap-2"><Badge variant={role.isActive ? "success" : "default"}>{role.isActive ? "Active" : "Inactive"}</Badge><Badge>{role.memberCount} members</Badge></div></Link>) : <p className="p-6 text-sm text-muted-foreground">No custom roles yet.</p>}</div></section></div>; }

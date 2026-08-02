@@ -1,8 +1,0 @@
-import { notFound } from "next/navigation";
-import { PageHeader } from "@/components/layout/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { requirePermission } from "@/lib/auth/guards";
-import { PERMISSION_DESCRIPTIONS } from "@/lib/auth/catalog";
-import { getCustomRole } from "@/lib/phase3/administration";
-export default async function RolePage({ params }: { params: Promise<{ roleId: string }> }) { const ctx = await requirePermission("administration.roles.read"); const { roleId } = await params; const role = await getCustomRole(ctx.tenantId, roleId); if (!role) notFound(); const granted = new Map(role.grants.map((g)=>[g.permission,g])); return <div className="space-y-6"><PageHeader title={role.name} description={role.description ?? `Custom role based on ${role.baseRole}`} badge={{ label: role.isActive ? "Active" : "Inactive", variant: role.isActive ? "success" : "default" }}/><Card padding="lg"><div className="mb-4 flex gap-2"><Badge>Base: {role.baseRole}</Badge><Badge>{role.grants.length} overrides</Badge></div><div className="grid gap-2 md:grid-cols-2">{Object.entries(PERMISSION_DESCRIPTIONS).map(([permission, description])=>{const grant=granted.get(permission as never);return <div key={permission} className="rounded border p-3 text-sm"><div className="flex justify-between"><strong>{permission}</strong>{grant ? <Badge variant={grant.effect === "allow" ? "success" : "danger"}>{grant.effect}</Badge> : <Badge>Inherited</Badge>}</div><p className="mt-1 text-xs text-muted-foreground">{description}</p>{grant?.scope ? <p className="mt-1 text-xs">Scope: {grant.scope}</p>:null}</div>})}</div></Card></div>; }

@@ -118,7 +118,7 @@ const dashboard: RouteDefinition = {
 };
 dashboard.children = [
   child(dashboard, { key: "workspace.tasks", path: "/tasks", label: "My Tasks", breadcrumb: "Tasks", status: "planned", icon: ListTodo }),
-  child(dashboard, { key: "workspace.approvals", path: "/approvals", label: "Approvals", breadcrumb: "Approvals", status: "live", icon: CheckSquare, requiredPermission: "approvals.read" }),
+  child(dashboard, { key: "workspace.approvals", path: "/approvals", label: "Approvals", breadcrumb: "Approvals", status: "planned", icon: CheckSquare }),
   child(dashboard, { key: "workspace.calendar", path: "/calendar", label: "Calendar", breadcrumb: "Calendar", status: "planned", icon: CalendarDays }),
   child(dashboard, { key: "workspace.notifications", path: "/notifications", label: "Notifications", breadcrumb: "Notifications", status: "planned", icon: Bell, showInSidebar: false }),
 ];
@@ -129,12 +129,11 @@ const students: RouteDefinition = {
   group: "student-lifecycle", groupLabel: "Student Lifecycle", module: "students", moduleLabel: "Students",
   icon: Users, requiredPermission: "students.read", requiredEntitlement: "module.students",
   showInSidebar: true, showInCommandPalette: true, isModuleRoot: true,
-  breadcrumb: "Students", status: "live",
+  breadcrumb: "Students", status: "partial",
 };
 students.children = [
-  child(students, { key: "students.directory", path: "/students", label: "Directory", description: "All enrolled students", breadcrumb: "Directory", status: "live" }),
-  child(students, { key: "students.guardians", path: "/students/guardians", label: "Guardians", breadcrumb: "Guardians", status: "live", requiredPermission: "students.guardians.read" }),
-  child(students, { key: "students.imports", path: "/students/imports", label: "Import", breadcrumb: "Import", status: "live", requiredPermission: "students.import" }),
+  child(students, { key: "students.directory", path: "/students", label: "Directory", description: "All enrolled students", breadcrumb: "Directory", status: "partial" }),
+  child(students, { key: "students.guardians", path: "/students/guardians", label: "Guardians", breadcrumb: "Guardians", status: "planned", requiredPermission: "students.read" }),
   child(students, { key: "students.progression", path: "/students/progression", label: "Enrollment & Progression", breadcrumb: "Progression", status: "planned" }),
   child(students, { key: "students.alumni", path: "/students/alumni", label: "Alumni", breadcrumb: "Alumni", status: "planned" }),
 ];
@@ -159,95 +158,12 @@ const academics: RouteDefinition = {
   group: "academics", groupLabel: "Academics", module: "academics", moduleLabel: "Academic Structure",
   icon: GraduationCap, requiredPermission: "academics.read",
   showInSidebar: true, showInCommandPalette: true, isModuleRoot: true,
-  breadcrumb: "Academic Structure", status: "live",
+  breadcrumb: "Academic Structure", status: "partial",
 };
 academics.children = [
-  child(academics, { key: "academics.years", path: "/academics/years", label: "Years & Terms", breadcrumb: "Years & Terms", status: "live" }),
-  child(academics, { key: "academics.classes", path: "/academics/classes", label: "Classes & Sections", breadcrumb: "Classes & Sections", status: "live" }),
-  child(academics, { key: "academics.campuses", path: "/academics/campuses", label: "Campuses & Rooms", breadcrumb: "Campuses & Rooms", status: "live" }),
-  child(academics, { key: "academics.houses", path: "/academics/houses", label: "Houses", breadcrumb: "Houses", status: "live" }),
-  child(academics, { key: "academics.progression", path: "/academics/progression", label: "Progression", breadcrumb: "Progression", status: "partial", requiredPermission: "academics.progression.read" }),
-  child(academics, { key: "academics.settings", path: "/academics/settings", label: "Settings", breadcrumb: "Settings", status: "live" }),
-];
-
-const curriculum: RouteDefinition = rootRoute({
-  key: "curriculum.root", path: "/curriculum", label: "Curriculum",
-  description: "Subjects, frameworks, offerings, and teacher allocation",
-  group: "academics", groupLabel: "Academics", module: "curriculum", moduleLabel: "Curriculum",
-  icon: BookOpen, requiredPermission: "curriculum.read",
-  showInSidebar: true, showInCommandPalette: true,
-  breadcrumb: "Curriculum", status: "live",
-});
-curriculum.children = [
-  child(curriculum, { key: "curriculum.subjects", path: "/curriculum/subjects", label: "Subjects", breadcrumb: "Subjects", status: "live", requiredPermission: "curriculum.read" }),
-  child(curriculum, { key: "curriculum.frameworks", path: "/curriculum/frameworks", label: "Frameworks", breadcrumb: "Frameworks", status: "live", requiredPermission: "curriculum.read" }),
-  child(curriculum, { key: "curriculum.offerings", path: "/curriculum/offerings", label: "Offerings", breadcrumb: "Offerings", status: "live", requiredPermission: "curriculum.read" }),
-  child(curriculum, { key: "curriculum.teacher-allocation", path: "/curriculum/teacher-allocation", label: "Teacher Allocation", breadcrumb: "Teacher Allocation", status: "live", requiredPermission: "curriculum.read" }),
-  child(curriculum, { key: "curriculum.coverage", path: "/curriculum/coverage", label: "Coverage", breadcrumb: "Coverage", status: "prototype", requiredPermission: "curriculum.read" }),
-];
-
-const timetables: RouteDefinition = rootRoute({
-  key: "timetables.root", path: "/timetables", legacyPaths: ["/timetable"], label: "Timetables",
-  description: "Master schedule, teacher and room schedules, conflict detection",
-  group: "academics", groupLabel: "Academics", module: "timetables", moduleLabel: "Timetables",
-  icon: Clock, requiredPermission: "timetables.read",
-  showInSidebar: true, showInCommandPalette: true,
-  breadcrumb: "Timetables", status: "live",
-});
-timetables.children = [
-  child(timetables, { key: "timetables.master", path: "/timetables", label: "Versions", breadcrumb: "Versions", status: "live", requiredPermission: "timetables.read" }),
-  child(timetables, { key: "timetables.settings", path: "/timetables/settings", label: "Period Settings", breadcrumb: "Period Settings", status: "live", requiredPermission: "timetables.settings.update" }),
-  child(timetables, { key: "timetables.conflicts", path: "/timetables/conflicts", label: "Conflict Report", breadcrumb: "Conflict Report", status: "live", requiredPermission: "timetables.read" }),
-];
-
-const assessments: RouteDefinition = rootRoute({
-  key: "assessments.root", path: "/assessments", legacyPaths: ["/exams"], label: "Assessments & Results",
-  description: "Exam plans, marks, results, and report cards",
-  group: "academics", groupLabel: "Academics", module: "assessments", moduleLabel: "Assessments & Results",
-  icon: TrendingUp, requiredPermission: "assessments.read",
-  showInSidebar: true, showInCommandPalette: true,
-  breadcrumb: "Assessments & Results", status: "live",
-});
-assessments.children = [
-  child(assessments, { key: "assessments.plans", path: "/assessments/plans", label: "Assessment Plans", breadcrumb: "Assessment Plans", status: "live", requiredPermission: "assessments.plans.read" }),
-  child(assessments, { key: "assessments.schedule", path: "/assessments/schedule", label: "Exam Schedule", breadcrumb: "Exam Schedule", status: "live", requiredPermission: "assessments.schedule.read" }),
-  child(assessments, { key: "assessments.marks", path: "/assessments/marks", label: "Marks Entry", breadcrumb: "Marks Entry", status: "live", requiredPermission: "assessments.marks.read" }),
-  child(assessments, { key: "assessments.results", path: "/assessments/results", label: "Results", breadcrumb: "Results", status: "live", requiredPermission: "assessments.results.read" }),
-  child(assessments, { key: "assessments.report-cards", path: "/assessments/report-cards", label: "Report Cards", breadcrumb: "Report Cards", status: "live", requiredPermission: "assessments.report-cards.read" }),
-  child(assessments, { key: "assessments.settings", path: "/assessments/settings", label: "Settings", breadcrumb: "Settings", status: "live", requiredPermission: "assessments.plans.read" }),
-];
-
-const financeFees: RouteDefinition = rootRoute({
-  key: "finance.fees", path: "/finance/fees", legacyPaths: ["/fees"], label: "Fees & Billing",
-  description: "Fee plans, invoices, collections, and reconciliation",
-  group: "finance", groupLabel: "Finance", module: "finance-fees", moduleLabel: "Fees & Billing",
-  icon: CreditCard, requiredPermission: "finance.fees.read",
-  showInSidebar: true, showInCommandPalette: true,
-  breadcrumb: "Fees & Billing", status: "live",
-});
-financeFees.children = [
-  child(financeFees, { key: "finance.fees.structures", path: "/finance/fees/structures", label: "Structures", breadcrumb: "Structures", status: "live", requiredPermission: "finance.fees.read" }),
-  child(financeFees, { key: "finance.fees.plans", path: "/finance/fees/plans", label: "Payment Plans", breadcrumb: "Payment Plans", status: "live", requiredPermission: "finance.fees.read" }),
-  child(financeFees, { key: "finance.fees.assignments", path: "/finance/fees/assignments", label: "Assignments", breadcrumb: "Assignments", status: "live", requiredPermission: "finance.fees.assign" }),
-  child(financeFees, { key: "finance.fees.invoices", path: "/finance/fees/invoices", label: "Invoices", breadcrumb: "Invoices", status: "live", requiredPermission: "finance.fees.read" }),
-  child(financeFees, { key: "finance.fees.payments", path: "/finance/fees/payments/new", label: "Payments", breadcrumb: "Payments", status: "live", requiredPermission: "finance.fees.payments.record" }),
-  child(financeFees, { key: "finance.fees.collections", path: "/finance/fees/collections", label: "Collections", breadcrumb: "Collections", status: "live", requiredPermission: "finance.fees.read" }),
-  child(financeFees, { key: "finance.fees.overdue", path: "/finance/fees/overdue", label: "Overdue", breadcrumb: "Overdue", status: "live", requiredPermission: "finance.fees.read" }),
-];
-
-const financeAccounting: RouteDefinition = rootRoute({
-  key: "finance.accounting", path: "/finance/accounting", label: "Accounting",
-  description: "Chart of accounts, expenses, and financial reports",
-  group: "finance", groupLabel: "Finance", module: "finance-accounting", moduleLabel: "Accounting",
-  icon: Calculator, requiredPermission: "finance.accounting.read",
-  showInSidebar: true, showInCommandPalette: true,
-  breadcrumb: "Accounting", status: "live",
-});
-financeAccounting.children = [
-  child(financeAccounting, { key: "finance.accounting.accounts", path: "/finance/accounting/accounts", label: "Accounts", breadcrumb: "Accounts", status: "live", requiredPermission: "finance.accounting.read" }),
-  child(financeAccounting, { key: "finance.accounting.expenses", path: "/finance/accounting/expenses", label: "Expenses", breadcrumb: "Expenses", status: "live", requiredPermission: "finance.accounting.expenses.record" }),
-  child(financeAccounting, { key: "finance.accounting.reports", path: "/finance/accounting/reports", label: "Reports", breadcrumb: "Reports", status: "live", requiredPermission: "finance.accounting.read" }),
-  child(financeAccounting, { key: "finance.accounting.budgets", path: "/finance/accounting/budgets", label: "Budgets", breadcrumb: "Budgets", status: "prototype", requiredPermission: "finance.accounting.read" }),
+  child(academics, { key: "academics.years", path: "/academics/years", label: "Years & Terms", breadcrumb: "Years & Terms", status: "partial" }),
+  child(academics, { key: "academics.classes", path: "/academics/classes", label: "Classes & Sections", breadcrumb: "Classes & Sections", status: "partial" }),
+  child(academics, { key: "academics.houses", path: "/academics/houses", label: "Houses", breadcrumb: "Houses", status: "planned" }),
 ];
 
 function rootRoute(route: RouteDefinition): RouteDefinition {
@@ -259,18 +175,18 @@ export const routeRegistry: RouteDefinition[] = [
   students,
   admissions,
   academics,
-  curriculum,
-  timetables,
+  rootRoute({ key: "curriculum.root", path: "/curriculum", label: "Curriculum", description: "Subjects, frameworks, offerings, and teacher allocation", group: "academics", groupLabel: "Academics", module: "curriculum", moduleLabel: "Curriculum", icon: BookOpen, requiredPermission: "curriculum.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Curriculum", status: "planned", comingSoon: true }),
+  rootRoute({ key: "timetables.root", path: "/timetables", legacyPaths: ["/timetable"], label: "Timetables", description: "Master schedule, teacher and room schedules, conflict detection", group: "academics", groupLabel: "Academics", module: "timetables", moduleLabel: "Timetables", icon: Clock, requiredPermission: "timetables.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Timetables", status: "partial" }),
   rootRoute({ key: "attendance.root", path: "/attendance", label: "Attendance", description: "Student and staff attendance, leave, and devices", group: "academics", groupLabel: "Academics", module: "attendance", moduleLabel: "Attendance", icon: CheckSquare, requiredPermission: "attendance.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Attendance", status: "prototype" }),
   rootRoute({ key: "learning.root", path: "/learning", label: "Teaching & Learning", description: "Assignments, gradebook, lesson plans, and resources", group: "academics", groupLabel: "Academics", module: "learning", moduleLabel: "Teaching & Learning", icon: FileText, requiredPermission: "learning.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Teaching & Learning", status: "prototype" }),
-  assessments,
-  rootRoute({ key: "hr.root", path: "/hr", legacyPaths: ["/staff"], label: "Human Resources", description: "Staff directory, recruitment, contracts, leave, and performance", group: "people", groupLabel: "People", module: "hr", moduleLabel: "Human Resources", icon: UserCog, requiredPermission: "hr.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Human Resources", status: "live", children: [] }),
-  rootRoute({ key: "payroll.root", path: "/payroll", label: "Payroll", description: "Payroll runs, payslips, loans, and statutory reports", group: "people", groupLabel: "People", module: "payroll", moduleLabel: "Payroll", icon: CreditCard, requiredPermission: "payroll.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Payroll", status: "live", children: [] }),
-  financeFees,
-  financeAccounting,
-  rootRoute({ key: "transport.root", path: "/transport", legacyPaths: ["/vehicles"], label: "Transport", description: "Fleet, routes, allocations, tracking, and maintenance", group: "campus-operations", groupLabel: "Campus Operations", module: "transport", moduleLabel: "Transport", icon: Bus, requiredPermission: "transport.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Transport", status: "live", children: [] }),
-  rootRoute({ key: "library.root", path: "/library", label: "Library", description: "Catalog, circulation, members, and acquisitions", group: "campus-operations", groupLabel: "Campus Operations", module: "library", moduleLabel: "Library", icon: Library, requiredPermission: "library.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Library", status: "live", children: [] }),
-  rootRoute({ key: "laboratories.root", path: "/laboratories", legacyPaths: ["/labs"], label: "Laboratories", description: "Lab bookings, equipment, chemicals, and safety", group: "campus-operations", groupLabel: "Campus Operations", module: "laboratories", moduleLabel: "Laboratories", icon: FlaskConical, requiredPermission: "laboratories.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Laboratories", status: "live", children: [] }),
+  rootRoute({ key: "assessments.root", path: "/assessments", legacyPaths: ["/exams"], label: "Assessments & Results", description: "Exam plans, marks, results, and report cards", group: "academics", groupLabel: "Academics", module: "assessments", moduleLabel: "Assessments & Results", icon: TrendingUp, requiredPermission: "assessments.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Assessments & Results", status: "partial" }),
+  rootRoute({ key: "hr.root", path: "/hr", legacyPaths: ["/staff"], label: "Human Resources", description: "Staff directory, recruitment, contracts, leave, and performance", group: "people", groupLabel: "People", module: "hr", moduleLabel: "Human Resources", icon: UserCog, requiredPermission: "hr.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Human Resources", status: "partial", children: [] }),
+  rootRoute({ key: "payroll.root", path: "/payroll", label: "Payroll", description: "Payroll runs, payslips, loans, and statutory reports", group: "people", groupLabel: "People", module: "payroll", moduleLabel: "Payroll", icon: CreditCard, requiredPermission: "payroll.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Payroll", status: "partial" }),
+  rootRoute({ key: "finance.fees", path: "/finance/fees", legacyPaths: ["/fees", "/finance"], label: "Fees & Billing", description: "Fee plans, invoices, collections, and reconciliation", group: "finance", groupLabel: "Finance", module: "finance-fees", moduleLabel: "Fees & Billing", icon: CreditCard, requiredPermission: "finance.fees.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Fees & Billing", status: "partial" }),
+  rootRoute({ key: "finance.accounting", path: "/finance/accounting", label: "Accounting", description: "Chart of accounts, journals, budgets, and banking", group: "finance", groupLabel: "Finance", module: "finance-accounting", moduleLabel: "Accounting", icon: Calculator, requiredPermission: "finance.accounting.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Accounting", status: "planned", comingSoon: true }),
+  rootRoute({ key: "transport.root", path: "/transport", legacyPaths: ["/vehicles"], label: "Transport", description: "Fleet, routes, allocations, tracking, and maintenance", group: "campus-operations", groupLabel: "Campus Operations", module: "transport", moduleLabel: "Transport", icon: Bus, requiredPermission: "transport.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Transport", status: "partial" }),
+  rootRoute({ key: "library.root", path: "/library", label: "Library", description: "Catalog, circulation, members, and acquisitions", group: "campus-operations", groupLabel: "Campus Operations", module: "library", moduleLabel: "Library", icon: Library, requiredPermission: "library.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Library", status: "partial" }),
+  rootRoute({ key: "laboratories.root", path: "/laboratories", legacyPaths: ["/labs"], label: "Laboratories", description: "Lab bookings, equipment, chemicals, and safety", group: "campus-operations", groupLabel: "Campus Operations", module: "laboratories", moduleLabel: "Laboratories", icon: FlaskConical, requiredPermission: "laboratories.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Laboratories", status: "prototype" }),
   rootRoute({ key: "hostel.root", path: "/hostel", label: "Hostel", description: "Buildings, rooms, allocations, and mess management", group: "campus-operations", groupLabel: "Campus Operations", module: "hostel", moduleLabel: "Hostel", icon: Building2, requiredPermission: "hostel.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Hostel", status: "planned", comingSoon: true }),
   rootRoute({ key: "inventory.root", path: "/inventory", label: "Inventory & Assets", description: "Stock, requisitions, procurement, vendors, and assets", group: "campus-operations", groupLabel: "Campus Operations", module: "inventory", moduleLabel: "Inventory & Assets", icon: Package, requiredPermission: "inventory.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Inventory & Assets", status: "planned", comingSoon: true }),
   rootRoute({ key: "facilities.root", path: "/facilities", label: "Facilities & Safety", description: "Spaces, work orders, visitors, health, and safeguarding", group: "campus-operations", groupLabel: "Campus Operations", module: "facilities", moduleLabel: "Facilities & Safety", icon: Wrench, requiredPermission: "facilities.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Facilities & Safety", status: "planned", comingSoon: true }),
@@ -280,76 +196,23 @@ export const routeRegistry: RouteDefinition[] = [
   rootRoute({ key: "digital-experience.root", path: "/digital-experience", legacyPaths: ["/mobile"], label: "Portals & Mobile", description: "Portal policy, devices, notifications, and branding", group: "engagement", groupLabel: "Engagement", module: "digital-experience", moduleLabel: "Portals & Mobile", icon: Smartphone, requiredPermission: "digital-experience.configure", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Portals & Mobile", status: "prototype" }),
   rootRoute({ key: "analytics.root", path: "/analytics", legacyPaths: ["/intelligence"], label: "Analytics & Reports", description: "Role dashboards, report catalog, and data quality", group: "intelligence", groupLabel: "Intelligence", module: "analytics", moduleLabel: "Analytics & Reports", icon: BarChart3, requiredPermission: "analytics.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Analytics & Reports", status: "prototype" }),
   rootRoute({ key: "ai-studio.root", path: "/ai-studio", label: "AI Studio", description: "Generators, copilots, knowledge, and governance", group: "intelligence", groupLabel: "Intelligence", module: "ai-studio", moduleLabel: "AI Studio", icon: Sparkles, requiredPermission: "ai-studio.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "AI Studio", status: "prototype" }),
-  rootRoute({ key: "administration.root", path: "/administration", legacyPaths: ["/admin", "/users", "/settings"], label: "Administration", description: "School settings, users, roles, integrations, and audit", group: "administration", groupLabel: "Administration", module: "administration", moduleLabel: "Administration", icon: Settings, requiredPermission: "administration.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Administration", status: "live", children: [] }),
-  rootRoute({ key: "setup.root", path: "/setup", legacyPaths: ["/onboarding"], label: "Setup", description: "Initial school configuration", group: "administration", groupLabel: "Administration", module: "setup", moduleLabel: "Setup", icon: Settings, requiredPermission: "administration.read", showInSidebar: false, showInCommandPalette: false, breadcrumb: "Setup", status: "live" }),
+  rootRoute({ key: "administration.root", path: "/administration", legacyPaths: ["/admin", "/users", "/settings"], label: "Administration", description: "School settings, users, roles, integrations, and audit", group: "administration", groupLabel: "Administration", module: "administration", moduleLabel: "Administration", icon: Settings, requiredPermission: "administration.read", showInSidebar: true, showInCommandPalette: true, breadcrumb: "Administration", status: "partial", children: [] }),
 ];
 
 const hr = routeRegistry.find((route) => route.key === "hr.root");
 if (hr) {
   hr.children = [
-    child(hr, { key: "hr.staff", path: "/hr/staff", legacyPaths: ["/staff"], label: "Staff Directory", breadcrumb: "Staff", status: "live" }),
-    child(hr, { key: "hr.departments", path: "/hr/departments", label: "Departments", breadcrumb: "Departments", status: "live", requiredPermission: "hr.departments.read" }),
-    child(hr, { key: "hr.staff.imports", path: "/hr/staff/imports", label: "Import", breadcrumb: "Import", status: "live", requiredPermission: "hr.staff.import" }),
-    child(hr, { key: "hr.contracts", path: "/hr/contracts", label: "Contracts", breadcrumb: "Contracts", status: "live", requiredPermission: "hr.contracts.read" }),
-    child(hr, { key: "hr.recruitment", path: "/hr/recruitment", label: "Recruitment", breadcrumb: "Recruitment", status: "live", requiredPermission: "hr.recruitment.read" }),
-    child(hr, { key: "hr.performance", path: "/hr/performance", label: "Performance", breadcrumb: "Performance", status: "live", requiredPermission: "hr.performance.read" }),
-  ];
-}
-
-const payroll = routeRegistry.find((route) => route.key === "payroll.root");
-if (payroll) {
-  payroll.children = [
-    child(payroll, { key: "payroll.runs", path: "/payroll/runs", label: "Runs", breadcrumb: "Runs", status: "live", requiredPermission: "payroll.runs.read" }),
-    child(payroll, { key: "payroll.components", path: "/payroll/components", label: "Components", breadcrumb: "Components", status: "live", requiredPermission: "payroll.read" }),
-    child(payroll, { key: "payroll.assignments", path: "/payroll/assignments", label: "Assignments", breadcrumb: "Assignments", status: "live", requiredPermission: "payroll.read" }),
-    child(payroll, { key: "payroll.loans", path: "/payroll/loans", label: "Loans", breadcrumb: "Loans", status: "live", requiredPermission: "payroll.read" }),
-    child(payroll, { key: "payroll.statutory", path: "/payroll/statutory", label: "Statutory", breadcrumb: "Statutory", status: "live", requiredPermission: "payroll.statutory.read" }),
-    child(payroll, { key: "payroll.settings", path: "/payroll/settings", label: "Settings", breadcrumb: "Settings", status: "live", requiredPermission: "payroll.read" }),
-  ];
-}
-
-const transport = routeRegistry.find((route) => route.key === "transport.root");
-if (transport) {
-  transport.children = [
-    child(transport, { key: "transport.fleet", path: "/transport/fleet", label: "Fleet", breadcrumb: "Fleet", status: "live", requiredPermission: "transport.read" }),
-    child(transport, { key: "transport.routes", path: "/transport/routes", label: "Routes", breadcrumb: "Routes", status: "live", requiredPermission: "transport.read" }),
-    child(transport, { key: "transport.allocations", path: "/transport/allocations", label: "Allocations", breadcrumb: "Allocations", status: "live", requiredPermission: "transport.read" }),
-    child(transport, { key: "transport.maintenance", path: "/transport/maintenance", label: "Maintenance", breadcrumb: "Maintenance", status: "live", requiredPermission: "transport.read" }),
-    child(transport, { key: "transport.tracking", path: "/transport/tracking", label: "Tracking", breadcrumb: "Tracking", status: "live", requiredPermission: "transport.tracking.read" }),
-  ];
-}
-
-const libraryRoute = routeRegistry.find((route) => route.key === "library.root");
-if (libraryRoute) {
-  libraryRoute.children = [
-    child(libraryRoute, { key: "library.catalog", path: "/library/catalog", label: "Catalog", breadcrumb: "Catalog", status: "live", requiredPermission: "library.read" }),
-    child(libraryRoute, { key: "library.members", path: "/library/members", label: "Members", breadcrumb: "Members", status: "live", requiredPermission: "library.read" }),
-    child(libraryRoute, { key: "library.circulation", path: "/library/circulation", label: "Circulation", breadcrumb: "Circulation", status: "live", requiredPermission: "library.read" }),
-    child(libraryRoute, { key: "library.overdue", path: "/library/overdue", label: "Overdue", breadcrumb: "Overdue", status: "live", requiredPermission: "library.read" }),
-    child(libraryRoute, { key: "library.fines", path: "/library/fines", label: "Fines", breadcrumb: "Fines", status: "live", requiredPermission: "library.read" }),
-    child(libraryRoute, { key: "library.acquisitions", path: "/library/acquisitions", label: "Acquisitions", breadcrumb: "Acquisitions", status: "live", requiredPermission: "library.read" }),
-    child(libraryRoute, { key: "library.settings", path: "/library/settings", label: "Settings", breadcrumb: "Settings", status: "live", requiredPermission: "library.read" }),
-  ];
-}
-
-const laboratoriesRoute = routeRegistry.find((route) => route.key === "laboratories.root");
-if (laboratoriesRoute) {
-  laboratoriesRoute.children = [
-    child(laboratoriesRoute, { key: "laboratories.bookings", path: "/laboratories/bookings", label: "Bookings", breadcrumb: "Bookings", status: "live", requiredPermission: "laboratories.read" }),
-    child(laboratoriesRoute, { key: "laboratories.equipment", path: "/laboratories/equipment", label: "Equipment", breadcrumb: "Equipment", status: "live", requiredPermission: "laboratories.read" }),
-    child(laboratoriesRoute, { key: "laboratories.consumables", path: "/laboratories/consumables", label: "Consumables", breadcrumb: "Consumables", status: "live", requiredPermission: "laboratories.read" }),
-    child(laboratoriesRoute, { key: "laboratories.safety", path: "/laboratories/safety", label: "Safety", breadcrumb: "Safety", status: "live", requiredPermission: "laboratories.read" }),
+    child(hr, { key: "hr.staff", path: "/hr/staff", legacyPaths: ["/staff"], label: "Staff Directory", breadcrumb: "Staff", status: "partial" }),
+    child(hr, { key: "hr.departments", path: "/hr/departments", label: "Departments", breadcrumb: "Departments", status: "partial" }),
   ];
 }
 
 const administration = routeRegistry.find((route) => route.key === "administration.root");
 if (administration) {
   administration.children = [
-    child(administration, { key: "administration.school", path: "/administration/school", legacyPaths: ["/settings"], label: "School & Campuses", breadcrumb: "School", status: "live", requiredPermission: "administration.school.read" }),
-    child(administration, { key: "administration.users", path: "/administration/users", legacyPaths: ["/users", "/admin"], label: "Users & Memberships", breadcrumb: "Users", status: "live", requiredPermission: "administration.users.read" }),
-    child(administration, { key: "administration.roles", path: "/administration/roles", label: "Roles", breadcrumb: "Roles", status: "live", requiredPermission: "administration.roles.read" }),
-    child(administration, { key: "administration.audit", path: "/administration/audit", label: "Audit Log", breadcrumb: "Audit", status: "live", requiredPermission: "administration.audit.read" }),
-    child(administration, { key: "administration.integrations", path: "/administration/integrations", label: "Integrations", breadcrumb: "Integrations", status: "live", requiredPermission: "administration.integrations.read" }),
+    child(administration, { key: "administration.school", path: "/administration/school", legacyPaths: ["/settings"], label: "School & Campuses", breadcrumb: "School", status: "partial" }),
+    child(administration, { key: "administration.users", path: "/administration/users", legacyPaths: ["/users", "/admin"], label: "Users & Roles", breadcrumb: "Users", status: "partial", requiredPermission: "administration.users.read" }),
+    child(administration, { key: "administration.audit", path: "/administration/audit", label: "Audit Log", breadcrumb: "Audit", status: "planned", requiredPermission: "administration.audit.read" }),
   ];
 }
 
@@ -364,7 +227,6 @@ export function getRoleHomePath(role: UserRole): string {
     teacher: "/teacher",
     student: "/student",
     parent: "/parent",
-    hr: "/hr/staff",
     accountant: "/finance/fees",
     librarian: "/library",
     staff: "/me/profile",

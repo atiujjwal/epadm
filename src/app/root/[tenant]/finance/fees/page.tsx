@@ -1,25 +1,103 @@
 import { requirePermission } from "@/lib/auth/guards";
-import { formatCurrency, listFinanceModel } from "@/lib/phase7/finance";
-import { OperationsPage, RouteButton, StatusBadge } from "../../academics/phase4-view";
+import {
+  academicClasses,
+  feeStructures,
+  financialTransactions,
+  studentInvoices,
+  students,
+} from "@/lib/db";
+import { withTenant } from "@/lib/rls";
+import { eq, sql } from "drizzle-orm";
+import { FeesWorkspace, type FeeInvoiceRow, type FeeStructureRow, type FeesStats } from "../../fees/fees-workspace";
 
-export default async function FeesDashboardPage() {
+export default async function FeesPage() {
   const ctx = await requirePermission("finance.fees.read");
-  const model = await listFinanceModel(ctx.tenantId);
-  const invoices = model.invoices.filter((invoice) => !invoice.voidedAt);
-  const totalInvoiced = invoices.reduce((sum, invoice) => sum + (invoice.totalPaise ?? invoice.amount * 100), 0);
-  const totalCollected = invoices.reduce((sum, invoice) => sum + invoice.paidPaise, 0);
-  const outstanding = invoices.reduce((sum, invoice) => sum + (invoice.balancePaise ?? 0), 0);
-  const overdue = invoices.filter((invoice) => invoice.status === "overdue" || (String(invoice.dueDate) < new Date().toISOString().slice(0, 10) && (invoice.balancePaise ?? 0) > 0)).reduce((sum, invoice) => sum + (invoice.balancePaise ?? 0), 0);
-  const rows = [
-    { metric: "Total invoiced", value: formatCurrency(totalInvoiced), detail: `${invoices.length} non-void invoices`, status: "live" },
-    { metric: "Total collected", value: formatCurrency(totalCollected), detail: `${model.payments.length} payment records`, status: "live" },
-    { metric: "Outstanding", value: formatCurrency(outstanding), detail: "Balance across open invoices", status: outstanding > 0 ? "open" : "clear" },
-    { metric: "Overdue", value: formatCurrency(overdue), detail: "Due date has passed", status: overdue > 0 ? "overdue" : "clear" },
-  ];
-  return <OperationsPage title="Fees & Billing" subtitle={`${model.structures.length} structures, ${model.plans.length} plans, ${model.invoices.length} invoices`} actions={<div className="flex gap-2"><RouteButton href="/finance/fees/invoices">Invoices</RouteButton><RouteButton href="/finance/fees/payments/new">Record payment</RouteButton></div>} rows={rows} empty="No fee data available." columns={[
-    { label: "Metric", value: (row) => row.metric },
-    { label: "Value", value: (row) => row.value },
-    { label: "Detail", value: (row) => row.detail },
-    { label: "Status", value: (row) => <StatusBadge status={row.status} /> },
-  ]} />;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const data = await withTenant(ctx.tenantId, async (tx) => {
+    const fees = await tx
+      .select({
+        id: feeStructures.id,
+        name: feeStructures.name,
+        amount: feeStructures.amount,
+        frequency: feeStructures.frequency,
+        academicYear: feeStructures.academicYear,
+        className: academicClasses.name,
+      })
+      .from(feeStructures)
+      .innerJoin(academicClasses, eq(feeStructures.classId, academicClasses.id))
+      .orderBy(academicClasses.name);
+
+    const invs = await tx
+      .select({
+        id: studentInvoices.id,
+        title: studentInvoices.title,
+        amount: studentInvoices.amount,
+        dueDate: studentInvoices.dueDate,
+        status: studentInvoices.status,
+        studentName: sql<string>`${students.firstName} || ' ' || ${students.lastName}`,
+      })
+      .from(studentInvoices)
+      .innerJoin(students, eq(studentInvoices.studentId, students.id))
+      .orderBy(studentInvoices.dueDate);
+
+    const txs = await tx
+      .select({
+        type: financialTransactions.type,
+        amount: financialTransactions.amount,
+        date: financialTransactions.date,
+        category: financialTransactions.category,
+      })
+      .from(financialTransactions);
+
+    return { fees, invoices: invs, transactions: txs };
+  });
+
+  const invoices: FeeInvoiceRow[] = data.invoices.map((inv) => ({
+    id: inv.id,
+    title: inv.title,
+    amount: inv.amount,
+    dueDate: String(inv.dueDate),
+    status: inv.status,
+    studentName: String(inv.studentName ?? "—"),
+  }));
+
+  const feeStructureRows: FeeStructureRow[] = data.fees.map((f) => ({
+    id: f.id,
+    name: f.name,
+    amount: f.amount,
+    frequency: f.frequency,
+    academicYear: f.academicYear,
+    className: f.className,
+  }));
+
+  const paid = invoices.filter((i) => i.status === "paid");
+  const pending = invoices.filter((i) => i.status === "pending");
+  const overdue = invoices.filter((i) => i.status === "overdue");
+
+  const billed = invoices.reduce((sum, i) => sum + i.amount, 0);
+  const collected = paid.reduce((sum, i) => sum + i.amount, 0);
+  const outstanding = [...pending, ...overdue].reduce((sum, i) => sum + i.amount, 0);
+
+  const feeCreditsToday = data.transactions.filter(
+    (t) => t.type === "credit" && t.category === "fees" && String(t.date) === today,
+  );
+  const collectedToday = feeCreditsToday.reduce((sum, t) => sum + t.amount, 0);
+
+  const stats: FeesStats = {
+    collected,
+    billed,
+    outstanding,
+    paidCount: paid.length,
+    pendingCount: pending.length,
+    overdueCount: overdue.length,
+    feePlanCount: feeStructureRows.length,
+    receiptCountToday: feeCreditsToday.length,
+    collectedToday,
+  };
+
+  return (
+    <FeesWorkspace stats={stats} invoices={invoices} feeStructures={feeStructureRows} />
+  );
 }

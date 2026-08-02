@@ -120,48 +120,6 @@
       "when": 1785292200000,
       "tag": "0016_tenant_onboarding_wizard",
       "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1785378600000,
-      "tag": "0017_chief_ghost_rider",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1785465000000,
-      "tag": "0018_real_eddie_brock",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1785607640718,
-      "tag": "0019_flowery_hemingway",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "7",
-      "when": 1785656064113,
-      "tag": "0020_nosy_forgotten_one",
-      "breakpoints": true
-    },
-    {
-      "idx": 21,
-      "version": "7",
-      "when": 1785686400000,
-      "tag": "0021_phase8_hr_payroll",
-      "breakpoints": true
-    },
-    {
-      "idx": 22,
-      "version": "7",
-      "when": 1785772800000,
-      "tag": "0022_phase9_campus_operations",
-      "breakpoints": true
     }
   ]
 }

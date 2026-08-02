@@ -22,7 +22,7 @@ async function GETHandler(req: Request) {
     const url = new URL(req.url);
     const search = url.searchParams.get("search")?.trim() || undefined;
     const books = await listLibraryBooks(ctx.tenantId, search);
-    return ok({ books }, { headers: { Deprecation: "true", Link: '</api/v1/library/catalog>; rel="successor-version"' } });
+    return ok({ books });
   } catch (error) {
     console.error("[admin/library][GET] Unexpected error:", error);
     return serverError();
@@ -39,7 +39,7 @@ async function POSTHandler(req: Request) {
       ...input,
     });
 
-    return ok({ success: true, book }, { status: 201, headers: { Deprecation: "true", Link: '</api/v1/library/catalog>; rel="successor-version"' } });
+    return ok({ success: true, book }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return badRequest("Invalid payload", error.flatten());

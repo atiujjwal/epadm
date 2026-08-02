@@ -1,1 +1,5 @@
-import { permanentRedirect } from "next/navigation"; export default function Page(){permanentRedirect("/administration/users")}
+import { redirect } from "next/navigation";
+
+export default function TenantAdminLegacy() {
+  redirect("/administration/users");
+}

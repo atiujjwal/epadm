@@ -2,8 +2,8 @@ import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { libraryBooks } from "@/lib/db";
 import { withTenant } from "@/lib/rls";
 
-export const LIBRARY_READ_PERMISSION = "library.read" as const;
-export const LIBRARY_WRITE_PERMISSION = "library.catalog.manage" as const;
+export const LIBRARY_READ_PERMISSION = "students.read" as const;
+export const LIBRARY_WRITE_PERMISSION = "students.write" as const;
 
 export type LibraryBookRecord = {
   id: string;
