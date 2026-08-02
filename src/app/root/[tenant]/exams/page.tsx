@@ -1,10 +1,5 @@
-import { listExams } from "@/lib/admin/exams";
-import { getCtx } from "@/lib/context";
-import { ExamsWorkspace } from "./exams-workspace";
+import { redirect } from "next/navigation";
 
-export default async function ExamsPage() {
-  const ctx = await getCtx();
-  const exams = await listExams(ctx.tenantId);
-
-  return <ExamsWorkspace initialExams={exams} />;
+export default function ExamsLegacyPage() {
+  redirect("/assessments");
 }
