@@ -1,89 +1,31 @@
 import { withApiObservability } from "@/lib/observability/api-handler";
 import { NextResponse } from "next/server";
-import { opsDb } from "@/lib/db/ops";
-import { tenants, vehicleTelemetry } from "@/lib/db";
-import { withTenant } from "@/lib/rls";
-import { eq } from "drizzle-orm";
-import { writePlatformAuditLog } from "@/lib/platform/audit";
+import { ingestGpsEvent, phase9ApiError } from "@/lib/phase9/transport";
 import { logger } from "@/lib/logger";
 
 async function POSTHandler(req: Request) {
   const tenantId = req.headers.get("x-tenant-id") || "";
-  const integrationKey = req.headers.get("x-integration-key") || "";
 
   try {
-    if (!tenantId || !integrationKey) {
+    if (!tenantId) {
       return NextResponse.json(
-        { error: "Missing x-tenant-id or x-integration-key headers" },
+        { error: "Missing x-tenant-id header" },
         { status: 400 },
       );
     }
 
-    // 1. Authenticate using tenant settings
-    const tenant = await opsDb.query.tenants.findFirst({
-      where: eq(tenants.id, tenantId),
-    });
-
-    if (!tenant) {
-      logger.warn("GPS webhook: Tenant not found", { tenantId });
-      return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
-    }
-
-    const settings = (tenant.settings || {}) as Record<string, unknown>;
-    const expectedKey = settings.gps_api_key || settings.integration_api_key;
-
-    if (!expectedKey || expectedKey !== integrationKey) {
-      logger.warn("GPS webhook: Unauthorized access attempt", { tenantId });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // 2. Parse body payload
     const body = await req.json();
-    const { vehicleId, latitude, longitude, speed, timestamp } = body;
-
-    if (!vehicleId || latitude === undefined || longitude === undefined) {
+    if (body.latitude === undefined || body.longitude === undefined || !(body.vehicleId || body.externalVehicleId)) {
       return NextResponse.json(
-        { error: "Missing vehicleId, latitude, or longitude in body" },
+        { error: "Missing vehicleId/externalVehicleId, latitude, or longitude in body" },
         { status: 400 },
       );
     }
-
-    // Validate date format
-    const parsedTimestamp = timestamp ? new Date(timestamp) : new Date();
-    if (isNaN(parsedTimestamp.getTime())) {
-      return NextResponse.json(
-        { error: "Invalid timestamp format" },
-        { status: 400 },
-      );
-    }
-
-    // 3. Write telemetry under RLS tenant context
-    await withTenant(tenantId, async (tx) => {
-      await tx.insert(vehicleTelemetry).values({
-        tenantId,
-        vehicleId,
-        latitude: String(latitude),
-        longitude: String(longitude),
-        speed: speed !== undefined ? parseInt(String(speed), 10) : null,
-        timestamp: parsedTimestamp,
-      });
-    });
-
-    // 4. Log Platform Audit event (throttled/system logged)
-    await writePlatformAuditLog({
-      operatorId: null,
-      action: "webhooks.gps_telemetry_received",
-      entityType: "vehicle_telemetry",
-      entityId: vehicleId,
-      metadata: {
-        tenantId,
-        speed,
-        timestamp: parsedTimestamp.toISOString(),
-      },
-    });
-
-    return NextResponse.json({ success: true, message: "Telemetry ingested" });
+    const event = await ingestGpsEvent(tenantId, req.headers.get("x-gps-key") || req.headers.get("x-integration-key"), body);
+    return NextResponse.json({ success: true, message: "Telemetry ingested", event }, { headers: { Deprecation: "true", Link: '</api/v1/transport/tracking/webhook>; rel="successor-version"' } });
   } catch (error) {
+    const response = phase9ApiError(error);
+    if (response.status < 500) return response;
     // Observability standard logging for CloudWatch/Datadog
     logger.error("GPS webhook 500 error", error, {
       xTenantId: tenantId,

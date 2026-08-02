@@ -2,8 +2,8 @@ import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { vehicles } from "@/lib/db";
 import { withTenant } from "@/lib/rls";
 
-export const VEHICLE_READ_PERMISSION = "students.read" as const;
-export const VEHICLE_WRITE_PERMISSION = "students.write" as const;
+export const VEHICLE_READ_PERMISSION = "transport.read" as const;
+export const VEHICLE_WRITE_PERMISSION = "transport.fleet.write" as const;
 
 export type VehicleRecord = {
   id: string;
