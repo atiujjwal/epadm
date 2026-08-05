@@ -245,14 +245,49 @@ export type Permission =
   | "laboratories.inventory.manage"
   | "laboratories.safety.manage"
   | "hostel.read"
+  | "hostel.rooms.manage"
+  | "hostel.allocations.manage"
+  | "hostel.leave.manage"
   | "inventory.read"
+  | "inventory.stock.manage"
+  | "inventory.requisitions.read"
+  | "inventory.requisitions.write"
+  | "inventory.requisitions.approve"
+  | "inventory.assets.read"
+  | "inventory.assets.manage"
+  | "inventory.vendors.manage"
   | "facilities.read"
+  | "facilities.spaces.manage"
+  | "facilities.bookings.manage"
+  | "facilities.work-orders.read"
+  | "facilities.work-orders.create"
+  | "facilities.work-orders.manage"
+  | "facilities.visitors.manage"
+  | "facilities.health.manage"
   | "activities.read"
+  | "activities.manage"
+  | "activities.members.manage"
+  | "activities.achievements.manage"
   | "communications.read"
+  | "communications.announcements.manage"
+  | "communications.campaigns.manage"
+  | "communications.templates.manage"
+  | "communications.queue.manage"
+  | "communications.messages.manage"
   | "documents.read"
+  | "documents.templates.manage"
+  | "documents.generate"
   | "digital-experience.configure"
   | "analytics.read"
+  | "analytics.academic.read"
+  | "finance.analytics.read"
+  | "hr.analytics.read"
+  | "reports.run"
+  | "reports.schedule.manage"
   | "ai-studio.read"
+  | "ai-studio.use"
+  | "ai-studio.governance"
+  | "ai-studio.settings"
   | "administration.read"
   | "administration.users.read"
   | "administration.users.create"
@@ -266,7 +301,8 @@ export type Permission =
   | "administration.roles.update"
   | "administration.audit.read"
   | "administration.integrations.read"
-  | "administration.integrations.update";
+  | "administration.integrations.update"
+  | "administration.privacy.manage";
 
 export const PERMISSIONS = [
   "tenant.manage",
@@ -383,14 +419,49 @@ export const PERMISSIONS = [
   "laboratories.inventory.manage",
   "laboratories.safety.manage",
   "hostel.read",
+  "hostel.rooms.manage",
+  "hostel.allocations.manage",
+  "hostel.leave.manage",
   "inventory.read",
+  "inventory.stock.manage",
+  "inventory.requisitions.read",
+  "inventory.requisitions.write",
+  "inventory.requisitions.approve",
+  "inventory.assets.read",
+  "inventory.assets.manage",
+  "inventory.vendors.manage",
   "facilities.read",
+  "facilities.spaces.manage",
+  "facilities.bookings.manage",
+  "facilities.work-orders.read",
+  "facilities.work-orders.create",
+  "facilities.work-orders.manage",
+  "facilities.visitors.manage",
+  "facilities.health.manage",
   "activities.read",
+  "activities.manage",
+  "activities.members.manage",
+  "activities.achievements.manage",
   "communications.read",
+  "communications.announcements.manage",
+  "communications.campaigns.manage",
+  "communications.templates.manage",
+  "communications.queue.manage",
+  "communications.messages.manage",
   "documents.read",
+  "documents.templates.manage",
+  "documents.generate",
   "digital-experience.configure",
   "analytics.read",
+  "analytics.academic.read",
+  "finance.analytics.read",
+  "hr.analytics.read",
+  "reports.run",
+  "reports.schedule.manage",
   "ai-studio.read",
+  "ai-studio.use",
+  "ai-studio.governance",
+  "ai-studio.settings",
   "administration.read",
   "administration.users.read",
   "administration.users.create",
@@ -405,6 +476,7 @@ export const PERMISSIONS = [
   "administration.audit.read",
   "administration.integrations.read",
   "administration.integrations.update",
+  "administration.privacy.manage",
 ] as const satisfies readonly Permission[];
 
 export type MembershipStatus = "active" | "invited" | "deactivated";
@@ -2557,6 +2629,7 @@ export const reportCardGenerations = pgTable(
       .references(() => classSections.id, { onDelete: "cascade" }),
     pdfUrl: text("pdf_url"),
     status: varchar("status", { length: 20 }).notNull().default("pending"),
+    customComment: text("custom_comment"),
     errorMessage: text("error_message"),
     generatedBy: uuid("generated_by")
       .notNull()
@@ -2856,6 +2929,7 @@ export const leaveApplications = pgTable(
     toDate: date("to_date").notNull(),
     reason: text("reason"),
     status: varchar("status", { length: 20 }).notNull().default("pending"),
+    requestedBy: uuid("requested_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -3122,6 +3196,243 @@ export const vehicleTrackingEvents = pgTable(
   }),
 );
 
+export const notificationTemplates = pgTable(
+  "notification_templates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    eventType: varchar("event_type", { length: 80 }),
+    channel: varchar("channel", { length: 20 }).notNull().default("all"),
+    subject: text("subject"),
+    bodySms: text("body_sms"),
+    bodyEmail: text("body_email"),
+    bodyPush: text("body_push"),
+    variables: text("variables").array(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("notification_templates_tenant_name_unique").on(table.tenantId, table.name),
+    tenantEventIdx: index("notification_templates_event_idx").on(table.tenantId, table.eventType),
+  }),
+);
+
+export const tenantEntitlements = platformSchema.table(
+  "tenant_entitlements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    entitlement: varchar("entitlement", { length: 120 }).notNull(),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+    enabledAt: timestamp("enabled_at", { withTimezone: true }),
+    note: text("note"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantEntitlementUnique: uniqueIndex("tenant_entitlements_tenant_key_unique").on(table.tenantId, table.entitlement),
+    tenantEnabledIdx: index("tenant_entitlements_enabled_idx").on(table.tenantId, table.isEnabled),
+  }),
+);
+
+export const supportImpersonationSessions = platformSchema.table(
+  "support_impersonation_sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    operatorId: uuid("operator_id").references(() => platformOperators.id, { onDelete: "set null" }),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    targetUserId: uuid("target_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    reason: text("reason").notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    tokenHash: varchar("token_hash", { length: 128 }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tokenHashUnique: uniqueIndex("support_impersonation_token_hash_unique").on(table.tokenHash),
+    tenantStatusIdx: index("support_impersonation_tenant_status_idx").on(table.tenantId, table.status),
+  }),
+);
+
+export const notificationPreferences = pgTable(
+  "notification_preferences",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    channel: varchar("channel", { length: 20 }).notNull(),
+    eventType: varchar("event_type", { length: 80 }).notNull(),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userChannelEventUnique: uniqueIndex("notification_preferences_user_channel_event_unique").on(table.userId, table.channel, table.eventType),
+    tenantUserIdx: index("notification_preferences_tenant_user_idx").on(table.tenantId, table.userId),
+  }),
+);
+
+export const notificationsQueue = pgTable(
+  "notifications_queue",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    templateId: uuid("template_id").references(() => notificationTemplates.id, { onDelete: "set null" }),
+    eventType: varchar("event_type", { length: 80 }),
+    recipientUserId: uuid("recipient_user_id").references(() => users.id, { onDelete: "set null" }),
+    recipientPhone: varchar("recipient_phone", { length: 40 }),
+    recipientEmail: varchar("recipient_email", { length: 255 }),
+    channel: varchar("channel", { length: 20 }).notNull(),
+    subject: text("subject"),
+    body: text("body").notNull(),
+    entityType: varchar("entity_type", { length: 80 }),
+    entityId: uuid("entity_id"),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    errorMessage: text("error_message"),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull().defaultNow(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    attempts: integer("attempts").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    pendingIdx: index("notifications_queue_pending_idx").on(table.tenantId, table.status, table.scheduledAt),
+    recipientIdx: index("notifications_queue_recipient_idx").on(table.tenantId, table.recipientUserId, table.createdAt),
+  }),
+);
+
+export const announcements = pgTable(
+  "announcements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    body: text("body").notNull(),
+    announcementType: varchar("announcement_type", { length: 40 }).notNull().default("general"),
+    priority: varchar("priority", { length: 20 }).notNull().default("normal"),
+    targetRole: varchar("target_role", { length: 30 }),
+    targetClassId: uuid("target_class_id").references(() => academicClasses.id, { onDelete: "set null" }),
+    targetSectionId: uuid("target_section_id").references(() => classSections.id, { onDelete: "set null" }),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    isDraft: boolean("is_draft").notNull().default(true),
+    attachmentUrl: text("attachment_url"),
+    createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    targetIdx: index("announcements_target_idx").on(table.tenantId, table.targetRole, table.publishedAt),
+    sectionIdx: index("announcements_section_idx").on(table.tenantId, table.targetSectionId, table.publishedAt),
+  }),
+);
+
+export const announcementReads = pgTable(
+  "announcement_reads",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    announcementId: uuid("announcement_id").notNull().references(() => announcements.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    readAt: timestamp("read_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    announcementUserUnique: uniqueIndex("announcement_reads_announcement_user_unique").on(table.announcementId, table.userId),
+    tenantUserIdx: index("announcement_reads_tenant_user_idx").on(table.tenantId, table.userId),
+  }),
+);
+
+export const parentMessages = pgTable(
+  "parent_messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    guardianId: uuid("guardian_id").notNull().references(() => guardianProfiles.id, { onDelete: "cascade" }),
+    subject: varchar("subject", { length: 255 }).notNull(),
+    body: text("body").notNull(),
+    direction: varchar("direction", { length: 30 }).notNull(),
+    parentRead: boolean("parent_read").notNull().default(false),
+    adminRead: boolean("admin_read").notNull().default(false),
+    replyToId: uuid("reply_to_id"),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    studentIdx: index("parent_messages_student_idx").on(table.tenantId, table.studentId, table.createdAt),
+    guardianIdx: index("parent_messages_guardian_idx").on(table.tenantId, table.guardianId, table.createdAt),
+  }),
+);
+
+export const documentTemplates = pgTable(
+  "document_templates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    documentType: varchar("document_type", { length: 60 }).notNull().default("certificate"),
+    htmlTemplate: text("html_template").notNull(),
+    variables: text("variables").array(),
+    isDefault: boolean("is_default").notNull().default(false),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("document_templates_tenant_name_unique").on(table.tenantId, table.name),
+    defaultTypeUnique: uniqueIndex("document_templates_default_type_unique").on(table.tenantId, table.documentType).where(sql`${table.isDefault} = true`),
+  }),
+);
+
+export const generatedDocuments = pgTable(
+  "generated_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    templateId: uuid("template_id").notNull().references(() => documentTemplates.id, { onDelete: "restrict" }),
+    documentNumber: varchar("document_number", { length: 80 }).notNull(),
+    pdfUrl: text("pdf_url"),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    snapshotData: jsonb("snapshot_data").$type<Record<string, unknown>>().notNull().default({}),
+    generatedBy: uuid("generated_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNumberUnique: uniqueIndex("generated_documents_tenant_number_unique").on(table.tenantId, table.documentNumber),
+    studentIdx: index("generated_documents_student_idx").on(table.tenantId, table.studentId, table.generatedAt),
+  }),
+);
+
+export const assignmentSubmissions = pgTable(
+  "assignment_submissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    assignmentId: uuid("assignment_id").notNull().references(() => assignments.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    content: text("content"),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    isLate: boolean("is_late").notNull().default(false),
+    score: numeric("score", { precision: 6, scale: 2 }),
+    feedback: text("feedback"),
+    gradedAt: timestamp("graded_at", { withTimezone: true }),
+    gradedBy: uuid("graded_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    assignmentStudentUnique: uniqueIndex("assignment_submissions_assignment_student_unique").on(table.assignmentId, table.studentId),
+    studentIdx: index("assignment_submissions_student_idx").on(table.tenantId, table.studentId, table.status),
+  }),
+);
+
 export const messageCampaigns = pgTable(
   "message_campaigns",
   {
@@ -3130,11 +3441,19 @@ export const messageCampaigns = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 255 }).notNull(),
+    templateId: uuid("template_id").references((): typeof notificationTemplates.id => notificationTemplates.id, { onDelete: "set null" }),
     channel: varchar("channel", { length: 40 }).notNull(),
     audience: varchar("audience", { length: 120 }).notNull(),
+    targetRole: varchar("target_role", { length: 30 }),
+    targetClassId: uuid("target_class_id").references(() => academicClasses.id, { onDelete: "set null" }),
+    targetSectionId: uuid("target_section_id").references(() => classSections.id, { onDelete: "set null" }),
     status: varchar("status", { length: 20 }).notNull().default("draft"),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    recipientCount: integer("recipient_count").notNull().default(0),
     sentCount: integer("sent_count").notNull().default(0),
     deliveredCount: integer("delivered_count").notNull().default(0),
+    failedCount: integer("failed_count").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -3147,6 +3466,149 @@ export const messageCampaigns = pgTable(
       table.tenantId,
       table.status,
     ),
+  }),
+);
+
+export const analyticsSnapshots = pgTable(
+  "analytics_snapshots",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    snapshotKey: varchar("snapshot_key", { length: 120 }).notNull(),
+    academicYearId: uuid("academic_year_id").references(() => academicYears.id, { onDelete: "set null" }),
+    data: jsonb("data").$type<Record<string, unknown>>().notNull(),
+    computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+    validUntil: timestamp("valid_until", { withTimezone: true }).notNull(),
+  },
+  (table) => ({
+    tenantKeyYearIdx: index("analytics_snapshots_tenant_key_year_idx").on(table.tenantId, table.snapshotKey, table.academicYearId),
+    validUntilIdx: index("analytics_snapshots_valid_until_idx").on(table.tenantId, table.validUntil),
+  }),
+);
+
+export const reportRuns = pgTable(
+  "report_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    reportKey: varchar("report_key", { length: 120 }).notNull(),
+    reportLabel: varchar("report_label", { length: 255 }).notNull(),
+    parameters: jsonb("parameters").$type<Record<string, unknown>>().notNull().default({}),
+    runBy: uuid("run_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    rowCount: integer("row_count"),
+    exportUrl: text("export_url"),
+    errorMessage: text("error_message"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantCreatedIdx: index("report_runs_tenant_created_idx").on(table.tenantId, table.createdAt),
+    tenantReportIdx: index("report_runs_tenant_report_idx").on(table.tenantId, table.reportKey),
+  }),
+);
+
+export const reportSchedules = pgTable(
+  "report_schedules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    reportKey: varchar("report_key", { length: 120 }).notNull(),
+    reportLabel: varchar("report_label", { length: 255 }).notNull(),
+    parameters: jsonb("parameters").$type<Record<string, unknown>>().notNull().default({}),
+    frequency: varchar("frequency", { length: 20 }).notNull(),
+    dayOfWeek: integer("day_of_week"),
+    dayOfMonth: integer("day_of_month"),
+    runTime: time("run_time").notNull().default("07:00"),
+    recipients: text("recipients").array(),
+    isActive: boolean("is_active").notNull().default(true),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    nextRunAt: timestamp("next_run_at", { withTimezone: true }),
+    createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantActiveIdx: index("report_schedules_tenant_active_idx").on(table.tenantId, table.isActive),
+    nextRunIdx: index("report_schedules_next_run_idx").on(table.tenantId, table.nextRunAt),
+  }),
+);
+
+export const aiGenerations = pgTable(
+  "ai_generations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    feature: varchar("feature", { length: 80 }).notNull(),
+    model: varchar("model", { length: 120 }).notNull(),
+    promptTokens: integer("prompt_tokens"),
+    outputTokens: integer("output_tokens"),
+    inputSummary: text("input_summary").notNull(),
+    output: text("output").notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("draft"),
+    reviewedBy: uuid("reviewed_by").references(() => users.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    appliedToType: varchar("applied_to_type", { length: 80 }),
+    appliedToId: uuid("applied_to_id"),
+    createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    featureIdx: index("ai_generations_feature_idx").on(table.tenantId, table.feature, table.createdAt),
+    statusIdx: index("ai_generations_status_idx").on(table.tenantId, table.status),
+  }),
+);
+
+export const aiKnowledgeBase = pgTable(
+  "ai_knowledge_base",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    content: text("content").notNull(),
+    category: varchar("category", { length: 40 }).notNull().default("other"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantCategoryIdx: index("ai_knowledge_base_category_idx").on(table.tenantId, table.category, table.isActive),
+  }),
+);
+
+export const aiSettings = pgTable(
+  "ai_settings",
+  {
+    tenantId: uuid("tenant_id").primaryKey().references(() => tenants.id, { onDelete: "cascade" }),
+    featuresEnabled: text("features_enabled").array(),
+    monthlyTokenLimit: integer("monthly_token_limit").notNull().default(500000),
+    tokensUsedThisMonth: integer("tokens_used_this_month").notNull().default(0),
+    usageResetDate: date("usage_reset_date"),
+    customApiKeyHash: text("custom_api_key_hash"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+);
+
+export const privacyErasureRequests = pgTable(
+  "privacy_erasure_requests",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    requestedBy: uuid("requested_by").references(() => users.id, { onDelete: "set null" }),
+    reason: text("reason").notNull(),
+    status: varchar("status", { length: 30 }).notNull().default("pending"),
+    exportUrl: text("export_url"),
+    appliedBy: uuid("applied_by").references(() => users.id, { onDelete: "set null" }),
+    appliedAt: timestamp("applied_at", { withTimezone: true }),
+    rejectionReason: text("rejection_reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantStatusIdx: index("privacy_erasure_requests_tenant_status_idx").on(table.tenantId, table.status),
+    studentIdx: index("privacy_erasure_requests_student_idx").on(table.tenantId, table.studentId),
   }),
 );
 
@@ -3491,6 +3953,490 @@ export const labSafetyIncidents = pgTable(
   },
   (table) => ({
     labDateIdx: index("lab_safety_incidents_lab_date_idx").on(table.tenantId, table.laboratoryId, table.incidentDate),
+  }),
+);
+
+// --- Phase 10: hostel, inventory/assets, facilities/safety, and activities ---
+
+export const hostelBuildings = pgTable(
+  "hostel_buildings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    buildingType: varchar("building_type", { length: 20 }).notNull().default("mixed"),
+    wardenId: uuid("warden_id").references(() => staffProfiles.id, { onDelete: "set null" }),
+    totalRooms: integer("total_rooms").notNull().default(0),
+    capacity: integer("capacity").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("hostel_buildings_tenant_name_unique").on(table.tenantId, table.name),
+    tenantActiveIdx: index("hostel_buildings_tenant_active_idx").on(table.tenantId, table.isActive),
+  }),
+);
+
+export const hostelRooms = pgTable(
+  "hostel_rooms",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    buildingId: uuid("building_id").notNull().references(() => hostelBuildings.id, { onDelete: "cascade" }),
+    roomNumber: varchar("room_number", { length: 40 }).notNull(),
+    floor: integer("floor").notNull().default(0),
+    roomType: varchar("room_type", { length: 20 }).notNull().default("shared"),
+    capacity: integer("capacity").notNull().default(2),
+    currentOccupancy: integer("current_occupancy").notNull().default(0),
+    amenities: text("amenities").array(),
+    monthlyFeePaise: bigint("monthly_fee_paise", { mode: "number" }).notNull().default(0),
+    status: varchar("status", { length: 20 }).notNull().default("available"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    buildingRoomUnique: uniqueIndex("hostel_rooms_building_room_unique").on(table.buildingId, table.roomNumber),
+    tenantBuildingStatusIdx: index("hostel_rooms_tenant_building_status_idx").on(table.tenantId, table.buildingId, table.status),
+  }),
+);
+
+export const hostelAllocations = pgTable(
+  "hostel_allocations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    roomId: uuid("room_id").notNull().references(() => hostelRooms.id, { onDelete: "restrict" }),
+    academicYearId: uuid("academic_year_id").notNull().references(() => academicYears.id, { onDelete: "restrict" }),
+    checkInDate: date("check_in_date").notNull(),
+    checkOutDate: date("check_out_date"),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    allocatedBy: uuid("allocated_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    studentYearUnique: uniqueIndex("hostel_allocations_student_year_unique").on(table.tenantId, table.studentId, table.academicYearId),
+    roomYearIdx: index("hostel_allocations_room_year_idx").on(table.tenantId, table.roomId, table.academicYearId),
+    studentIdx: index("hostel_allocations_student_idx").on(table.tenantId, table.studentId),
+  }),
+);
+
+export const hostelLeavePasses = pgTable(
+  "hostel_leave_passes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    allocationId: uuid("allocation_id").notNull().references(() => hostelAllocations.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    leaveFrom: timestamp("leave_from", { withTimezone: true }).notNull(),
+    leaveTo: timestamp("leave_to", { withTimezone: true }).notNull(),
+    destination: varchar("destination", { length: 255 }).notNull(),
+    contactPerson: varchar("contact_person", { length: 160 }),
+    contactPhone: varchar("contact_phone", { length: 30 }),
+    reason: text("reason").notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
+    approvalNote: text("approval_note"),
+    actualReturn: timestamp("actual_return", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    studentStatusIdx: index("hostel_leave_passes_student_status_idx").on(table.tenantId, table.studentId, table.status),
+  }),
+);
+
+export const vendors = pgTable(
+  "vendors",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    vendorCode: varchar("vendor_code", { length: 60 }),
+    contactName: varchar("contact_name", { length: 160 }),
+    email: varchar("email", { length: 255 }),
+    phone: varchar("phone", { length: 30 }),
+    address: text("address"),
+    gstin: varchar("gstin", { length: 30 }),
+    pan: varchar("pan", { length: 20 }),
+    paymentTerms: text("payment_terms"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("vendors_tenant_name_unique").on(table.tenantId, table.name),
+    tenantCodeUnique: uniqueIndex("vendors_tenant_code_unique").on(table.tenantId, table.vendorCode).where(sql`vendor_code is not null`),
+  }),
+);
+
+export const inventoryCategories = pgTable(
+  "inventory_categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    itemType: varchar("item_type", { length: 20 }).notNull().default("consumable"),
+    description: text("description"),
+    displayOrder: integer("display_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("inventory_categories_tenant_name_unique").on(table.tenantId, table.name),
+  }),
+);
+
+export const inventoryItems = pgTable(
+  "inventory_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    categoryId: uuid("category_id").notNull().references(() => inventoryCategories.id, { onDelete: "restrict" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    itemCode: varchar("item_code", { length: 60 }),
+    description: text("description"),
+    unit: varchar("unit", { length: 30 }).notNull().default("piece"),
+    minimumStock: numeric("minimum_stock", { precision: 12, scale: 2 }).notNull().default("0"),
+    reorderLevel: numeric("reorder_level", { precision: 12, scale: 2 }).notNull().default("0"),
+    unitCostPaise: bigint("unit_cost_paise", { mode: "number" }).notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantCodeUnique: uniqueIndex("inventory_items_tenant_code_unique").on(table.tenantId, table.itemCode).where(sql`item_code is not null`),
+    categoryIdx: index("inventory_items_category_idx").on(table.tenantId, table.categoryId),
+  }),
+);
+
+export const inventoryStock = pgTable(
+  "inventory_stock",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+    location: varchar("location", { length: 120 }).notNull().default("main_store"),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull().default("0"),
+    lastUpdated: timestamp("last_updated", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    itemLocationUnique: uniqueIndex("inventory_stock_item_location_unique").on(table.tenantId, table.itemId, table.location),
+  }),
+);
+
+export const inventoryTransactions = pgTable(
+  "inventory_transactions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id").notNull().references(() => inventoryItems.id, { onDelete: "restrict" }),
+    transactionType: varchar("transaction_type", { length: 30 }).notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
+    unitCostPaise: bigint("unit_cost_paise", { mode: "number" }),
+    totalCostPaise: bigint("total_cost_paise", { mode: "number" }),
+    fromLocation: varchar("from_location", { length: 120 }),
+    toLocation: varchar("to_location", { length: 120 }),
+    reference: varchar("reference", { length: 120 }),
+    departmentId: uuid("department_id").references(() => staffDepartments.id, { onDelete: "set null" }),
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    issuedTo: uuid("issued_to").references(() => users.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    itemCreatedIdx: index("inventory_transactions_item_created_idx").on(table.tenantId, table.itemId, table.createdAt),
+    deptCreatedIdx: index("inventory_transactions_dept_created_idx").on(table.tenantId, table.departmentId, table.createdAt),
+  }),
+);
+
+export const purchaseRequisitions = pgTable(
+  "purchase_requisitions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    requisitionNumber: varchar("requisition_number", { length: 60 }).notNull(),
+    requestedBy: uuid("requested_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    departmentId: uuid("department_id").references(() => staffDepartments.id, { onDelete: "set null" }),
+    requiredByDate: date("required_by_date"),
+    priority: varchar("priority", { length: 20 }).notNull().default("normal"),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    rejectionNote: text("rejection_note"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNumberUnique: uniqueIndex("purchase_requisitions_tenant_number_unique").on(table.tenantId, table.requisitionNumber),
+  }),
+);
+
+export const purchaseRequisitionItems = pgTable(
+  "purchase_requisition_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    requisitionId: uuid("requisition_id").notNull().references(() => purchaseRequisitions.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id").notNull().references(() => inventoryItems.id, { onDelete: "restrict" }),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
+    estUnitCostPaise: bigint("est_unit_cost_paise", { mode: "number" }),
+    notes: text("notes"),
+  },
+  (table) => ({
+    reqIdx: index("purchase_requisition_items_req_idx").on(table.tenantId, table.requisitionId),
+  }),
+);
+
+export const assets = pgTable(
+  "assets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    categoryId: uuid("category_id").notNull().references(() => inventoryCategories.id, { onDelete: "restrict" }),
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    assetCode: varchar("asset_code", { length: 60 }).notNull(),
+    name: varchar("name", { length: 180 }).notNull(),
+    description: text("description"),
+    serialNumber: varchar("serial_number", { length: 120 }),
+    location: varchar("location", { length: 120 }),
+    departmentId: uuid("department_id").references(() => staffDepartments.id, { onDelete: "set null" }),
+    purchaseDate: date("purchase_date").notNull(),
+    purchaseCostPaise: bigint("purchase_cost_paise", { mode: "number" }).notNull().default(0),
+    currentValuePaise: bigint("current_value_paise", { mode: "number" }).notNull().default(0),
+    usefulLifeYears: integer("useful_life_years").notNull().default(5),
+    depreciationMethod: varchar("depreciation_method", { length: 30 }).notNull().default("straight_line"),
+    salvageValuePaise: bigint("salvage_value_paise", { mode: "number" }).notNull().default(0),
+    warrantyExpiry: date("warranty_expiry"),
+    condition: varchar("condition", { length: 30 }).notNull().default("good"),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantAssetCodeUnique: uniqueIndex("assets_tenant_asset_code_unique").on(table.tenantId, table.assetCode),
+    categoryStatusIdx: index("assets_category_status_idx").on(table.tenantId, table.categoryId, table.status),
+  }),
+);
+
+export const assetConditionHistory = pgTable(
+  "asset_condition_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    assetId: uuid("asset_id").notNull().references(() => assets.id, { onDelete: "cascade" }),
+    condition: varchar("condition", { length: 30 }).notNull(),
+    notes: text("notes"),
+    recordedBy: uuid("recorded_by").references(() => users.id, { onDelete: "set null" }),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    assetRecordedIdx: index("asset_condition_history_asset_recorded_idx").on(table.tenantId, table.assetId, table.recordedAt),
+  }),
+);
+
+export const facilitySpaces = pgTable(
+  "facility_spaces",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    roomId: uuid("room_id").references(() => rooms.id, { onDelete: "set null" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    spaceType: varchar("space_type", { length: 40 }).notNull().default("hall"),
+    capacity: integer("capacity").notNull().default(0),
+    location: varchar("location", { length: 160 }),
+    isBookable: boolean("is_bookable").notNull().default(true),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("facility_spaces_tenant_name_unique").on(table.tenantId, table.name),
+  }),
+);
+
+export const facilityBookings = pgTable(
+  "facility_bookings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    spaceId: uuid("space_id").notNull().references(() => facilitySpaces.id, { onDelete: "cascade" }),
+    bookingDate: date("booking_date").notNull(),
+    startTime: time("start_time").notNull(),
+    endTime: time("end_time").notNull(),
+    purpose: varchar("purpose", { length: 255 }).notNull(),
+    requestedBy: uuid("requested_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    status: varchar("status", { length: 20 }).notNull().default("confirmed"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    spaceDateIdx: index("facility_bookings_space_date_idx").on(table.tenantId, table.spaceId, table.bookingDate),
+  }),
+);
+
+export const facilityWorkOrders = pgTable(
+  "facility_work_orders",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    workOrderNumber: varchar("work_order_number", { length: 60 }).notNull(),
+    title: varchar("title", { length: 180 }).notNull(),
+    category: varchar("category", { length: 60 }).notNull().default("maintenance"),
+    priority: varchar("priority", { length: 20 }).notNull().default("normal"),
+    location: varchar("location", { length: 180 }),
+    description: text("description"),
+    status: varchar("status", { length: 20 }).notNull().default("open"),
+    requestedBy: uuid("requested_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    assignedTo: uuid("assigned_to").references(() => staffProfiles.id, { onDelete: "set null" }),
+    dueDate: date("due_date"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    costPaise: bigint("cost_paise", { mode: "number" }).notNull().default(0),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNumberUnique: uniqueIndex("facility_work_orders_tenant_number_unique").on(table.tenantId, table.workOrderNumber),
+    statusPriorityIdx: index("facility_work_orders_status_priority_idx").on(table.tenantId, table.status, table.priority),
+  }),
+);
+
+export const visitorRecords = pgTable(
+  "visitor_records",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    passNumber: varchar("pass_number", { length: 60 }).notNull(),
+    visitorName: varchar("visitor_name", { length: 180 }).notNull(),
+    phone: varchar("phone", { length: 30 }).notNull(),
+    purpose: varchar("purpose", { length: 255 }).notNull(),
+    whomToMeet: varchar("whom_to_meet", { length: 180 }).notNull(),
+    studentId: uuid("student_id").references(() => students.id, { onDelete: "set null" }),
+    idType: varchar("id_type", { length: 40 }),
+    idLast4: varchar("id_last4", { length: 4 }),
+    checkIn: timestamp("check_in", { withTimezone: true }).notNull().defaultNow(),
+    checkOut: timestamp("check_out", { withTimezone: true }),
+    createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantPassUnique: uniqueIndex("visitor_records_tenant_pass_unique").on(table.tenantId, table.passNumber),
+    activeIdx: index("visitor_records_active_idx").on(table.tenantId, table.checkOut),
+  }),
+);
+
+export const healthRecords = pgTable(
+  "health_records",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    visitAt: timestamp("visit_at", { withTimezone: true }).notNull(),
+    complaint: text("complaint").notNull(),
+    diagnosis: text("diagnosis"),
+    treatment: text("treatment"),
+    medication: text("medication"),
+    temperature: varchar("temperature", { length: 30 }),
+    bloodPressure: varchar("blood_pressure", { length: 30 }),
+    isEmergency: boolean("is_emergency").notNull().default(false),
+    parentNotified: boolean("parent_notified").notNull().default(false),
+    referredTo: varchar("referred_to", { length: 255 }),
+    referredAt: timestamp("referred_at", { withTimezone: true }),
+    recordedBy: uuid("recorded_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    studentVisitIdx: index("health_records_student_visit_idx").on(table.tenantId, table.studentId, table.visitAt),
+  }),
+);
+
+export const activities = pgTable(
+  "activities",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    activityType: varchar("activity_type", { length: 40 }).notNull().default("sports"),
+    coordinatorStaffId: uuid("coordinator_staff_id").references(() => staffProfiles.id, { onDelete: "set null" }),
+    schedule: varchar("schedule", { length: 255 }),
+    description: text("description"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tenantNameUnique: uniqueIndex("activities_tenant_name_unique").on(table.tenantId, table.name),
+  }),
+);
+
+export const activityMembers = pgTable(
+  "activity_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    activityId: uuid("activity_id").notNull().references(() => activities.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    academicYearId: uuid("academic_year_id").notNull().references(() => academicYears.id, { onDelete: "restrict" }),
+    role: varchar("role", { length: 30 }).notNull().default("member"),
+    joinedDate: date("joined_date").notNull(),
+    leftDate: date("left_date"),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    activityStudentYearUnique: uniqueIndex("activity_members_activity_student_year_unique").on(table.tenantId, table.activityId, table.studentId, table.academicYearId),
+    studentIdx: index("activity_members_student_idx").on(table.tenantId, table.studentId, table.academicYearId),
+  }),
+);
+
+export const activityEvents = pgTable(
+  "activity_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    activityId: uuid("activity_id").notNull().references(() => activities.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 180 }).notNull(),
+    eventDate: date("event_date").notNull(),
+    level: varchar("level", { length: 40 }).notNull().default("school"),
+    venue: varchar("venue", { length: 180 }),
+    result: varchar("result", { length: 255 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    activityDateIdx: index("activity_events_activity_date_idx").on(table.tenantId, table.activityId, table.eventDate),
+  }),
+);
+
+export const studentAchievements = pgTable(
+  "student_achievements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+    activityId: uuid("activity_id").references(() => activities.id, { onDelete: "set null" }),
+    eventId: uuid("event_id").references(() => activityEvents.id, { onDelete: "set null" }),
+    academicYearId: uuid("academic_year_id").references(() => academicYears.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 180 }).notNull(),
+    achievementType: varchar("achievement_type", { length: 60 }).notNull().default("participation"),
+    level: varchar("level", { length: 40 }).notNull().default("school"),
+    position: varchar("position", { length: 60 }),
+    achievementDate: date("achievement_date").notNull(),
+    awardedBy: varchar("awarded_by", { length: 180 }),
+    certificateUrl: varchar("certificate_url", { length: 2048 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    studentYearIdx: index("student_achievements_student_year_idx").on(table.tenantId, table.studentId, table.academicYearId),
   }),
 );
 

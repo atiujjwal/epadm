@@ -162,6 +162,34 @@
       "when": 1785772800000,
       "tag": "0022_phase9_campus_operations",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1785859200000,
+      "tag": "0023_phase10_hostel_inventory_facilities_activities",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1785945600000,
+      "tag": "0024_phase11_communications_portals",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1786032000000,
+      "tag": "0025_phase12_analytics_ai",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1786118400000,
+      "tag": "0026_phase13_platform_hardening",
+      "breakpoints": true
     }
   ]
 }
