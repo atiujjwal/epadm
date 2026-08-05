@@ -1,26 +1,11 @@
-import { PageHeader } from "@/components/layout/page-header";
+import { eq } from "drizzle-orm";
 import { getCtx } from "@/lib/context";
+import { notificationPreferences } from "@/lib/db";
+import { withTenant } from "@/lib/rls";
+import { PortalShell, SimpleTable, Status } from "../../phase11-view";
 
 export default async function PreferencesPage() {
-  await getCtx();
-
-  return (
-    <div className="space-y-6 p-6">
-      <PageHeader title="Preferences" description="Personal notification and regional settings." />
-      <div className="max-w-2xl space-y-6 rounded-lg border bg-surface p-6">
-        <fieldset disabled className="space-y-3">
-          <legend className="font-semibold">Notifications</legend>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> Email notifications</label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> Mobile push notifications</label>
-        </fieldset>
-        <div className="space-y-1.5">
-          <label htmlFor="timezone" className="text-sm font-medium">Timezone</label>
-          <select id="timezone" disabled className="block w-full rounded-md border bg-background px-3 py-2 text-sm">
-            <option>Asia/Kolkata</option>
-          </select>
-          <p className="text-xs text-muted-foreground">Preference saving will be enabled in a later phase.</p>
-        </div>
-      </div>
-    </div>
-  );
+  const ctx = await getCtx();
+  const preferences = await withTenant(ctx.tenantId, (tx) => tx.select().from(notificationPreferences).where(eq(notificationPreferences.userId, ctx.userId)));
+  return <PortalShell title="Preferences" description="Notification channel preferences. Use POST /api/v1/me/notification-preferences to update toggles."><SimpleTable rows={preferences} empty="Default preferences are enabled until you disable a channel." columns={[{ label: "Event", value: (row) => row.eventType }, { label: "Channel", value: (row) => row.channel }, { label: "Enabled", value: (row) => <Status value={row.isEnabled ? "enabled" : "disabled"} /> }]} /></PortalShell>;
 }

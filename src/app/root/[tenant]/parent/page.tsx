@@ -1,37 +1,29 @@
-import { Users } from "lucide-react";
-import { PrototypeBanner } from "@/components/ui/prototype-banner";
-import { PageHeader } from "@/components/layout/page-header";
 import { requireRole } from "@/lib/auth/guards";
+import { getParentPortalModel } from "@/lib/phase11/portal";
+import { ChildSwitcher, EmptyPortal, PortalShell, SimpleTable, StatGrid, Status, formatINR } from "../phase11-view";
 
-export default async function ParentPortalPage() {
-  await requireRole(["parent"]);
-
+export default async function ParentPortalPage({ searchParams }: { searchParams: Promise<{ studentId?: string }> }) {
+  const ctx = await requireRole(["parent"]);
+  const { studentId } = await searchParams;
+  const model = await getParentPortalModel(ctx.tenantId, ctx.userId, studentId);
+  if (!model.selected || !model.data) {
+    return <PortalShell title="Parent portal" description="Follow linked children across school life."><EmptyPortal message="No children linked yet. Ask the school administrator to enable guardian portal access." /></PortalShell>;
+  }
   return (
-    <div className="space-y-6 p-6">
-      <PageHeader
-        title="Parent portal"
-        description="Follow your linked children’s attendance, learning, and school activity."
-      />
-      <div className="rounded-lg border bg-surface p-5">
-        <label htmlFor="child-context" className="text-sm font-medium">
-          Child context
-        </label>
-        <select
-          id="child-context"
-          className="mt-2 block w-full max-w-sm rounded-md border bg-background px-3 py-2 text-sm"
-          disabled
-        >
-          <option>No linked children</option>
-        </select>
-        <div className="mt-6 flex max-w-lg flex-col items-center rounded-lg border border-dashed p-8 text-center">
-          <Users className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
-          <h2 className="mt-3 font-semibold">No children linked yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ask your school administrator to link a student record to this account.
-          </p>
-        </div>
-      </div>
-      <PrototypeBanner feature="Parent insights" phase={8} />
-    </div>
+    <PortalShell title="Parent portal" description={`Viewing ${model.selected.firstName} ${model.selected.lastName ?? ""}`}>
+      <ChildSwitcher students={model.linkedStudents} selectedId={model.selected.studentId} />
+      <StatGrid stats={[
+        { label: "Attendance", value: model.data.attendancePercent == null ? "-" : `${model.data.attendancePercent}%` },
+        { label: "Outstanding fees", value: formatINR(model.data.outstandingPaise) },
+        { label: "Pending leaves", value: model.data.leaves.filter((leave) => leave.status === "pending").length },
+        { label: "Unread notices", value: model.announcements.filter((row) => !row.readAt).length },
+      ]} />
+      <SimpleTable rows={model.announcements} empty="No announcements for this child." columns={[
+        { label: "Notice", value: (row) => row.title },
+        { label: "Priority", value: (row) => <Status value={row.priority} /> },
+        { label: "Published", value: (row) => row.publishedAt?.toLocaleString() ?? "-" },
+        { label: "Read", value: (row) => <Status value={row.readAt ? "yes" : "no"} /> },
+      ]} />
+    </PortalShell>
   );
 }
