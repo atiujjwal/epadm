@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
           // Prevent MIME-type sniffing
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           // Prevent clickjacking
-          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           // XSS protection (legacy browsers)
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           // Strict HTTPS
@@ -46,8 +46,9 @@ const nextConfig: NextConfig = {
           // Permissions policy
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()',
           },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
           // Content Security Policy
           // Tighten in production based on your actual script/font/image sources.
           {
@@ -57,9 +58,11 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Tighten for production
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob:",
-              "connect-src 'self'",
-              "frame-ancestors 'none'",
+              "img-src 'self' data: blob: https:",
+              "connect-src 'self' https://generativelanguage.googleapis.com https://api.anthropic.com",
+              "frame-src 'none'",
+              "object-src 'none'",
+              "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
             ].join('; '),

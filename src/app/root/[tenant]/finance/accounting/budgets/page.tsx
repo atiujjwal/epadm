@@ -1,5 +1,10 @@
-import { PrototypeBanner } from "@/components/ui/prototype-banner";
-
 export default function BudgetsPage() {
-  return <PrototypeBanner feature="Budget Management" phase={8} message="Budget planning and variance reporting will be available after payroll integration is complete in Phase 8." />;
+  return (
+    <div className="space-y-3 p-6">
+      <h1 className="text-2xl font-semibold">Budget Management</h1>
+      <p className="max-w-3xl text-sm text-muted-foreground">
+        Budget planning is intentionally deferred. Phase 7 delivered income/expense accounting and reports; this page documents the future budget and variance workflow without rendering prototype content.
+      </p>
+    </div>
+  );
 }

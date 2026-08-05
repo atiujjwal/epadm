@@ -27,7 +27,7 @@ async function POSTHandler(req: Request) {
     cookieStore.set(PLATFORM_COOKIE, result.token!, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "strict",
       path: "/",
       maxAge: PLATFORM_TOKEN_TTL,
     });

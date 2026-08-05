@@ -24,6 +24,8 @@ vi.mock("@/lib/security/csrf", () => ({
 }));
 vi.mock("@/lib/security/rate-limit", () => ({
   checkAuthRateLimit: () => null,
+  checkRateLimit: () => null,
+  rateLimitForPath: () => ({ windowMs: 60_000, maxRequests: 100 }),
 }));
 
 import { proxy } from "@/proxy";

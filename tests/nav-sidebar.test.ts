@@ -33,12 +33,14 @@ describe("registry-driven navigation", () => {
     navigationState.pathname = "/dashboard";
   });
 
-  it("renders authorized admin groups and locks planned modules", () => {
+  it("renders authorized admin groups and live engagement modules", () => {
     const html = renderFor("admin", "/dashboard");
     expect(html).toContain("Workspace");
     expect(html).toContain("Student Lifecycle");
     expect(html).toContain("Fees &amp; Billing");
-    expect(html).toContain("Coming soon");
+    expect(html).toContain("Documents");
+    expect(html).toContain("Portals &amp; Mobile");
+    expect(html).not.toContain("Coming soon");
   });
 
   it("shows the required teacher modules and omits Finance and HR", () => {

@@ -1,13 +1,5 @@
-import MobileModulePage from "@/lib/modules/pages/mobile";
-import { PrototypeBanner } from "@/components/ui/prototype-banner";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <>
-      <div className="px-6 pt-4">
-        <PrototypeBanner feature="Portals & Mobile" phase={12} />
-      </div>
-      <MobileModulePage />
-    </>
-  );
+export default function MobileLegacyPage() {
+  redirect("/digital-experience");
 }

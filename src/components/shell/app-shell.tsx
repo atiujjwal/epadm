@@ -1,16 +1,24 @@
 import type { ReactNode } from "react";
+import { cookies } from "next/headers";
 import { and, desc, eq } from "drizzle-orm";
 import { ShellClient } from "@/components/shell/shell-client";
+import { SupportBanner } from "@/components/shell/support-banner";
 import { DEFAULT_ROLE_PERMISSIONS } from "@/lib/auth/catalog";
 import { getCtx } from "@/lib/context";
 import { academicYears, tenantUsers, tenants, users } from "@/lib/db";
 import { getAuthorizedNavigation, getRoleHomePath, toClientRoute } from "@/lib/navigation/route-registry";
 import { withTenant } from "@/lib/rls";
+import { validateSupportSession } from "@/lib/platform/impersonation";
 
 const CORE_ENTITLEMENTS = ["module.students"];
 
 export async function AppShell({ children }: { children: ReactNode }) {
   const ctx = await getCtx();
+  const cookieStore = await cookies();
+  const supportSession = await validateSupportSession(
+    cookieStore.get("support_impersonation_session")?.value,
+    ctx.tenantId,
+  );
   const shellData = await withTenant(ctx.tenantId, async (tx) => {
     const [tenantRows, yearRows, userRows] = await Promise.all([
       tx
@@ -75,6 +83,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
       activeAcademicYear={activeAcademicYear}
       academicYears={shellData.years.map((year) => year.name)}
     >
+      {supportSession ? <SupportBanner expiresAt={supportSession.expiresAt} /> : null}
       {children}
     </ShellClient>
   );

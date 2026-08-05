@@ -41,10 +41,10 @@ export default async function AdminLayout({ children }: Props) {
     { label: "Plans & Modules", icon: <Package className="h-4 w-4" />, disabled: true },
     { label: "Billing & Invoices", icon: <Package className="h-4 w-4" />, disabled: true },
     { label: "SMS / WhatsApp", icon: <MessageSquare className="h-4 w-4" />, disabled: true },
-    { label: "AI Services", icon: <Sparkles className="h-4 w-4" />, disabled: true },
+    { href: "/admin/ai", label: "AI Services", icon: <Sparkles className="h-4 w-4" /> },
     { label: "Platform Users", icon: <Users className="h-4 w-4" />, disabled: true },
-    { label: "Audit Log", icon: <ShieldCheck className="h-4 w-4" />, disabled: true },
-    { label: "Infrastructure", icon: <Server className="h-4 w-4" />, disabled: true },
+    { href: "/admin/audit", label: "Audit Log", icon: <ShieldCheck className="h-4 w-4" /> },
+    { href: "/admin/infrastructure", label: "Infrastructure", icon: <Server className="h-4 w-4" /> },
   ];
 
   return (

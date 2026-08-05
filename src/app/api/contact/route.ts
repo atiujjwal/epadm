@@ -1,4 +1,5 @@
 import { withApiObservability } from "@/lib/observability/api-handler";
+import { logger } from "@/lib/observability/logger";
 import { NextRequest, NextResponse } from 'next/server';
 
 const requestMap = new Map<string, { count: number; resetAt: number }>();
@@ -49,7 +50,7 @@ async function POSTHandler(request: NextRequest) {
 
   // Wire up your email/CRM provider here (see demo-request/route.ts for examples)
   if (process.env.NODE_ENV === 'development') {
-    console.log('[CONTACT]', { name, subject, messageLength: message.length });
+    logger.info("Contact form received", { name, subject, messageLength: message.length });
   }
 
   return NextResponse.json({ message: 'Message received.' }, { status: 200 });

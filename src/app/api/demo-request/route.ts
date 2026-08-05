@@ -1,4 +1,5 @@
 import { withApiObservability } from "@/lib/observability/api-handler";
+import { logger } from "@/lib/observability/logger";
 import { NextRequest, NextResponse } from 'next/server';
 
 /* ── Types ────────────────────────────────────────────────── */
@@ -120,7 +121,7 @@ async function POSTHandler(request: NextRequest) {
   //
   // For now, log to console in development only
   if (process.env.NODE_ENV === 'development') {
-    console.log('[DEMO REQUEST]', {
+    logger.info("Demo request received", {
       firstName, lastName, email: '(redacted)', company, role, teamSize,
       messageLength: message.length,
     });

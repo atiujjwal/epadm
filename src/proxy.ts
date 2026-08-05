@@ -6,7 +6,7 @@ import {
   verifyPlatformToken,
 } from "./lib/platform/auth/token";
 import { attachCsrfCookie, validateCsrf } from "./lib/security/csrf";
-import { checkAuthRateLimit } from "./lib/security/rate-limit";
+import { checkAuthRateLimit, checkRateLimit, rateLimitForPath } from "./lib/security/rate-limit";
 import {
   canManageOnboarding,
   getOnboardingStatusForGate,
@@ -98,6 +98,18 @@ export async function proxy(req: NextRequest) {
     const rateLimited = checkAuthRateLimit(req);
     if (rateLimited) {
       return finalize(req, rateLimited, requestId);
+    }
+  }
+
+  if (
+    pathname.startsWith("/api/") &&
+    !pathname.startsWith("/api/auth/") &&
+    !pathname.startsWith("/api/platform/auth/")
+  ) {
+    const tenantHint = req.headers.get("x-tenant-id") ?? req.cookies.get("auth_token")?.value?.slice(0, 16) ?? null;
+    const rateLimited = checkRateLimit(rateLimitForPath(pathname), req, tenantHint, "api");
+    if (rateLimited) {
+      return finalize(req, rateLimited as NextResponse, requestId);
     }
   }
 

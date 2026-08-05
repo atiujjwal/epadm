@@ -537,8 +537,7 @@ export async function generatePayslip(tenantId: string, actorUserId: string, run
 
 export async function generateRunPayslips(tenantId: string, actorUserId: string, runId: string) {
   const entries = await withTenant(tenantId, (tx) => tx.select({ staffId: payrollRunEntries.staffId }).from(payrollRunEntries).where(and(eq(payrollRunEntries.tenantId, tenantId), eq(payrollRunEntries.runId, runId))));
-  const generated = [];
-  for (const entry of entries) generated.push(await generatePayslip(tenantId, actorUserId, runId, entry.staffId));
+  const generated = await Promise.all(entries.map((entry) => generatePayslip(tenantId, actorUserId, runId, entry.staffId)));
   return { generated };
 }
 
