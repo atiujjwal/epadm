@@ -1,5 +1,9 @@
 # EPADM System Documentation
 
+## Phase narrative
+
+- **[Phase Evolution & Product Intent](./PHASE_EVOLUTION_AND_INTENT.md)** - documents what changed across all 13 development phases, why each enhancement was introduced, and how the phases combine into one centralized School Management System.
+
 Welcome to the system architecture and module-wise documentation for the **Educational Platform Administration & Management (EPADM)** system.
 
 This documentation is split into independent, comprehensive modules to help you understand the architectural guidelines, workflow mechanisms, database schemas, and implementation statuses.
